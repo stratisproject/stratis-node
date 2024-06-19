@@ -5,10 +5,10 @@ test("buildConfiguration", () => {
   const ports = [new ServicePort("127.0.0.1", 3000, 3000, servicePortProtocol.tcp)];
 
   const grafanaService = GrafanaService.buildByUserInput(
-    "prater",
+    "auroria",
     ports,
     "/opt/stereum/grafana",
-    "nimbus"
+    "prysm"
   ).buildConfiguration();
 
   expect(grafanaService.volumes).toHaveLength(3);
@@ -26,10 +26,10 @@ test("buildConfiguration", () => {
 
 test("getAvailablePorts", () => {
   const grafanaServicePorts = GrafanaService.buildByUserInput(
-    "prater",
+    "auroria",
     [],
     "/opt/stereum/grafana",
-    "nimbus"
+    "prysm"
   ).getAvailablePorts();
 
   expect(grafanaServicePorts).toHaveLength(1);

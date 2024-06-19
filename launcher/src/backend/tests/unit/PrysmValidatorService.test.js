@@ -25,7 +25,7 @@ test("buildConfiguration", () => {
   });
   const ports = [new ServicePort("1.2.3.4", 303, 404, servicePortProtocol.udp)];
 
-  const prysm = PrysmValidatorService.buildByUserInput("prater", ports, "/opt/stereum/prysm", [
+  const prysm = PrysmValidatorService.buildByUserInput("auroria", ports, "/opt/stereum/prysm", [
     new PrysmBeaconService.PrysmBeaconService(),
   ]).buildConfiguration();
 
@@ -47,30 +47,30 @@ test("buildConfiguration", () => {
 
 test("getAvailablePorts", () => {
   const ports = [new ServicePort("1.2.3.4", 303, 404, servicePortProtocol.udp)];
-  const prysm = PrysmValidatorService.buildByUserInput("prater", ports, "/opt/stereum/prysm", []).getAvailablePorts();
+  const prysm = PrysmValidatorService.buildByUserInput("auroria", ports, "/opt/stereum/prysm", []).getAvailablePorts();
 
   expect(prysm).toHaveLength(1);
 });
 
 test("autoupdate", () => {
   const ports = [new ServicePort("1.2.3.4", 303, 404, servicePortProtocol.udp)];
-  const prysm = PrysmValidatorService.buildByUserInput("prater", ports, "/opt/stereum/prysm", []).buildConfiguration();
+  const prysm = PrysmValidatorService.buildByUserInput("auroria", ports, "/opt/stereum/prysm", []).buildConfiguration();
 
   expect(prysm.autoupdate).toBe(true);
 });
 
 test("autoupdate", () => {
   const ports = [new ServicePort("1.2.3.4", 303, 404, servicePortProtocol.udp)];
-  const prysm = PrysmValidatorService.buildByUserInput("prater", ports, "/opt/stereum/prysm", []).buildConfiguration();
+  const prysm = PrysmValidatorService.buildByUserInput("auroria", ports, "/opt/stereum/prysm", []).buildConfiguration();
 
-  expect(prysm.network).toBe("prater");
+  expect(prysm.network).toBe("auroria");
 });
 
 test("buildByConfiguration", () => {
   const provider = "provider";
   const providerGateway = "gateway";
 
-  const network = "prater";
+  const network = "auroria";
 
   const dataDir = "/opt/app/data/db";
   const walletDir = "/opt/app/data/wallets";
@@ -110,7 +110,7 @@ test("buildByConfiguration", () => {
   expect(prysm.command).toBeDefined();
   expect(prysm.command).toMatch(/--beacon-rpc-provider="provider"/);
   expect(prysm.command).toMatch(/--beacon-rpc-gateway-provider="gateway"/);
-  expect(prysm.command).toMatch(/--prater=true/);
+  expect(prysm.command).toMatch(/--auroria=true/);
   expect(prysm.command).toMatch(/--datadir=\/opt\/app\/data\/db/);
   expect(prysm.command).toMatch(/--wallet-dir=\/opt\/app\/data\/wallets/);
   expect(prysm.command).toMatch(/--wallet-password-file=\/opt\/app\/data\/passwords/);

@@ -24,14 +24,6 @@
         <span>{{ $t("nodeSidebarVideo.rpc") }}</span>
       </div>
     </div> -->
-    <!-- <div v-if="currentNetwork.network !== 'gnosis'" class="tutorial-btn" @click="isStakeGuideActive = true">
-      <div class="icon-box camera">
-        <img src="/img/icon/guide-page-icons/guide-icon.png" alt="" />
-      </div>
-      <div class="name-span">
-        <span>{{ $t("nodeSidebarVideo.stake") }}</span>
-      </div>
-    </div> -->
 
     <div
       class="back-button"

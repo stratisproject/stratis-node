@@ -2,16 +2,16 @@ import { GethService } from "../../ethereum-services/GethService.js";
 import { ServicePort, servicePortProtocol } from "../../ethereum-services/ServicePort.js";
 
 test("id test", () => {
-  expect(GethService.buildByUserInput("prater").id).toBeDefined();
+  expect(GethService.buildByUserInput("auroria").id).toBeDefined();
 });
 
-test("network test goerli", () => {
-  expect(GethService.buildByUserInput("goerli", null, null).buildConfiguration().command).toContain("--goerli");
+test("network test auroria", () => {
+  expect(GethService.buildByUserInput("auroria", null, null).buildConfiguration().command).toContain("--auroria");
 });
 
 test("network test mainnet", () => {
   expect(GethService.buildByUserInput("mainnet", null, null).buildConfiguration().command).not.toContain(
-    "--goerli"
+    "--auroria"
   );
 });
 
@@ -38,20 +38,20 @@ test("endpoint ws url", () => {
 });
 
 test("empty ports", () => {
-  expect(GethService.buildByUserInput("goerli", null, null).buildConfiguration().ports).toHaveLength(0);
+  expect(GethService.buildByUserInput("auroria", null, null).buildConfiguration().ports).toHaveLength(0);
 });
 
 test("ports", () => {
   expect(
     GethService.buildByUserInput(
-      "goerli",
+      "auroria",
       [new ServicePort(null, 100, 200, servicePortProtocol.tcp)],
       null
     ).buildConfiguration().ports
   ).toHaveLength(1);
   expect(
     GethService.buildByUserInput(
-      "goerli",
+      "auroria",
       [new ServicePort(null, 100, 200, servicePortProtocol.tcp)],
       null
     ).buildConfiguration().ports
@@ -65,7 +65,7 @@ test("multiple ports", () => {
     new ServicePort("1.2.3.4", 303, 404, servicePortProtocol.udp),
   ];
 
-  const gethService = GethService.buildByUserInput("goerli", ports, null).buildConfiguration();
+  const gethService = GethService.buildByUserInput("auroria", ports, null).buildConfiguration();
 
   expect(gethService.ports).toHaveLength(3);
   expect(gethService.ports).toContain("0.0.0.0:100:200/tcp");
@@ -74,7 +74,7 @@ test("multiple ports", () => {
 });
 
 test("workingDir", () => {
-  const gethConfig = GethService.buildByUserInput("goerli", null, "opt//stereum/geth/").buildConfiguration();
+  const gethConfig = GethService.buildByUserInput("auroria", null, "opt//stereum/geth/").buildConfiguration();
 
   expect(gethConfig.volumes).toHaveLength(2);
   expect(gethConfig.volumes).toContain("/opt/stereum/geth-" + gethConfig.id + "/data:/opt/data/geth");

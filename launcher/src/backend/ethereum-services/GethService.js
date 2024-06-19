@@ -18,8 +18,8 @@ export class GethService extends NodeService {
       "GethService", // service
       service.id, // id
       1, // configVersion
-      "ethereum/client-go", // image
-      "v1.10.25", // imageVersion
+      "stratisevm/go-stratis", // image
+      "latest", // imageVersion
       [
         `--${network}`,
         `--datadir=${dataDir}`,

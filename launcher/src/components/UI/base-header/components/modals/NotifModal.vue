@@ -13,14 +13,6 @@
           <span>{{ $t("notifModal.chooseNotif") }}</span>
         </div>
         <ul class="notif-box">
-          <li @click="qrPage = false">
-            <div class="notif-row_icon">
-              <img src="/img/icon/stereum-icons/stereum-node-monitor-logo.png" alt="notif logo" />
-            </div>
-            <div class="notif-row_name">
-              <span>{{ $t("notifModal.stereumMonitor") }} (Mobile App)</span>
-            </div>
-          </li>
           <li @click="(beaconchaDashboard = true), (qrPage = true)">
             <div class="notif-row_icon">
               <img src="/img/icon/checkpoint-sync-icons/beaconchain-checkpoint-icon.png" alt="notif logo" />
@@ -87,7 +79,7 @@
               </div>
             </div>
             <div class="go-to-link">
-              {{ $t("notifModal.goTo") }}<span @click="openBeaconcha()">https://beaconcha.in/user/settings#app</span>
+              {{ $t("notifModal.goTo") }}<span @click="openBeaconcha()">https://beacon.stratisevm.com/user/settings#app</span>
             </div>
             <div class="enter-box">
               <div class="enter-input">
@@ -146,7 +138,6 @@ export default {
       matchedServiceId: "",
       readyToRemove: false,
       prysmServiceID: "",
-      nimbusServiceID: "",
       haveToFill: false,
     };
   },
@@ -238,28 +229,7 @@ export default {
         for (let i = 0; i < this.installedValidators.length; i++) {
           const item = this.installedValidators[i];
           const res = await ControlService.getServiceYAML(item?.config.serviceID);
-          if (
-            item.service === "LighthouseValidatorService" ||
-            item.service === "LighthouseBeaconService" ||
-            item.service === "LodestarValidatorService" ||
-            item.service === "LodestarBeaconService"
-          ) {
-            const matchedValue = res.match(new RegExp("(- --monitoring-endpoint=)(.*)(\\n)"));
-
-            if (matchedValue !== null) {
-              this.connectedValidator = item.config.serviceID;
-              this.fixedConnectedVal = true;
-              this.matchedServiceId = item.config.serviceID;
-            }
-          } else if (item.service === "TekuValidatorService" || item.service === "TekuBeaconService") {
-            const matchedValue = res.match(new RegExp("(- --metrics-publish-endpoint=)(.*)(\\n)"));
-
-            if (matchedValue !== null) {
-              this.connectedValidator = item.config.serviceID;
-              this.fixedConnectedVal = true;
-              this.matchedServiceId = item.config.serviceID;
-            }
-          } else if (item.service === "PrysmValidatorService") {
+          if (item.service === "PrysmValidatorService") {
             let prysmServiceID = item.config.serviceID;
             //console.log("prysmServiceID", prysmServiceID);
             for (let idx = 0; idx < this.installedMetricsExporter.length; idx++) {
@@ -267,20 +237,6 @@ export default {
               const metricsRes = await ControlService.getServiceYAML(metrx?.config.serviceID);
               const matchValue = metricsRes.match(new RegExp("(- --validator.address=http://stereum-)(.*)(\\n)"));
               if (matchValue[2].includes(prysmServiceID)) {
-                this.connectedValidator = item.config.serviceID;
-                this.fixedConnectedVal = true;
-                this.matchedServiceId = item.config.serviceID;
-              }
-            }
-          } else if (item.service === "NimbusValidatorService") {
-            console.log(item);
-            let nimbusServiceID = item.config.dependencies.consensusClients[0].id;
-            //console.log("nimbusServiceID", nimbusServiceID);
-            for (let idx = 0; idx < this.installedMetricsExporter.length; idx++) {
-              const metrx = this.installedMetricsExporter[idx];
-              const metricsRes = await ControlService.getServiceYAML(metrx?.config.serviceID);
-              const matchValue = metricsRes.match(new RegExp("(- --beaconnode.address=http://stereum-)(.*)(\\n)"));
-              if (matchValue[2].includes(nimbusServiceID)) {
                 this.connectedValidator = item.config.serviceID;
                 this.fixedConnectedVal = true;
                 this.matchedServiceId = item.config.serviceID;
@@ -301,7 +257,7 @@ export default {
       }
     },
     openBeaconcha() {
-      let url = "https://beaconcha.in/user/settings#app";
+      let url = "https://beacon.stratisevm.com/user/settings#app";
       window.open(url, "_blank");
     },
   },

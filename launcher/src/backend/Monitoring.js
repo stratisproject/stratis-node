@@ -416,7 +416,6 @@ export class Monitoring {
   }
 
   // Query RPC API via CURL on the node
-  // https://api.besu.hyperledger.org/
   // https://playground.open-rpc.org/?schemaUrl=https://raw.githubusercontent.com/ethereum/execution-apis/assembled-spec/openrpc.json&uiSchema%5BappBar%5D%5Bui:splitView%5D=false&uiSchema%5BappBar%5D%5Bui:input%5D=false&uiSchema%5BappBar%5D%5Bui:examplesDropdown%5D=false
   // Arguments:
   // url=<mixed>        : [REQUIRED] Full HTTP API URL of the RPC server or object of {addr:'<addr>',port:'<port>'}
@@ -580,7 +579,6 @@ export class Monitoring {
 
   // Query BEACON API via CURL on the node
   // https://ethereum.github.io/beacon-APIs/
-  // https://consensys.github.io/teku/
   // url=<mixed>      : [REQUIRED] Full HTTP API URL of the BEACON server or object of {addr:'<addr>',port:'<port>'}
   // endpoint=<string>: [REQUIRED] API endpoint (relative to the host:port or a full http url)
   // params=<array>   : [OPTIONAL] API parameters associated to the given endpoint
@@ -742,7 +740,7 @@ export class Monitoring {
   // api_reponse=<mixed>: the response of the JSON api
   // api_httpcode=<int> : the http status code of the JSON api response
   // Example:
-  // const result = await this.queryJsonApi("http://127.0.0.1:8545", "health", [], "GET", {"X-ERIGON-HEALTHCHECK": "synced"});
+  // const result = await this.queryJsonApi("http://127.0.0.1:8545", "health", [], "GET", {});
   async queryJsonApi(url, endpoint, params = [], method = "GET", headers = {}) {
     // Define default response
     const data = {
@@ -972,10 +970,6 @@ export class Monitoring {
     // Service definitions with their associated rpc api (service) port
     const services = {
       GethService: 8545,
-      RethService: 8545,
-      BesuService: 8545,
-      NethermindService: 8545,
-      ErigonService: 8545,
     };
 
     // Extract additional params
@@ -1110,43 +1104,22 @@ export class Monitoring {
     // Service definitions with type and Prometheus labels for sync status
     const services = {
       consensus: {
-        TekuBeaconService: ["beacon_slot", "beacon_head_slot"], // OK - query for job="teku"
-        LighthouseBeaconService: ["slotclock_present_slot", "beacon_head_state_slot"], // OK - query for job="lighthouse_beacon"!
         PrysmBeaconService: ["beacon_clock_time_slot", "beacon_head_slot"], // OK - query for job="prysm_beacon"!
-        NimbusBeaconService: ["beacon_slot", "beacon_head_slot"], // OK - query for job="nimbus"
-        LodestarBeaconService: ["beacon_clock_slot", "beacon_head_slot"], // OK - query for job="lodestar_beacon"
       },
       execution: {
         GethService: ["chain_head_header", "chain_head_block"], // OK - query for job="geth"
-        RethService: ["reth_sync_checkpoint", "reth_sync_checkpoint"], // OK [there is only one label] - query for job="reth"
-        BesuService: ["ethereum_best_known_block_number", "ethereum_blockchain_height"], // OK - query for job="besu"
-        NethermindService: ["nethermind_blocks", "nethermind_blocks"], // OK [there is only one label] - query for job="nethermind"
-        // Note: Erigon labels are taken from their official Grafana Dashboard, however those are not availble thru Prometheus!
-        ErigonService: ["chain_head_header", "chain_head_block"], // TODO - query for job="erigon"
       },
     };
 
     // Prometheus job definitions
     const jobs = {
-      TekuBeaconService: "teku_beacon",
-      LighthouseBeaconService: "lighthouse_beacon",
       PrysmBeaconService: "prysm_beacon",
-      NimbusBeaconService: "nimbus_beacon",
-      LodestarBeaconService: "lodestar_beacon",
       GethService: "geth",
-      RethService: "reth",
-      BesuService: "besu",
-      NethermindService: "nethermind",
-      ErigonService: "erigon",
     };
 
     // Execution clients that should be queried by RPC for chain head block
     const get_chain_head_by_rpc = [
       "GethService",
-      "RethService",
-      // 'BesuService',
-      "NethermindService",
-      "ErigonService",
     ];
 
     // Merge all labels for Prometheus query
@@ -1326,33 +1299,17 @@ export class Monitoring {
     // Service definitions with type and Prometheus labels for p2p status
     const services = {
       consensus: {
-        TekuBeaconService: ["beacon_peer_count"],
-        LighthouseBeaconService: ["libp2p_peers"],
         PrysmBeaconService: ["p2p_peer_count"], // needs to query for state="Connected"!
-        NimbusBeaconService: ["nbc_peers"],
-        LodestarBeaconService: ["libp2p_peers"],
       },
       execution: {
         GethService: ["p2p_peers"],
-        RethService: ["reth_network_connected_peers"],
-        BesuService: ["ethereum_peer_count"],
-        NethermindService: ["nethermind_sync_peers"],
-        ErigonService: ["p2p_peers"],
       },
     };
 
     // Prometheus job definitions
     const jobs = {
-      TekuBeaconService: "teku_beacon",
-      LighthouseBeaconService: "lighthouse_beacon",
       PrysmBeaconService: "prysm_beacon",
-      NimbusBeaconService: "nimbus_beacon",
-      LodestarBeaconService: "lodestar_beacon",
       GethService: "geth",
-      RethService: "reth",
-      BesuService: "besu",
-      NethermindService: "nethermind",
-      ErigonService: "erigon",
     };
 
     // Merge all labels for Prometheus query
@@ -1448,51 +1405,14 @@ export class Monitoring {
         if (!opttyp) {
           return;
         }
-        if (clt.service == "TekuBeaconService") {
-          // --p2p-peer-upper-bound (Default: 100)
-          optnam = "--p2p-peer-upper-bound";
-          defval = 100;
-        } else if (clt.service == "LighthouseBeaconService") {
-          // --target-peers (Default: 80) + 10%
-          // See extra dealing with + 10% below!
-          optnam = "--target-peers";
-          defval = 100;
-        } else if (clt.service == "PrysmBeaconService") {
+        if (clt.service == "PrysmBeaconService") {
           // --p2p-max-peers (Default: 45)
           optnam = "--p2p-max-peers";
           defval = 45;
-        } else if (clt.service == "NimbusBeaconService") {
-          // --max-peers (The target number of peers to connect to, default: 160)
-          // --hard-max-peers (The maximum number of peers to connect to. Defaults to maxPeers * 1.5)
-          // See extra dealing with --hard-max-peers below!
-          optnam = "--max-peers";
-          defval = 160;
-        } else if (clt.service == "LodestarBeaconService") {
-          // --targetPeers(The target connected peers. Above this number peers will be disconnected, default: 50) + 10%
-          // See extra dealing with + 10% below!
-          optnam = "--targetPeers";
-          defval = 100;
         } else if (clt.service == "GethService") {
           // [MAXVAL: --maxpeers (Default: 50)]
           optnam = "--maxpeers";
           defval = 50;
-        } else if (clt.service == "RethService") {
-          // [MAXVAL: --maxpeers (Default: 50)]
-          optnam = "--maxpeers";
-          defval = 100;
-        } else if (clt.service == "BesuService") {
-          // --max-peers (Default: 25)
-          optnam = "--max-peers";
-          defval = 25;
-        } else if (clt.service == "NethermindService") {
-          // --Network.MaxActivePeers (Default: 50)
-          optnam = "--Network.MaxActivePeers";
-          defval = 50;
-        } else if (clt.service == "ErigonService") {
-          // --maxpeers (Default: 100)
-          // https://github.com/ledgerwatch/erigon/issues/2853
-          optnam = "--maxpeers";
-          defval = 100;
         } else {
           return;
         }
@@ -1514,48 +1434,12 @@ export class Monitoring {
           }
         }
         optval = parseInt(optval);
-        if (clt.service == "LighthouseBeaconService") {
-          // Extra calculate Lighthouse --target-peers + 10%
-          optval = Math.round(optval * 1.1);
-        }
-        if (clt.service == "LodestarBeaconService") {
-          // Extra calculate Lodestar --targetPeers + 10%
-          optval = Math.round(optval * 1.1);
-        }
         details[opttyp]["maxPeer"] = optval;
         details[opttyp]["maxPeerBy"]["fields"].push(optnam);
-        if (clt.service == "NimbusBeaconService") {
-          // Extra calculate Nimbus --hard-max-peers by Nimbus --max-peers
-          if (!opttyp) {
-            return;
-          }
-          optnam = "--hard-max-peers"; // Defaults to maxPeers (Nimbus "--max-peers") * 1.5
-          defval = Math.round(optval * 1.5); // optval is here Nimbus --max-peers that was calculated in the current loop
-          regexp = new RegExp(optnam + "=(\\d+)", "si");
-          if (Array.isArray(clt.config.command)) {
-            try {
-              optval = clt.config.command
-                .find((item) => item.match(regexp))
-                .match(regexp)
-                .pop();
-            } catch (e) {
-              optval = defval;
-            }
-          } else {
-            try {
-              optval = clt.config.command.match(regexp).pop();
-            } catch (e) {
-              optval = defval;
-            }
-          }
-          optval = parseInt(optval);
-          details[opttyp]["maxPeer"] = optval;
-          details[opttyp]["maxPeerBy"]["fields"].push(optnam);
-        }
       });
 
       // Filter Prometheus result by current used services and calculate number of currently used peers per client
-      // Note that Prysm requires to match state="Connected" and Lodestar direction="outbound"
+      // Note that Prysm requires to match state="Connected"
       try {
         var maxPeer = 0,
           numPeer = 0,
@@ -1573,21 +1457,12 @@ export class Monitoring {
           if (xx.length) {
             services[clientType][clt.service].forEach(function (item, index) {
               try {
-                //Nethermind returns the peers per client type (e.g. Geth, Erigon, Nethermind ...), therefore we need to sum them up
-                if (clt.service == "NethermindService") {
-                  details[clientType]["numPeer"] = parseInt(
-                    xx
-                      .filter((s) => s.metric.__name__ == services[clientType][clt.service][index])
-                      .reduce((total, obj) => total + parseInt(obj.value.pop()), 0)
-                  );
-                } else {
-                  details[clientType]["numPeer"] = parseInt(
-                    xx
-                      .filter((s) => s.metric.__name__ == services[clientType][clt.service][index])
-                      .pop()
-                      .value.pop()
-                  );
-                }
+                details[clientType]["numPeer"] = parseInt(
+                  xx
+                    .filter((s) => s.metric.__name__ == services[clientType][clt.service][index])
+                    .pop()
+                    .value.pop()
+                );
                 details[clientType]["numPeerBy"]["fields"].push(item);
               } catch (e) {}
             });
@@ -2075,10 +1950,6 @@ export class Monitoring {
     // Service definitions with their associated rpc api (service) port
     const services = {
       GethService: 8545,
-      RethService: 8545,
-      BesuService: 8545,
-      NethermindService: 8545,
-      ErigonService: 8545,
     };
 
     // Set timestamp in micro seconds
@@ -2123,7 +1994,7 @@ export class Monitoring {
       let port = rpc.destinationPort;
 
       // Check if RPC port is enabled
-      // Changed query to "eth_blockNumber" since "web3_clientVersion" may not available by default in all clients (like Erigon)
+      // Changed query to "eth_blockNumber" since "web3_clientVersion" may not available by default in all clients
       let result = await this.queryRpcApi({ addr: addr, port: port }, "eth_blockNumber");
       if (result.code) continue;
 
@@ -2259,10 +2130,6 @@ export class Monitoring {
     // Service definitions with their associated ws api (service) port
     const services = {
       GethService: 8546,
-      RethService: 8546,
-      BesuService: 8546,
-      NethermindService: 8546,
-      ErigonService: 8545,
     };
 
     // Set timestamp in micro seconds
@@ -2514,11 +2381,7 @@ export class Monitoring {
   async getBeaconStatus() {
     // Service definitions with their associated beacon api (service) port
     const services = {
-      TekuBeaconService: 5051,
-      LighthouseBeaconService: 5052,
       PrysmBeaconService: 3500,
-      NimbusBeaconService: 5052,
-      LodestarBeaconService: 9596,
     };
 
     // Set timestamp in micro seconds
@@ -2873,7 +2736,7 @@ rm -rf diskoutput
   // [OPTIONAL] logs_until=<ISO8601DateString>: Get logs until (must be a valid ISO 8601 date string, e.g. 2013-01-02T13:23:37Z)
   // [OPTIONAL] logs_tail=<number>: Number of lines to show from the end of the logs (if greater 0 logs_since/logs_until arguments are ignored - default 150)
   // [OPTIONAL] logs_ts=<bool>: When true each log line is prefixed with a ISO8601DateString timestamp (default is false)
-  // [OPTIONAL] service_name=<string>: When specified only logs for the specified case-sensitive service name (e.g.: "BesuService") are returned
+  // [OPTIONAL] service_name=<string>: When specified only logs for the specified case-sensitive service name are returned
   // Returns array of services including their docker logs on success or empty array on errors
   async getServiceLogs(args) {
     // Extract arguments
@@ -3092,12 +2955,12 @@ rm -rf diskoutput
       beaconStatus.data = beaconStatus.data.filter((obj) => obj.clt === currBeaconService);
       let currentEpochSlotStatus = {};
       if (beaconStatus.code === 0) {
-        // retrive current network & define epoch length (ethereum -> 32 | gnosis -> 16)
+        // retrive current network & define epoch length
         let serviceName = beaconStatus.data[0].clt.toLowerCase();
         let serviceNameConverted = serviceName.charAt(0).toUpperCase() + serviceName.slice(1);
         let serviceInfo = await this.getServiceInfos(serviceNameConverted + "BeaconService");
         const currentNetwork = serviceInfo[0].config.network;
-        const epochLength = currentNetwork === "gnosis" ? 16 : 32;
+        const epochLength = 32;
 
         // retrive current-Slot also current, justified and finalized-Epochs
         const beaconAPIPort = beaconStatus.data[0].beacon.destinationPort;
@@ -3150,10 +3013,7 @@ rm -rf diskoutput
             `${slots}` === "firstSlotInCurrentEpoch" ? (currentSlot % epochLength) + 1 : epochLength;
 
           for (let i = 0; i < slotsNumberInEpoch; i++) {
-            let beaconAPISlotStatusCmd =
-              serviceNameConverted === "Lodestar"
-                ? `${cmdBegin}${firstSlots[slots] + i}${cmdEnd}`
-                : `${cmdBegin}${firstSlots[slots] + i}/root${cmdEnd}`;
+            let beaconAPISlotStatusCmd = `${cmdBegin}${firstSlots[slots] + i}/root${cmdEnd}`;
 
             let beaconAPISlotStatusRunCmd = await this.nodeConnection.sshService.exec(beaconAPISlotStatusCmd);
             if (`${slots}` === "firstSlotInCurrentEpoch") {

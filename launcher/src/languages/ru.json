@@ -431,7 +431,7 @@
     "thirdSlide": "Нажмите на “Добавить сеть”",
     "fourthSlide": "Введите имя для вашей сети",
     "fivethSlide": "Вставьте скопированный URL из Stereum",
-    "sixthSlide": "Введите CHAIN-ID вашего узла (для GoerliTestnet это 5)",
+    "sixthSlide": "Введите CHAIN-ID вашего узла (для AuroriaTestnet это 205205)",
     "seventhSlide": "Введите “ETH” в качестве символа валюты",
     "eightthSlide": "ПО ЖЕЛАНИЮ - вы можете вставить URL блок-эксплорера",
     "ninethSlide": "Нажмите на “СОХРАНИТЬ”"

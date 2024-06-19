@@ -25,29 +25,29 @@ test("buildConfiguration", () => {
     };
   });
 
-  jest.mock("../../ethereum-services/LighthouseBeaconService");
-  const LighthouseBeaconService = require("../../ethereum-services/LighthouseBeaconService");
-  const mMockLh = jest.fn(() => {
-    return "http-lh-endpoint-string";
+  jest.mock("../../ethereum-services/PrysmBeaconService");
+  const PrysmBeaconService = require("../../ethereum-services/PrysmBeaconService");
+  const mMockPrysm = jest.fn(() => {
+    return "http-prysm-endpoint-string";
   });
-  LighthouseBeaconService.LighthouseBeaconService.mockImplementation(() => {
+  PrysmBeaconService.PrysmBeaconService.mockImplementation(() => {
     return {
-      buildConsensusClientHttpEndpointUrl: mMockLh,
+      buildConsensusClientHttpEndpointUrl: mMockPrysm,
       buildMinimalConfiguration: jest.fn(() => {
         return {
-          id: "lh-beacon-id",
-          service: "LighthouseBeaconService",
+          id: "prysm-beacon-id",
+          service: "PrysmBeaconService",
         };
       }),
     };
   });
 
   const ssvService = SSVNetworkService.buildByUserInput(
-    "prater",
+    "auroria",
     ports,
     "/opt/stereum/ssv",
     [new GethService.GethService()],
-    [new LighthouseBeaconService.LighthouseBeaconService()]
+    [new PrysmBeaconService.PrysmBeaconService()]
   ).buildConfiguration();
 
   log.info("cmd: ", ssvService.command);
@@ -75,38 +75,38 @@ test("getServiceConfiguration", () => {
     };
   });
 
-  jest.mock("../../ethereum-services/LighthouseBeaconService");
-  const LighthouseBeaconService = require("../../ethereum-services/LighthouseBeaconService");
-  const mMockLh = jest.fn(() => {
-    return "http-lh-endpoint-string";
+  jest.mock("../../ethereum-services/PrysmBeaconService");
+  const PrysmBeaconService = require("../../ethereum-services/PrysmBeaconService");
+  const mMockPrysm = jest.fn(() => {
+    return "http-prysm-endpoint-string";
   });
-  LighthouseBeaconService.LighthouseBeaconService.mockImplementation(() => {
+  PrysmBeaconService.PrysmBeaconService.mockImplementation(() => {
     return {
-      buildConsensusClientHttpEndpointUrl: mMockLh,
+      buildConsensusClientHttpEndpointUrl: mMockPrysm,
     };
   });
 
   const ssvService = SSVNetworkService.buildByUserInput(
-    "prater",
+    "auroria",
     null,
     "/opt/stereum/ssv",
     [new GethService.GethService()],
-    [new LighthouseBeaconService.LighthouseBeaconService()]
+    [new PrysmBeaconService.PrysmBeaconService()]
   ).getServiceConfiguration(
-    "prater",
+    "auroria",
     [new GethService.GethService()],
-    [new LighthouseBeaconService.LighthouseBeaconService()]
+    [new PrysmBeaconService.PrysmBeaconService()]
   );
 
   expect(ssvService).toBeDefined();
-  expect(ssvService).toMatch(/prater/);
-  expect(ssvService).toMatch(/http-lh-endpoint-string/);
+  expect(ssvService).toMatch(/auroria/);
+  expect(ssvService).toMatch(/http-prysm-endpoint-string/);
   expect(ssvService).toMatch(/ws-endpoint-string/);
 });
 
 test("getAvailablePorts", () => {
   const service = SSVNetworkService.buildByUserInput(
-    "prater",
+    "auroria",
     null,
     "/opt/stereum/ssv",
     [],
@@ -118,7 +118,7 @@ test("getAvailablePorts", () => {
 
 test("service name", () => {
   const service = SSVNetworkService.buildByUserInput(
-    "prater",
+    "auroria",
     null,
     "/opt/stereum/ssv",
     [],
@@ -130,7 +130,7 @@ test("service name", () => {
 
 test("autoupdate", () => {
   const service = SSVNetworkService.buildByUserInput(
-    "prater",
+    "auroria",
     null,
     "/opt/stereum/ssv",
     [],

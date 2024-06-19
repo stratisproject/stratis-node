@@ -1,24 +1,12 @@
-import { LighthouseBeaconService } from "./ethereum-services/LighthouseBeaconService";
-import { LighthouseValidatorService } from "./ethereum-services/LighthouseValidatorService";
-import { LodestarBeaconService } from "./ethereum-services/LodestarBeaconService";
-import { LodestarValidatorService } from "./ethereum-services/LodestarValidatorService";
 import { GethService } from "./ethereum-services/GethService";
-import { RethService } from "./ethereum-services/RethService";
-import { ErigonService } from "./ethereum-services/ErigonService";
-import { BesuService } from "./ethereum-services/BesuService";
 import { SSVNetworkService } from "./ethereum-services/SSVNetworkService";
 import { SSVDKGService } from "./ethereum-services/SSVDKGService";
 import { CharonService } from "./ethereum-services/CharonService";
-import { NimbusBeaconService } from "./ethereum-services/NimbusBeaconService";
-import { NimbusValidatorService } from "./ethereum-services/NimbusValidatorService";
 import { PrometheusService } from "./ethereum-services/PrometheusService";
 import { PrometheusNodeExporterService } from "./ethereum-services/PrometheusNodeExporterService";
 import { GrafanaService } from "./ethereum-services/GrafanaService";
 import { PrysmBeaconService } from "./ethereum-services/PrysmBeaconService";
 import { PrysmValidatorService } from "./ethereum-services/PrysmValidatorService";
-import { TekuBeaconService } from "./ethereum-services/TekuBeaconService";
-import { TekuValidatorService } from "./ethereum-services/TekuValidatorService";
-import { NethermindService } from "./ethereum-services/NethermindService";
 import { FlashbotsMevBoostService } from "./ethereum-services/FlashbotsMevBoostService";
 import { ServicePort, servicePortProtocol, changeablePorts } from "./ethereum-services/ServicePort";
 import { StringUtils } from "./StringUtils";
@@ -26,12 +14,9 @@ import { ServiceVolume } from "./ethereum-services/ServiceVolume";
 import { Web3SignerService } from "./ethereum-services/Web3SignerService";
 import { NotificationService } from "./ethereum-services/NotificationService";
 import { MetricsExporterService } from "./ethereum-services/MetricsExporterService";
-import { ValidatorEjectorService } from "./ethereum-services/ValidatorEjectorService";
-import { KeysAPIService } from "./ethereum-services/KeysAPIService";
 import { ExternalConsensusService } from "./ethereum-services/ExternalConsensusService";
 import { ExternalExecutionService } from "./ethereum-services/ExternalExecutionService";
 import { CustomService } from "./ethereum-services/CustomService";
-import { LidoObolExitService } from "./ethereum-services/LidoObolExitService";
 import YAML from "yaml";
 const axios = require("axios");
 const path = require("path");
@@ -105,32 +90,12 @@ export class ServiceManager {
           const config = serviceConfigurations[i];
 
           if (config.service) {
-            if (config.service == "LighthouseBeaconService") {
-              services.push(LighthouseBeaconService.buildByConfiguration(config));
-            } else if (config.service == "LighthouseValidatorService") {
-              services.push(LighthouseValidatorService.buildByConfiguration(config));
-            } else if (config.service == "LodestarBeaconService") {
-              services.push(LodestarBeaconService.buildByConfiguration(config));
-            } else if (config.service == "LodestarValidatorService") {
-              services.push(LodestarValidatorService.buildByConfiguration(config));
-            } else if (config.service == "GethService") {
+            if (config.service == "GethService") {
               services.push(GethService.buildByConfiguration(config));
-            } else if (config.service == "RethService") {
-              services.push(RethService.buildByConfiguration(config));
-            } else if (config.service == "ErigonService") {
-              services.push(ErigonService.buildByConfiguration(config));
-            } else if (config.service == "BesuService") {
-              services.push(BesuService.buildByConfiguration(config));
-            } else if (config.service == "NethermindService") {
-              services.push(NethermindService.buildByConfiguration(config));
             } else if (config.service == "SSVNetworkService") {
               services.push(SSVNetworkService.buildByConfiguration(config));
             } else if (config.service == "SSVDKGService") {
               services.push(SSVDKGService.buildByConfiguration(config));
-            } else if (config.service == "NimbusBeaconService") {
-              services.push(NimbusBeaconService.buildByConfiguration(config));
-            } else if (config.service == "NimbusValidatorService") {
-              services.push(NimbusValidatorService.buildByConfiguration(config));
             } else if (config.service == "PrometheusService") {
               services.push(PrometheusService.buildByConfiguration(config));
             } else if (config.service == "PrometheusNodeExporterService") {
@@ -141,10 +106,6 @@ export class ServiceManager {
               services.push(PrysmBeaconService.buildByConfiguration(config));
             } else if (config.service == "PrysmValidatorService") {
               services.push(PrysmValidatorService.buildByConfiguration(config));
-            } else if (config.service == "TekuBeaconService") {
-              services.push(TekuBeaconService.buildByConfiguration(config));
-            } else if (config.service == "TekuValidatorService") {
-              services.push(TekuValidatorService.buildByConfiguration(config));
             } else if (config.service == "FlashbotsMevBoostService") {
               services.push(FlashbotsMevBoostService.buildByConfiguration(config));
             } else if (config.service == "Web3SignerService") {
@@ -153,10 +114,6 @@ export class ServiceManager {
               services.push(NotificationService.buildByConfiguration(config));
             } else if (config.service == "MetricsExporterService") {
               services.push(MetricsExporterService.buildByConfiguration(config));
-            } else if (config.service == "ValidatorEjectorService") {
-              services.push(ValidatorEjectorService.buildByConfiguration(config));
-            } else if (config.service == "KeysAPIService") {
-              services.push(KeysAPIService.buildByConfiguration(config));
             } else if (config.service == "CharonService") {
               services.push(CharonService.buildByConfiguration(config));
             } else if (config.service == "ExternalConsensusService") {
@@ -165,8 +122,6 @@ export class ServiceManager {
               services.push(ExternalExecutionService.buildByConfiguration(config));
             } else if (config.service == "CustomService") {
               services.push(CustomService.buildByConfiguration(config));
-            } else if (config.service == "LidoObolExitService") {
-              services.push(LidoObolExitService.buildByConfiguration(config));
             }
           } else {
             log.error("found configuration without service!");
@@ -227,9 +182,6 @@ export class ServiceManager {
         await this.resyncService(service, data);
         break;
 
-      case "removeLockfiles":
-        await this.removeTekuLockFiles(service.config.serviceID);
-        break;
       default:
         break;
     }
@@ -250,9 +202,7 @@ export class ServiceManager {
       (vol) =>
         vol.servicePath === "/opt/app/beacon" ||
         vol.servicePath === "/opt/app/data" ||
-        vol.servicePath === "/opt/data/geth" ||
-        vol.servicePath === "/opt/data/reth" ||
-        vol.servicePath === "/opt/data/erigon"
+        vol.servicePath === "/opt/data/geth"
     ).destinationPath;
 
     let result = await this.nodeConnection.sshService.exec(`test -d ${dataDir}/ `);
@@ -270,16 +220,7 @@ export class ServiceManager {
 
   updateSyncCommand(client, checkpointUrl) {
     const checkpointCommands = {
-      LighthouseBeaconService: "--checkpoint-sync-url=",
-      LodestarBeaconService: "--checkpointSyncUrl=",
       PrysmBeaconService: "--checkpoint-sync-url=",
-      NimbusBeaconService: "--trusted-node-url=",
-      TekuBeaconService: "--initial-state=",
-    };
-
-    const genesisSyncCommands = {
-      LighthouseBeaconService: "--allow-insecure-genesis-sync",
-      TekuBeaconService: "--ignore-weak-subjectivity-period-enabled",
     };
 
     let isString = false;
@@ -298,11 +239,6 @@ export class ServiceManager {
     //add checkpointSync if Url was send
     if (checkpointUrl) {
       command.push(checkpointCommands[client.service] + checkpointUrl);
-      if (genesisSyncCommands[client.service])
-        command = command.filter((c) => !c.includes(genesisSyncCommands[client.service]));
-    } else {
-      //add genesisSync if no Url was send
-      if (genesisSyncCommands[client.service]) command.push(genesisSyncCommands[client.service]);
     }
 
     if (isString) {
@@ -402,16 +338,6 @@ export class ServiceManager {
     let keyValuePairs = [];
 
     switch (service.service.replace(/(Beacon|Validator|Service)/gm, "")) {
-      case "Lighthouse":
-        if (service.service.includes("Beacon")) {
-          filter = (e) => e.buildExecutionClientEngineRPCHttpEndpointUrl();
-          command = "--execution-endpoint=";
-        }
-        if (service.service.includes("Validator")) {
-          filter = (e) => e.buildConsensusClientHttpEndpointUrl();
-          command = "--beacon-nodes=";
-        }
-        break;
       case "Prysm":
         if (service.service.includes("Beacon")) {
           filter = (e) => e.buildExecutionClientEngineRPCHttpEndpointUrl();
@@ -423,39 +349,6 @@ export class ServiceManager {
           service.command = this.addCommandConnection(service, command, dependencies, filter);
           filter = (e) => e.buildConsensusClientGateway();
           command = "--beacon-rpc-gateway-provider=";
-        }
-        break;
-      case "Lodestar":
-        if (service.service.includes("Beacon")) {
-          filter = (e) => e.buildExecutionClientEngineRPCHttpEndpointUrl();
-          command = "--execution.urls=";
-        }
-        if (service.service.includes("Validator")) {
-          filter = (e) => e.buildConsensusClientHttpEndpointUrl();
-          command = "--beaconNodes=";
-        }
-        if (dependencies.some((d) => d.service === "CharonService")) {
-          service.command.push("--distributed");
-        }
-        break;
-      case "Nimbus":
-        if (service.service.includes("Beacon")) {
-          filter = (e) => e.buildExecutionClientEngineRPCWsEndpointUrl();
-          command = "--web3-url=";
-        }
-        if (service.service.includes("Validator")) {
-          filter = (e) => e.buildConsensusClientHttpEndpointUrl();
-          command = "--beacon-node=";
-        }
-        break;
-      case "Teku":
-        if (service.service.includes("Beacon")) {
-          filter = (e) => e.buildExecutionClientEngineRPCHttpEndpointUrl();
-          command = "--ee-endpoint=";
-        }
-        if (service.service.includes("Validator")) {
-          filter = (e) => e.buildConsensusClientHttpEndpointUrl();
-          command = "--beacon-node-api-endpoint=";
         }
         break;
       case "Charon":
@@ -470,8 +363,6 @@ export class ServiceManager {
         });
       case "SSVNetwork":
         return this.addSSVNetworkConnection(service, dependencies, ssvConfig);
-      case "LidoObolExit":
-        return this.addLidoObolExitConnection(service, dependencies);
       case "Ejector":
         // create a new function to handle dependencies for env vars
         keyValuePairs = [
@@ -552,21 +443,8 @@ export class ServiceManager {
     }
     let builderCommand = "";
     switch (dependency.service) {
-      case "LighthouseBeaconService":
-        builderCommand = "--builder=";
-        break;
       case "PrysmBeaconService":
         builderCommand = "--http-mev-relay=";
-        break;
-      case "LodestarBeaconService":
-        builderCommand = "--builder.urls=";
-        break;
-      case "NimbusBeaconService":
-        if (!command.includes("--payload-builder=true")) command.push("--payload-builder=true");
-        builderCommand = "--payload-builder-url=";
-        break;
-      case "TekuBeaconService":
-        builderCommand = "--builder-endpoint=";
         break;
     }
     let fullCommand = command.find((c) => c.includes(builderCommand));
@@ -588,38 +466,6 @@ export class ServiceManager {
     ssvConfig.eth2.BeaconNodeAddr = `${consensusClient ? consensusClient.buildConsensusClientHttpEndpointUrl() : ""}`;
     service.dependencies.executionClients = executionClient ? [executionClient] : [];
     service.dependencies.consensusClients = consensusClient ? [consensusClient] : [];
-    return service;
-  }
-
-  addLidoObolExitConnection(service, dependencies) {
-    // handle beacon node command dependency
-    const consensusClient = dependencies.filter(
-      (d) => typeof d.buildConsensusClientHttpEndpointUrl === "function" && d.service != "CharonService"
-    )[0];
-    let filter = (e) => e.buildConsensusClientHttpEndpointUrl();
-    let command = "--beacon-node-url=";
-    service.command = this.addCommandConnection(service, command, consensusClient ? [consensusClient] : [], filter);
-
-    // handle charon volume dependency
-    const charon = dependencies.find((d) => d.service === "CharonService");
-    service.volumes = service.volumes.filter((v) => !v.servicePath.includes("charon"));
-    if (charon) {
-      service.volumes.push(new ServiceVolume(`${charon.getDataDir()}/.charon`, "/charon"));
-    }
-
-    // handle validator ejector volume dependency
-    const ejector = dependencies.find((d) => d.service === "ValidatorEjectorService");
-    service.volumes = service.volumes.filter((v) => !v.servicePath.includes("exitmessages"));
-    if (ejector) {
-      let messageVolume = ejector.volumes.find((volume) => volume.servicePath === "/app/messages");
-      if (messageVolume) {
-        service.volumes.push(new ServiceVolume(messageVolume.destinationPath, "/exitmessages"));
-      }
-    }
-
-    // set dependency arrays
-    service.dependencies.consensusClients = consensusClient ? [consensusClient] : [];
-    service.dependencies.otherServices = [charon, ejector].filter((d) => d);
     return service;
   }
 
@@ -738,11 +584,6 @@ export class ServiceManager {
         `docker stop slashingdb-${serviceToDelete.id} && docker rm slashingdb-${serviceToDelete.id}`
       );
     }
-    if (serviceToDelete.service === "KeysAPIService") {
-      await this.nodeConnection.sshService.exec(
-        `docker stop cachingDB-${serviceToDelete.id} && docker rm cachingDB-${serviceToDelete.id}`
-      );
-    }
     await this.nodeConnection.runPlaybook("Delete Service", {
       stereum_role: "delete-service",
       service: task.service.config.serviceID,
@@ -830,68 +671,6 @@ export class ServiceManager {
         ];
         return GethService.buildByUserInput(args.network, ports, args.installDir + "/geth");
 
-      case "RethService":
-        ports = [
-          new ServicePort(null, 30303, 30303, servicePortProtocol.tcp),
-          new ServicePort(null, 30303, 30303, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 8545, 8545, servicePortProtocol.tcp),
-          new ServicePort("127.0.0.1", 8546, 8546, servicePortProtocol.tcp),
-        ];
-        return RethService.buildByUserInput(args.network, ports, args.installDir + "/reth");
-
-      case "BesuService":
-        ports = [
-          new ServicePort(null, 30303, 30303, servicePortProtocol.tcp),
-          new ServicePort(null, 30303, 30303, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 8545, 8545, servicePortProtocol.tcp),
-          new ServicePort("127.0.0.1", 8546, 8546, servicePortProtocol.tcp),
-        ];
-        return BesuService.buildByUserInput(args.network, ports, args.installDir + "/besu");
-
-      case "NethermindService":
-        ports = [
-          new ServicePort(null, 30303, 30303, servicePortProtocol.tcp),
-          new ServicePort(null, 30303, 30303, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 8545, 8545, servicePortProtocol.tcp),
-          new ServicePort("127.0.0.1", 8546, 8546, servicePortProtocol.tcp),
-        ];
-        return NethermindService.buildByUserInput(args.network, ports, args.installDir + "/nethermind");
-
-      case "ErigonService":
-        ports = [
-          new ServicePort(null, 30303, 30303, servicePortProtocol.tcp),
-          new ServicePort(null, 30303, 30303, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 8545, 8545, servicePortProtocol.tcp),
-          new ServicePort("127.0.0.1", 8546, 8546, servicePortProtocol.tcp),
-        ];
-        service = ErigonService.buildByUserInput(args.network, ports, args.installDir + "/erigon");
-        service.switchImageTag(this.nodeConnection.settings.stereum.settings.arch);
-        return service;
-
-      case "LighthouseBeaconService":
-        ports = [
-          new ServicePort(null, 9000, 9000, servicePortProtocol.tcp),
-          new ServicePort(null, 9000, 9000, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 5052, 5052, servicePortProtocol.tcp),
-        ];
-        return LighthouseBeaconService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/lighthouse",
-          args.executionClients,
-          args.mevboost ? args.mevboost : [],
-          args.checkpointURL
-        );
-
-      case "LighthouseValidatorService":
-        ports = [new ServicePort("127.0.0.1", args.port ? args.port : 5062, 5062, servicePortProtocol.tcp)];
-        return LighthouseValidatorService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/lighthouse",
-          args.consensusClients
-        );
-
       case "PrysmBeaconService":
         ports = [
           new ServicePort(null, 13001, 13001, servicePortProtocol.tcp),
@@ -917,81 +696,6 @@ export class ServiceManager {
           args.consensusClients
         );
 
-      case "LodestarBeaconService":
-        //LodestarBeaconService
-        ports = [
-          new ServicePort(null, 9000, 9000, servicePortProtocol.tcp),
-          new ServicePort(null, 9000, 9000, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 9596, 9596, servicePortProtocol.tcp),
-        ];
-        return LodestarBeaconService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/lodestar",
-          args.executionClients,
-          args.mevboost ? args.mevboost : [],
-          args.checkpointURL
-        );
-
-      case "LodestarValidatorService":
-        //LodestarValidatorService
-        ports = [new ServicePort("127.0.0.1", args.port ? args.port : 5062, 5062, servicePortProtocol.tcp)];
-        return LodestarValidatorService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/lodestar",
-          args.consensusClients
-        );
-
-      case "NimbusBeaconService":
-        ports = [
-          new ServicePort(null, 9000, 9000, servicePortProtocol.tcp),
-          new ServicePort(null, 9000, 9000, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 5052, 5052, servicePortProtocol.tcp),
-        ];
-        return NimbusBeaconService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/nimbus",
-          args.executionClients,
-          args.mevboost ? args.mevboost : [],
-          args.checkpointURL
-        );
-
-      case "NimbusValidatorService":
-        ports = [];
-        return NimbusValidatorService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/nimbus",
-          args.consensusClients
-        );
-
-      case "TekuBeaconService":
-        ports = [
-          new ServicePort(null, 9001, 9001, servicePortProtocol.tcp),
-          new ServicePort(null, 9001, 9001, servicePortProtocol.udp),
-          new ServicePort("127.0.0.1", 5052, 5052, servicePortProtocol.tcp),
-          new ServicePort("127.0.0.1", args.port ? args.port : 5051, 5051, servicePortProtocol.tcp),
-        ];
-        return TekuBeaconService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/teku",
-          args.executionClients,
-          args.mevboost ? args.mevboost : [],
-          args.checkpointURL
-        );
-
-      case "TekuValidatorService":
-        ports = [];
-        return TekuValidatorService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/teku",
-          args.consensusClients
-        );
-
       case "PrometheusNodeExporterService":
         return PrometheusNodeExporterService.buildByUserInput(args.network);
 
@@ -1014,18 +718,6 @@ export class ServiceManager {
 
       case "MetricsExporterService":
         return MetricsExporterService.buildByUserInput(args.network);
-
-      case "ValidatorEjectorService":
-        return ValidatorEjectorService.buildByUserInput(
-          args.network,
-          args.installDir + "/validatorejector",
-          args.executionClients,
-          args.consensusClients
-        );
-
-      case "KeysAPIService":
-        ports = [new ServicePort("127.0.0.1", 3600, 3600, servicePortProtocol.tcp)];
-        return KeysAPIService.buildByUserInput(args.network, ports);
 
       case "SSVNetworkService":
         ports = [
@@ -1070,15 +762,6 @@ export class ServiceManager {
           args.ports,
           args.volumes
         );
-      case "LidoObolExitService":
-        ports = [];
-        return LidoObolExitService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/lidodvexit",
-          args.consensusClients,
-          args.otherServices
-        );
       case "SSVDKGService":
         ports = [
           new ServicePort(null, 3030, 3030, servicePortProtocol.udp),
@@ -1112,13 +795,6 @@ export class ServiceManager {
       await this.nodeConnection.sshService.exec(
         `docker stop cachingDB-${keyAPI.id} && docker rm cachingDB-${keyAPI.id}`
       );
-    }
-  }
-
-  async initKeysAPI(services) {
-    for (const service of services) {
-      await this.createCachingDB(service);
-      await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());
     }
   }
 
@@ -1169,27 +845,7 @@ export class ServiceManager {
 
   async createKeystores(services) {
     for (const service of services) {
-      if (
-        service.service === "NimbusValidatorService" ||
-        (service.service === "NimbusBeaconService" && service.configVersion < 2)
-      ) {
-        const valDir = service.volumes.find((vol) => vol.servicePath === "/opt/app/validators").destinationPath;
-        const token = StringUtils.createRandomString();
-        await this.nodeConnection.sshService.exec(`mkdir -p ${valDir}`);
-        await this.nodeConnection.sshService.exec(`echo ${token} > ${valDir}/api-token.txt`);
-      } else if (
-        service.service === "TekuValidatorService" ||
-        (service.service === "TekuBeaconService" && service.configVersion < 2)
-      ) {
-        const dataDir = service.volumes.find((vol) => vol.servicePath === "/opt/app/data").destinationPath;
-        const password = StringUtils.createRandomString();
-        await this.nodeConnection.sshService.exec("apt install -y openjdk-8-jre-headless");
-        await this.nodeConnection.sshService.exec(`mkdir -p ${dataDir}`);
-        await this.nodeConnection.sshService.exec(`echo ${password} > ${dataDir}/teku_api_password.txt`);
-        await this.nodeConnection.sshService.exec(
-          `cd ${dataDir} && keytool -genkeypair -keystore teku_api_keystore -storetype PKCS12 -storepass ${password} -keyalg RSA -keysize 2048 -validity 109500 -dname "CN=teku, OU=MyCompanyUnit, O=MyCompany, L=MyCity, ST=MyState, C=AU" -ext "SAN=DNS:stereum-${service.id}"`
-        );
-      } else if (service.service.includes("SSVNetwork")) {
+      if (service.service.includes("SSVNetwork")) {
         await this.nodeConnection.runPlaybook("ssv-key-generator", {
           stereum_role: "ssv-key-generator",
           ssv_key_service: service.id,
@@ -1309,15 +965,6 @@ export class ServiceManager {
       newServices.push(service);
     });
     let PInstalls = tasks.filter((t) => t.service.category === "service");
-    // Sort the array
-    PInstalls.sort((a, b) => {
-      // Check if the task is the specific one you want to be last
-      if (a.service.service === "LidoObolExitService") return 1;
-      if (b.service.service === "LidoObolExitService") return -1;
-
-      // For all other cases, don't change the order
-      return 0;
-    });
     PInstalls.forEach((t) => {
       this.updateInfoForDependencies(t, services, newServices, ELInstalls, CLInstalls, PInstalls, DVTInstalls);
       let service = this.getService(t.service.service, t.data);
@@ -1379,10 +1026,10 @@ export class ServiceManager {
     newServices.forEach((service) => {
       if (versions[service.network] && versions[service.network][service.service]) {
         service.imageVersion = versions[service.network][service.service].slice(-1).pop();
-      } else if (versions["mainnet"] && versions["mainnet"][service.service]) {
-        service.imageVersion = versions["mainnet"][service.service].slice(-1).pop();
-      } else if (versions["prater"] && versions["prater"][service.service]) {
-        service.imageVersion = versions["prater"][service.service].slice(-1).pop();
+      } else if (versions["stratis"] && versions["stratis"][service.service]) {
+        service.imageVersion = versions["stratis"][service.service].slice(-1).pop();
+      } else if (versions["auroria"] && versions["auroria"][service.service]) {
+        service.imageVersion = versions["auroria"][service.service].slice(-1).pop();
       }
       if (service.switchImageTag) service.switchImageTag(this.nodeConnection.settings.stereum.settings.arch);
     });
@@ -1395,15 +1042,12 @@ export class ServiceManager {
     await this.createKeystores(
       newServices.filter(
         (s) =>
-          s.service.includes("Teku") ||
-          s.service.includes("Nimbus") ||
           s.service.includes("SSVNetwork") ||
           s.service.includes("External")
       )
     );
     await this.prepareSSVDKG(newServices.find((s) => s.service === "SSVDKGService"));
     await this.initWeb3Signer(newServices.filter((s) => s.service === "Web3SignerService"));
-    await this.initKeysAPI(newServices.filter((s) => s.service === "KeysAPIService"));
     return ELInstalls.concat(CLInstalls, VLInstalls);
   }
 
@@ -1655,7 +1299,7 @@ export class ServiceManager {
     }
   }
 
-  //make sure there are no double tasks (for example: TekuBeaconService, TekuValidatorService share the same id)
+  //make sure there are no double tasks
   static uniqueByID(job) {
     return (value, index, self) =>
       self.map((t) => t.service.config.serviceID).indexOf(value.service.config.serviceID) === index &&
@@ -1683,25 +1327,17 @@ export class ServiceManager {
     }
     if (service.service === "FlashbotsMevBoostService") {
       command = service.entrypoint;
-      let index = command.findIndex((c) => /^-(mainnet|prater|goerli|sepolia|holesky$)/.test(c));
+      let index = command.findIndex((c) => /^-(stratis|auroria$)/.test(c));
       command[index] = "-" + newNetwork;
       index = command.findIndex((c) => c === "-relays") + 1;
       command[index] = '""';
     } else if (service.service === "PrysmBeaconService") {
-      let index = command.findIndex((c) => /--(mainnet|prater|goerli|sepolia|holesky)/.test(c));
+      let index = command.findIndex((c) => /--(stratis|auroria)/.test(c));
       command[index] = "--" + newNetwork;
-      if (newNetwork === "mainnet" && command.includes("--genesis-state=/opt/app/genesis/prysm-prater-genesis.ssz")) {
-        command.splice(command.indexOf("--genesis-state=/opt/app/genesis/prysm-prater-genesis.ssz"), 1);
-      } else if (
-        !newNetwork === "mainnet" &&
-        !command.includes("--genesis-state=/opt/app/genesis/prysm-prater-genesis.ssz")
-      ) {
-        command.push("--genesis-state=/opt/app/genesis/prysm-prater-genesis.ssz");
-      }
     } else {
       command = command.map((c) => {
-        if (/mainnet|prater|goerli|sepolia|holesky/.test(c)) {
-          c = c.replace(/mainnet|prater|goerli|sepolia|holesky/, newNetwork);
+        if (/stratis|auroria/.test(c)) {
+          c = c.replace(/stratis|auroria/, newNetwork);
         }
         return c;
       });
@@ -1908,37 +1544,6 @@ export class ServiceManager {
     return runRefs;
   }
 
-  async removeTekuLockFiles(serviceID) {
-    const ref = StringUtils.createRandomString();
-    this.nodeConnection.taskManager.tasks.push({ name: "Remove Lockfiles", otherRunRef: ref });
-    let status = "";
-    try {
-      let services = await this.readServiceConfigurations();
-      let service = services.find((s) => s.id === serviceID);
-      let workingDir = this.getWorkindDir(service);
-      if (!workingDir.endsWith("/")) {
-        workingDir += "/";
-      }
-      status = await this.nodeConnection.sshService.exec(`rm ${workingDir}/data/validator/key-manager/local/*.lock`);
-      this.nodeConnection.taskManager.otherSubTasks.push({
-        name: "remove lock files",
-        otherRunRef: ref,
-        status: true,
-        data: JSON.stringify(status),
-      });
-    } catch (err) {
-      log.error("Removing Teku Lock Files Failed:", err);
-      this.nodeConnection.taskManager.otherSubTasks.push({
-        name: "remove lock files",
-        otherRunRef: ref,
-        status: false,
-        data: JSON.stringify(status),
-      });
-    } finally {
-      this.nodeConnection.taskManager.finishedOtherTasks.push({ otherRunRef: ref });
-    }
-  }
-
   async beaconchainMonitoringModification(data) {
     let services = await this.readServiceConfigurations();
     let selectedValidator = services.find((service) => service.id === data.selectedVal);
@@ -1946,77 +1551,21 @@ export class ServiceManager {
       (service) => service.id === selectedValidator.dependencies.consensusClients[0].id
     );
 
-    const metricsExporterCommands = {
-      LighthouseValidatorService: "--monitoring-endpoint=",
-      LighthouseBeaconService: "--monitoring-endpoint=",
-      TekuValidatorService: "--metrics-publish-endpoint=",
-      TekuBeaconService: "--metrics-publish-endpoint=",
-      LodestarValidatorService: "--monitoring.endpoint=",
-      LodestarBeaconService: "--monitoring.endpoint=",
-    };
-
     let metricsExporterAdded = false;
 
     switch (selectedValidator.service) {
-      case "LighthouseValidatorService":
-        await this.manageServiceState(selectedValidator.id, "stopped");
-        selectedValidator.command.push(
-          metricsExporterCommands[selectedValidator.service] +
-          `https://beaconcha.in/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`
-        );
-        await this.nodeConnection.writeServiceConfiguration(selectedValidator.buildConfiguration());
-        await this.manageServiceState(selectedValidator.id, "started");
-        break;
-      case "TekuValidatorService":
-        await this.manageServiceState(selectedValidator.id, "stopped");
-        selectedValidator.command.push(
-          metricsExporterCommands[selectedValidator.service] +
-          `https://beaconcha.in/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`
-        );
-        await this.nodeConnection.writeServiceConfiguration(selectedValidator.buildConfiguration());
-        await this.manageServiceState(selectedValidator.id, "started");
-        break;
-      case "LodestarValidatorService":
-        await this.manageServiceState(selectedValidator.id, "stopped");
-        selectedValidator.command.push(
-          metricsExporterCommands[selectedValidator.service] +
-          `https://beaconcha.in/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`
-        );
-        await this.nodeConnection.writeServiceConfiguration(selectedValidator.buildConfiguration());
-        await this.manageServiceState(selectedValidator.id, "started");
-        break;
       case "PrysmValidatorService":
         await this.addMetricsExporter(services);
         metricsExporterAdded = true;
         break;
     }
 
-    switch (firstConsensusClient.service) {
-      case "LighthouseBeaconService":
-      case "TekuBeaconService":
-      case "LodestarBeaconService":
-        await this.manageServiceState(firstConsensusClient.id, "stopped");
-        firstConsensusClient.command.push(
-          metricsExporterCommands[firstConsensusClient.service] +
-          `https://beaconcha.in/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`
-        );
-        await this.nodeConnection.writeServiceConfiguration(firstConsensusClient.buildConfiguration());
-        await this.manageServiceState(firstConsensusClient.id, "started");
-        break;
-      case "PrysmBeaconService":
-      case "NimbusBeaconService":
-        if (!metricsExporterAdded) {
-          await this.addMetricsExporter(services);
-          metricsExporterAdded = true;
-        }
-        break;
-    }
     if (metricsExporterAdded) {
       let newServices = await this.readServiceConfigurations();
       let metricsExporter = newServices.filter(({ id: id1 }) => !services.some(({ id: id2 }) => id2 === id1))[0];
       metricsExporter.command = [];
       metricsExporter.command.push(
-        `--server.address=https://beaconcha.in/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`,
+        `--server.address=https://beacon.stratisevm.com/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`,
         `--system.partition=/host/rootfs`
       );
       if (selectedValidator.service == "PrysmValidatorService") {
@@ -2029,11 +1578,6 @@ export class ServiceManager {
         metricsExporter.command.push(
           `--beaconnode.type=prysm`,
           `--beaconnode.address=http://stereum-${firstConsensusClient.id}:8080/metrics`
-        );
-      } else if (firstConsensusClient.service == "NimbusBeaconService") {
-        metricsExporter.command.push(
-          `--beaconnode.type=nimbus`,
-          `--beaconnode.address=http://stereum-${firstConsensusClient.id}:8008/metrics`
         );
       }
 
@@ -2064,7 +1608,7 @@ export class ServiceManager {
           ],
         },
         data: {
-          network: "goerli",
+          network: "auroria",
           installDir: "/opt/stereum",
           executionClients: [],
           consensusClients: [],
@@ -2080,63 +1624,18 @@ export class ServiceManager {
   }
 
   async removeBeaconchainMonitoring(data) {
-    let metricsCommandIndex;
     let metricsExporterRemoveID = null;
     let linkedMetricsExporter;
 
-    const metricsExporterCommands = {
-      LighthouseValidatorService: "--monitoring-endpoint=",
-      LighthouseBeaconService: "--monitoring-endpoint=",
-      TekuValidatorService: "--metrics-publish-endpoint=",
-      TekuBeaconService: "--metrics-publish-endpoint=",
-      LodestarValidatorService: "--monitoring.endpoint=",
-      LodestarBeaconService: "--monitoring.endpoint=",
-    };
-
     let services = await this.readServiceConfigurations();
     let selectedValidator = services.find((service) => service.id === data.selectedVal);
-    let firstConsensusClient = services.find(
-      (service) => service.id === selectedValidator.dependencies.consensusClients[0].id
-    );
 
     switch (selectedValidator.service) {
-      case "LighthouseValidatorService":
-      case "TekuValidatorService":
-      case "LodestarValidatorService":
-        await this.manageServiceState(selectedValidator.id, "stopped");
-        metricsCommandIndex = selectedValidator.command.findIndex((c) =>
-          c.includes(metricsExporterCommands[selectedValidator.service])
-        );
-        if (metricsCommandIndex > -1) {
-          selectedValidator.command.splice(metricsCommandIndex, 1);
-        }
-        await this.nodeConnection.writeServiceConfiguration(selectedValidator.buildConfiguration());
-        await this.manageServiceState(selectedValidator.id, "started");
-        break;
       case "PrysmValidatorService":
         metricsExporterRemoveID = selectedValidator.id;
         break;
     }
 
-    switch (firstConsensusClient.service) {
-      case "LighthouseBeaconService":
-      case "TekuBeaconService":
-      case "LodestarBeaconService":
-        await this.manageServiceState(firstConsensusClient.id, "stopped");
-        metricsCommandIndex = firstConsensusClient.command.findIndex((c) =>
-          c.includes(metricsExporterCommands[firstConsensusClient.service])
-        );
-        if (metricsCommandIndex > -1) {
-          firstConsensusClient.command.splice(metricsCommandIndex, 1);
-        }
-        await this.nodeConnection.writeServiceConfiguration(firstConsensusClient.buildConfiguration());
-        await this.manageServiceState(firstConsensusClient.id, "started");
-        break;
-      case "PrysmBeaconService":
-      case "NimbusBeaconService":
-        metricsExporterRemoveID = firstConsensusClient.id;
-        break;
-    }
     if (metricsExporterRemoveID != null) {
       let metricsExporters = services.filter((services) => services.service == "MetricsExporterService");
       metricsExporters.forEach((metricsExporter) => {

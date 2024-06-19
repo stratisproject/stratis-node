@@ -431,7 +431,7 @@
     "thirdSlide": "\"Сүлжээ нэмэх\" дээр дарна уу",
     "fourthSlide": "Сүлжээнийхээ нэрийг бичнэ үү",
     "fivethSlide": "Stereum-аас хуулсан URL-аа буулгана уу",
-    "sixthSlide": "Таны нөүд ажиллаж байгаа CHAIN-ID-г бичнэ үү (GoerliTestnet-ийн хувьд энэ нь 5 байна)",
+    "sixthSlide": "Таны нөүд ажиллаж байгаа CHAIN-ID-г бичнэ үү (AuroriaTestnet-ийн хувьд энэ нь 205205 байна)",
     "seventhSlide": "Валютын тэмдэг болгон \"ETH\" гэж бичнэ үү",
     "eightthSlide": "ЗААВАЛ БИШ - та Block Explorer URL-г буулгаж болно",
     "ninethSlide": "\"ХАДГАЛАХ\" дээр товшино уу"

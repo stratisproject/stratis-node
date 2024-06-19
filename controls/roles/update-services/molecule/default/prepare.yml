@@ -28,73 +28,84 @@
     - include_role:
         name: "configure-firewall"
 
-    - name: Write service configuration lighthouse beacon
+    - name: Write service configuration prysm beacon
       copy:
         dest: "/etc/stereum/services/9024aec6-12a8-456a-8096-ee7ef6f67167.yaml"
         owner: "root"
         group: "root"
         mode: 0644
         content: |
-          service: LighthouseBeaconService
-          command:
-            - lighthouse
-            - bn
-            - --debug-level=debug
-            - --network=prater
-            - --datadir=/opt/app/beacon
-            - --http
-            - --http-address=0.0.0.0
-            - --metrics
-            - --metrics-address=0.0.0.0
-            - --disable-upnp
-            - --validator-monitor-auto
-            - --slasher
-            - --slasher-dir=/opt/app/slasher
-            - --slasher-max-db-size=16
-          entrypoint: []
-          env: {}
+          service: PrysmBeaconService
           id: 9024aec6-12a8-456a-8096-ee7ef6f67167
-          image: sigp/lighthouse:v2.0.0
+          image: stratisevm/prysm-beacon-chain:latest
           ports:
-          - 0.0.0.0:9000:9000/tcp
-          - 0.0.0.0:9000:9000/udp
+            - 0.0.0.0:12000:12000/udp
+            - 0.0.0.0:13000:13000/tcp
+          env: {}
+          entrypoint: []
+          command:
+            - /app/cmd/beacon-chain/beacon-chain
+            - --accept-terms-of-use=true
+            - --datadir=/opt/app/beacon
+            - --p2p-host-ip=""
+            - --p2p-host-dns=""
+            - --auroria=true
+            - --block-batch-limit=512
+            - --rpc-host=0.0.0.0
+            - --grpc-gateway-host=0.0.0.0
+            - --p2p-max-peers=100
+            - --monitoring-port=8080
+            - --monitoring-host=0.0.0.0
+          user: "2000"
           volumes:
-          - /opt/stereum/9024aec6-12a8-456a-8096-ee7ef6f67167/beacon:/opt/app/beacon
-          - /opt/stereum/9024aec6-12a8-456a-8096-ee7ef6f67167/slasher:/opt/app/slasher
-          user: 2000
+            - "/opt/app/services/9024aec6-12a8-456a-8096-ee7ef6f67167/prysm/beacon:/opt/app/beacon"
+          user: "2000"
           autoupdate: true
-          network: prater
+          network: auroria
       become: yes
 
-    - name: Write service configuration lighthouse validator
+    - name: Write service configuration prysm validator
       copy:
         dest: "/etc/stereum/services/f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379.yaml"
         owner: "root"
         group: "root"
         mode: 0644
         content: |
-          service: LighthouseValidatorService
-          command:
-            - lighthouse
-            - vc
-            - --debug-level=debug
-            - --network=prater
-            - --beacon-nodes=http://stereum-9024aec6-12a8-456a-8096-ee7ef6f67167:5052
-            - --datadir=/opt/app/validator
-            - --init-slashing-protection
-            - --metrics
-            - --metrics-address=0.0.0.0
-          entrypoint: []
+          service: PrysmValidatorService
           id: f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379
-          image: sigp/lighthouse:v2.0.0
+          configVersion: 1
+          command:
+            - /app/cmd/validator/validator
+            - --accept-terms-of-use=true
+            - --beacon-rpc-provider="stereum-9024aec6-12a8-456a-8096-ee7ef6f67167:4000"
+            - --beacon-rpc-gateway-provider="stereum-9024aec6-12a8-456a-8096-ee7ef6f67167:3500"
+            - --auroria
+            - --datadir=/opt/app/data/db
+            - --wallet-dir=/opt/app/data/wallets
+            - --wallet-password-file=/opt/app/data/passwords/wallet-password
+            - --monitoring-host=0.0.0.0
+            - --grpc-gateway-port=7500
+            - --grpc-gateway-host=0.0.0.0
+            - --grpc-gateway-corsdomain="*"
+            - --monitoring-host=0.0.0.0
+            - --monitoring-port=8081
+            - --suggested-fee-recipient=0x0000000000000000000000000000000000000000
+            - --graffiti-file=/opt/app/graffitis/graffitis.yaml
+            - --enable-builder=true
+            - --enable-doppelganger=true
+          entrypoint: []
           env: {}
-          ports: []
+          image: stratisevm/prysm-validator:latest
+          ports:
+            - 127.0.0.1:7500:7500/tcp
           volumes:
-          - /opt/stereum/f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379/validator:/opt/app/validator
-          - /opt/stereum/f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379/launchpad:/opt/app/launchpad
-          user: 2000
+            - /opt/stereum/prysm-f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379/data/db:/opt/app/data/db
+            - /opt/stereum/prysm-f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379/data/wallets:/opt/app/data/wallets
+            - /opt/stereum/prysm-f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379/data/passwords:/opt/app/data/passwords
+            - /opt/stereum/prysm-f3a6cbe4-5e4b-4ba4-a0f2-2504b6750379/graffitis:/opt/app/graffitis
+          user: "2000"
           autoupdate: true
-          network: prater
+          network: auroria
       become: yes
 
     - block:

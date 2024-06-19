@@ -20,7 +20,7 @@
   - name: Check service's configuration
     assert:
       that:
-        - service_configuration.image == 'sigp/lighthouse:v2.0.1'
+        - service_configuration.image == 'stratisevm/prysm-beacon-chain:latest'
 
   - name: Get information of running updated service
     community.docker.docker_container_info:
@@ -31,7 +31,7 @@
     assert:
       that:
         - service_container.exists
-        - service_container.container.Config.Image == 'sigp/lighthouse:v2.0.0'
+        - service_container.container.Config.Image == 'stratisevm/prysm-beacon-chain:latest'
 
   # other service needs to stay untouched
   - name: Read untouched service's configuration
@@ -47,6 +47,6 @@
   - name: Check untouched service's configuration
     assert:
       that:
-        - service_configuration_untouched.image == 'sigp/lighthouse:v2.0.0'
+        - service_configuration_untouched.image == 'stratisevm/prysm-validator:latest'
 
 # EOF

@@ -73,7 +73,7 @@ test("prysm validator import", async () => {
   await nodeConnection.writeServiceConfiguration(geth.buildConfiguration());
   await serviceManager.manageServiceState(geth.id, "started");
 
-  //write config and start nimbus
+  //write config and start prysm
   await nodeConnection.writeServiceConfiguration(prysmBC.buildConfiguration());
   await nodeConnection.writeServiceConfiguration(prysmVC.buildConfiguration());
   await serviceManager.manageServiceState(prysmBC.id, "started");

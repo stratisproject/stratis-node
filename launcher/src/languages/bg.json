@@ -431,7 +431,7 @@
     "thirdSlide": "Кликнете върху \"Добавяне на мрежа\"",
     "fourthSlide": "Въведете име за вашата мрежа",
     "fivethSlide": "Поставете копирания URL адрес от Stereum",
-    "sixthSlide": "Въведете идентификатора на веригата (CHAIN-ID), на която работи вашият нод (за GoerliTestnet той е 5)",
+    "sixthSlide": "Въведете идентификатора на веригата (CHAIN-ID), на която работи вашият нод (за AuroriaTestnet той е 205205)",
     "seventhSlide": "Въведете \"ETH\" като символ на валутата",
     "eightthSlide": "ПО ВАРИАНТ - можете да поставите URL адрес на Block Explorer",
     "ninethSlide": "Кликнете върху \"SAVE\""

@@ -4,25 +4,13 @@ import { StringUtils } from "../StringUtils.js";
 import * as path from "path";
 
 export const networks = {
-  mainnet: {
-    name: "mainnet",
-    dataEndpoint: "https://mainnet.beaconcha.in/api/v1",
+  stratis: {
+    name: "stratis",
+    dataEndpoint: "https://beacon.stratisevm.com/api/v1",
   },
-  goerli: {
-    name: "goerli",
-    dataEndpoint: "https://goerli.beaconcha.in/api/v1",
-  },
-  gnosis: {
-    name: "gnosis",
-    dataEndpoint: "https://beacon.gnosischain.com/api/v1",
-  },
-  sepolia: {
-    name: "sepolia",
-    dataEndpoint: "https://sepolia.beaconcha.in/api/v1",
-  },
-  holesky: {
-    name: "holesky",
-    dataEndpoint: "https://holesky.beaconcha.in/api/v1",
+  auroria: {
+    name: "auroria",
+    dataEndpoint: "https://auroria.beacon.stratisevm.com/api/v1",
   },
 };
 
@@ -76,7 +64,7 @@ export class NodeService {
     this.ports = ports === undefined || ports === null ? [] : ports;
     this.volumes = volumes === undefined || volumes === null ? [] : volumes;
     this.user = user === undefined || user === null ? "2000" : user;
-    this.network = network === undefined || network === null ? "goerli" : network;
+    this.network = network === undefined || network === null ? "auroria" : network;
 
     this.dependencies = {
       executionClients: executionClients,

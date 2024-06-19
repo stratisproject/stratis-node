@@ -431,7 +431,7 @@
     "thirdSlide": "Klik op “Netwerk Toevoegen”",
     "fourthSlide": "Typ een naam voor uw netwerk",
     "fivethSlide": "Plak de gekopieerde URL van Stereum",
-    "sixthSlide": "Typ de CHAIN-ID waarop uw node draait (voor GoerliTestnet is het 5)",
+    "sixthSlide": "Typ de CHAIN-ID waarop uw node draait (voor AuroriaTestnet is het 205205)",
     "seventhSlide": "Typ “ETH” als het valutasymbool",
     "eightthSlide": "OPTIONEEL - u kunt een Block Explorer URL plakken",
     "ninethSlide": "Klik op “OPSLAAN”"

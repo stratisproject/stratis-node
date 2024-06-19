@@ -431,7 +431,7 @@
     "thirdSlide": "Clique em “Adicionar Rede”",
     "fourthSlide": "Digite um nome para sua rede",
     "fivethSlide": "Cole a URL copiada do Stereum",
-    "sixthSlide": "Digite o CHAIN-ID em que seu nó está rodando (para GoerliTestnet é 5)",
+    "sixthSlide": "Digite o CHAIN-ID em que seu nó está rodando (para AuroriaTestnet é 205205)",
     "seventhSlide": "Digite “ETH” como símbolo da moeda",
     "eightthSlide": "OPCIONAL - você pode colar um URL de Explorador de Blocos",
     "ninethSlide": "Clique em “SALVAR”"

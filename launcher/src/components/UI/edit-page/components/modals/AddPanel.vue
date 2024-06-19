@@ -134,7 +134,7 @@ const jwtToken = ref("");
 const gateway = ref("");
 const selectedService = ref("");
 const isOpen = ref(false);
-const services = ["prysm", "lighthouse", "teku", "nimbus", "lodestar"];
+const services = ["prysm"];
 
 //Computed & Watcher
 

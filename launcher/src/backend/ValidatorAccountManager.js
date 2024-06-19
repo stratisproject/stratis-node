@@ -115,7 +115,7 @@ export class ValidatorAccountManager {
           await this.nodeConnection.sshService.exec(`chown 2000:2000 ${passwords_path}/wallet-password`);
           //Prysm - Create wallet for account(s)
           await this.nodeConnection.sshService.exec(
-            `docker exec stereum-${client.id} /app/cmd/validator/validator wallet create --wallet-dir=/opt/app/data/wallets --wallet-password-file=/opt/app/data/passwords/wallet-password --accept-terms-of-use --keymanager-kind=direct --prater`
+            `docker exec stereum-${client.id} /app/cmd/validator/validator wallet create --wallet-dir=/opt/app/data/wallets --wallet-password-file=/opt/app/data/passwords/wallet-password --accept-terms-of-use --keymanager-kind=direct --auroria`
           );
 
           await this.nodeConnection.sshService.exec(`chown -R 2000:2000 ${wallet_path}`);
@@ -132,44 +132,6 @@ export class ValidatorAccountManager {
             true,
             "Waiting 30 Seconds for Client"
           );
-          await Sleep(30000);
-        }
-        break;
-      }
-
-      case "nimbus": {
-        //generate validator api-token
-        const validator_path = client
-          .buildConfiguration()
-          .volumes.find((volume) => volume.includes("validators"))
-          .split(":")[0];
-
-        if ((await this.nodeConnection.sshService.exec(`cat ${validator_path}/api-token.txt`)).rc === 1) {
-          log.error("Couldn't read API-Token");
-          log.info("Generating one");
-          await this.nodeConnection.sshService.exec(
-            `echo ${StringUtils.createRandomString()} > ${validator_path}/api-token.txt`
-          );
-          await this.serviceManager.manageServiceState(client.id, "stopped");
-          await this.serviceManager.manageServiceState(client.id, "started");
-          await Sleep(30000);
-        }
-        break;
-      }
-
-      case "teku": {
-        const dataDir = client.volumes.find((vol) => vol.servicePath === "/opt/app/data").destinationPath;
-        if ((await this.nodeConnection.sshService.exec(`cat ${dataDir}/teku_api_password.txt`)).rc === 1) {
-          log.error("Couldn't read API-Token");
-          log.info("Generating one");
-          const password = StringUtils.createRandomString();
-          await this.nodeConnection.sshService.exec("apt install -y openjdk-8-jre-headless");
-          await this.nodeConnection.sshService.exec(`echo ${password} > ${dataDir}/teku_api_password.txt`);
-          await this.nodeConnection.sshService.exec(
-            `cd ${dataDir} && keytool -genkeypair -keystore teku_api_keystore -storetype PKCS12 -storepass ${password} -keyalg RSA -keysize 2048 -validity 109500 -dname "CN=teku, OU=MyCompanyUnit, O=MyCompany, L=MyCity, ST=MyState, C=AU" -ext "SAN=DNS:stereum-${client.id}"`
-          );
-          await this.serviceManager.manageServiceState(client.id, "stopped");
-          await this.serviceManager.manageServiceState(client.id, "started");
           await Sleep(30000);
         }
         break;
@@ -324,7 +286,7 @@ export class ValidatorAccountManager {
     const curlTag = await this.nodeConnection.ensureCurlImage();
     let command = [
       "docker run --rm --network=stereum curlimages/curl:" + curlTag,
-      `curl ${service.service.includes("Teku") ? "--insecure https" : "http"}://stereum-${service.id}:${validatorPorts[service.service]
+      `curl http://stereum-${service.id}:${validatorPorts[service.service]
       }${apiPath}`,
       `-X ${method.toUpperCase()}`,
       `-H 'Content-Type: application/json'`,
@@ -493,39 +455,8 @@ export class ValidatorAccountManager {
       if (graffitiVolume) graffitiDir = graffitiVolume.destinationPath + "/graffitis.yaml";
       let config = "";
       switch (service) {
-        case "lighthouse":
-          config = `default: ${graffiti}`;
-          await this.nodeConnection.sshService.exec(
-            "echo " + StringUtils.escapeStringForShell(config) + " > " + graffitiDir
-          );
-          break;
-
         case "prysm":
           config = `default: "${graffiti}"`;
-          await this.nodeConnection.sshService.exec(
-            "echo " + StringUtils.escapeStringForShell(config) + " > " + graffitiDir
-          );
-          break;
-
-        case "nimbus": {
-          //Nimbus only supports Graffiti changes while running via their rest api
-          let command = client.command.find((c) => c.includes("--rest-port="));
-          let port = command.replace("--rest-port=", "");
-          const curlTag = await this.nodeConnection.ensureCurlImage();
-          let CurlCommand = [
-            "docker run --rm --network=stereum curlimages/curl:" + curlTag,
-            `curl http://stereum-${client.id}:${port}/nimbus/v1/graffiti`,
-            `-X POST`,
-            `-H 'Content-Type: text/plain'`,
-            `-d '${graffiti}'`,
-            `-s`,
-          ];
-          await this.nodeConnection.sshService.exec(CurlCommand.join(" "));
-          break;
-        }
-
-        case "teku":
-          config = graffiti;
           await this.nodeConnection.sshService.exec(
             "echo " + StringUtils.escapeStringForShell(config) + " > " + graffitiDir
           );
@@ -603,28 +534,6 @@ export class ValidatorAccountManager {
         result.stderr = "Couldn't find path";
         break;
       }
-      case "LighthouseValidatorService":
-        result = await this.nodeConnection.sshService.exec(
-          `docker exec -u 0 -w /opt/app/validator/validators stereum-${service.id} cat api-token.txt`
-        );
-        break;
-      case "NimbusBeaconService":
-      case "NimbusValidatorService":
-        result = await this.nodeConnection.sshService.exec(
-          `docker exec -u 0 -w /opt/app/validators stereum-${service.id} cat api-token.txt`
-        );
-        break;
-      case "TekuBeaconService":
-      case "TekuValidatorService":
-        result = await this.nodeConnection.sshService.exec(
-          `docker exec -u 0 -w /opt/app/data/validator/key-manager stereum-${service.id} cat validator-api-bearer`
-        );
-        break;
-      case "LodestarValidatorService":
-        result = await this.nodeConnection.sshService.exec(
-          `docker exec -u 0 -w /opt/app/validator/validator-db stereum-${service.id} cat api-token.txt`
-        );
-        break;
       case "Web3SignerService":
         result = await this.nodeConnection.sshService.exec(
           `docker exec stereum-${service.id} curl -X POST http://localhost:9000/reload`
@@ -887,27 +796,6 @@ export class ValidatorAccountManager {
         }
         if (Array.isArray(command)) {
           command = command.join(" ").trim();
-          client.command = command;
-          await this.nodeConnection.writeServiceConfiguration(client.buildConfiguration());
-          await this.serviceManager.manageServiceState(client.id, "stopped");
-          await this.serviceManager.manageServiceState(client.id, "started");
-          await Sleep(30000);
-        }
-        break;
-      }
-      case "Teku": {
-        let command = structuredClone(client.command);
-        let urlCommand = command.find((arg) => arg.includes("--validators-external-signer-url="));
-        let changed = false;
-        if (!urlCommand) {
-          command.push(`--validators-external-signer-url=${url}`);
-          changed = true;
-        } else if (urlCommand && urlCommand !== `--validators-external-signer-url=${url}`) {
-          command = command.filter((arg) => !arg.includes("--validators-external-signer-url="));
-          command.push(`--validators-external-signer-url=${url}`);
-          changed = true;
-        }
-        if (changed) {
           client.command = command;
           await this.nodeConnection.writeServiceConfiguration(client.buildConfiguration());
           await this.serviceManager.manageServiceState(client.id, "stopped");

@@ -33,7 +33,6 @@ import ItemRow from "./section/ItemRow";
 import VolumeSlider from "./components/VolumeSlider";
 import OutputOptions from "./components/OutputOptions.vue";
 import LanguageBtn from "./components/LanguageBtn.vue";
-import CreditButtons from "./section/CreditButtons.vue";
 import { ref, computed, onMounted } from "vue";
 import CreditBtn from "./components/CreditBtn.vue";
 import { useRouter } from "vue-router";
@@ -100,7 +99,6 @@ const itemConfigurations = computed(() => {
   if (mainBox.value === "general") {
     items = [
       { title: "Language Selection", component: LanguageBtn },
-      { title: "Credits", component: CreditButtons },
     ];
   } else if (mainBox.value === "audio") {
     items = [

@@ -84,15 +84,6 @@ import { useNodeStore } from '@/store/theNode';
       <img src="/img/icon/node-page-icons/service-command-resync-client.png" alt="icon" class="w-4 active:scale-95" />
     </button>
     <button
-      v-if="props.client.service == 'TekuValidatorService'"
-      class="col-start-3 row-start-2 col-span-1 transition-colors duration-200 bg-gray-900 hover:bg-gray-600 rounded-md flex justify-center items-center"
-      @click="removeLock"
-      @mouseenter="footerStore.cursorLocation = `${removeLockBtn}`"
-      @mouseleave="footerStore.cursorLocation = ''"
-    >
-      <img src="/img/icon/node-page-icons/service-command-delete-lockfile.png" alt="icon" class="w-4 h-4 active:scale-95" />
-    </button>
-    <button
       v-if="props.client.service == 'GethService'"
       class="col-start-1 row-start-3 col-span-1 transition-colors duration-200 bg-gray-900 hover:bg-gray-600 rounded-md flex justify-center items-center"
       @click="openPruning"

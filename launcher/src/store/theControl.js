@@ -39,50 +39,14 @@ export const useControlStore = defineStore("theControl", {
       balancestatus: null,
       consensusClientsData: [
         {
-          name: "lighthouse",
-          img: "/img/icon/service-icons/consensus/LightHouse.png",
-        },
-        {
-          name: "lodestar",
-          img: "/img/icon/service-icons/consensus/Lodestar.png",
-        },
-        {
-          name: "nimbus",
-          img: "/img/icon/service-icons/consensus/Nimbus.png",
-        },
-        {
           name: "prysm",
           img: "/img/icon/service-icons/consensus/Prysm.png",
-        },
-        {
-          name: "teku",
-          img: "/img/icon/service-icons/consensus/Teku.png",
         },
       ],
       executionClientsData: [
         {
-          name: "erigon",
-          img: "/img/icon/service-icons/execution/Erigon.png",
-        },
-        {
           name: "geth",
           img: "/img/icon/service-icons/execution/Geth.png",
-        },
-        {
-          name: "reth",
-          img: "/img/icon/service-icons/execution/Reth.png",
-        },
-        {
-          name: "besu",
-          img: "/img/icon/service-icons/execution/hyperLedger-besu.png",
-        },
-        {
-          name: "nethermind",
-          img: "/img/icon/service-icons/execution/Nethermind.png",
-        },
-        {
-          name: "openethereum",
-          img: "/img/icon/service-icons/execution/OpenEthereum.png",
         },
       ],
     };

@@ -37,9 +37,22 @@ export class NodeUpdates {
    * @returns {Object} - updates available for services
    */
   async checkUpdates() {
-    let response = await axios.get("https://stereum.net/downloads/updates.json");
-    if (global.branch === "main") response.data.stereum.push({ name: "HEAD", commit: "main" });
-    return response.data;
+    return {
+      stratis: {
+        'GethService': ['latest'],
+        'PrysmBeaconService': ['latest'],
+        'PrysmValidatorService': ['latest'],
+      },
+      auroria: {
+        'GethService': ['latest'],
+        'PrysmBeaconService': ['latest'],
+        'PrysmValidatorService': ['latest'],
+      },
+      stereum: [{
+        name: 'HEAD',
+        commit: 'main'
+      }]
+    }
   }
 
   /**

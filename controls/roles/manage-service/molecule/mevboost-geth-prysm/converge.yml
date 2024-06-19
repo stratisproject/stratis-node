@@ -25,14 +25,14 @@
             configuration:
               service: GethService
               id: "{{ geth_service }}"
-              image: "ethereum/client-go:{{ stereum_static.defaults.versions.geth }}"
+              image: "stratisevm/go-stratis:{{ stereum_static.defaults.versions.geth }}"
               ports:
                 - 0.0.0.0:30303:30303/tcp
                 - 0.0.0.0:30303:30303/udp
               entrypoint: ["geth"]
               env: {}
               command:
-                - --goerli
+                - --auroria
                 - --http
                 - --datadir=/opt/app/geth
                 - --http.addr=0.0.0.0
@@ -62,7 +62,7 @@
             configuration:
               service: PrysmBeaconService
               id: "{{ prysm_beacon_service }}"
-              image: "prysmaticlabs/prysm-beacon-chain:{{ stereum_static.defaults.versions.prysm }}"
+              image: "stratisevm/prysm-beacon-chain:{{ stereum_static.defaults.versions.prysm }}"
               ports:
                 - 0.0.0.0:12000:12000/udp
                 - 0.0.0.0:13000:13000/tcp
@@ -72,9 +72,8 @@
                 /app/cmd/beacon-chain/beacon-chain
                 --accept-terms-of-use=true
                 --datadir=/opt/app/beacon
-                --goerli=true
+                --auroria=true
                 --block-batch-limit=512
-                --genesis-state=/opt/app/genesis/prysm-prater-genesis.ssz
                 --rpc-host=0.0.0.0
                 --execution-endpoint=http://stereum-{{ geth_service }}:8551
                 --jwt-secret=/engine.jwt
@@ -83,7 +82,6 @@
               user: "2000"
               volumes:
                 - "/opt/app/services/{{ prysm_beacon_service }}/prysm/beacon:/opt/app/beacon"
-                - "/opt/app/services/{{ prysm_beacon_service }}/genesis:/opt/app/genesis"
                 - "/opt/app/services/{{ geth_service }}/engine.jwt:/engine.jwt"
 
     # prysm validator service
@@ -114,7 +112,7 @@
                           --wallet-password-file=/opt/app/data/passwords/wallet-password
                           --accept-terms-of-use
                           --keymanager-kind=direct
-                          --prater"
+                          --auroria"
         changed_when: false
         become: yes
       - name: Prysm - Set wallet permission
@@ -148,7 +146,7 @@
             configuration:
               service: PrysmValidatorService
               id: "{{ prysm_validator_service }}"
-              image: "prysmaticlabs/prysm-validator:{{ stereum_static.defaults.versions.prysm }}"
+              image: "stratisevm/prysm-validator:{{ stereum_static.defaults.versions.prysm }}"
               env: {}
               entrypoint: []
               command:
@@ -157,7 +155,7 @@
                 --beacon-rpc-provider="stereum-{{ prysm_beacon_service }}:4000"
                 --beacon-rpc-gateway-provider="stereum-{{ prysm_beacon_service }}:3500"
                 --web
-                --goerli=true
+                --auroria=true
                 --datadir=/opt/app/data/db
                 --wallet-dir=/opt/app/data/wallets
                 --wallet-password-file=/opt/app/data/passwords/wallet-password

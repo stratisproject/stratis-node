@@ -74,15 +74,10 @@ serviceStore.filteredServices = computed(() => {
 });
 const getFilterbyNetwork = () => {
   switch (manageStore.configNetwork.network) {
-    case "mainnet":
+    case "stratis":
       return (item) => archFilter(item.service);
-    case "holesky":
-      return (item) => item.service != archFilter(item.service);
-    case "sepolia":
+    case "auroria":
       return (item) => item.service != "SSVNetworkService" && archFilter(item.service);
-    case "gnosis":
-      return (item) =>
-        /(Lighthouse|Teku|Nethermind|Erigon|Grafana|Prometheus)/.test(item.service) && archFilter(item.service);
     default:
       return (item) => item.service != "SSVNetworkService" && archFilter(item.service);
   }
@@ -90,7 +85,7 @@ const getFilterbyNetwork = () => {
 const archFilter = (service) => {
   const armArchs = ["arm", "arm64", "aarch64_be", "aarch64", "armv8b", "armv8l"];
   return armArchs.includes(manageStore.architecture)
-    ? !/(Prysm|ValidatorEjector|KeysAPI|Notification)/.test(service)
+    ? !/(Prysm|Notification)/.test(service)
     : true;
 };
 </script>

@@ -168,58 +168,13 @@ const checkPluginCategory = (element) => {
   switch (clickStore.selectedPreset.name) {
     case "staking":
       filter = (item) => item.category === element.category && !/(SSVNetwork|Web3Signer|Charon)/.test(item.service);
-      if (manageStore.currentNetwork.network == "gnosis") {
-        filter = (item) =>
-          item.category === element.category &&
-          /(Lighthouse|Teku|Nethermind|Erigon|Nimbus|Lodestar)/.test(item.service);
-      }
-      break;
-    case "ssv.network":
-    case "lidossv":
-      filter = (item) => {
-        if (element.category === "validator") {
-          return item.service === "SSVNetworkService";
-        } else if (element.category === "consensus" && item.category === "consensus") {
-          return true;
-        } else if (element.category === "execution" && item.category === "execution") {
-          return true;
-        }
-        return false;
-      };
-      break;
-    case "obol":
-    case "lidoobol":
-      filter = (item) => {
-        if (element.category === "validator" && element.service !== "CharonService") {
-          return /Teku|Lodestar|Lighthouse|Nimbus/.test(item.service) && item.category === element.category;
-        } else if (element.category === "validator") {
-          return item.service === "CharonService";
-        } else {
-          return item.category === element.category;
-        }
-      };
-      break;
-    case "rocketpool":
-      //filter = (item) => item.category === element.category
       break;
     case "mev boost":
       filter = (item) =>
-        item.category === element.category && !/(SSVNetwork|Reth|Web3Signer|Charon)/.test(item.service);
-      break;
-    case "stereum on arm":
-      filter = (item) =>
-        item.category === element.category && !/(Prysm|Reth|SSVNetwork|Web3Signer|Charon)/.test(item.service);
-      if (manageStore.currentNetwork.network == "gnosis") {
-        filter = (item) => item.category === element.category && /(Lighthouse|Teku|Nethermind)/.test(item.service);
-      }
+        item.category === element.category && !/(SSVNetwork|Web3Signer|Charon)/.test(item.service);
       break;
     case "archive":
       filter = (item) => item.category === element.category && !/(SSVNetwork|Web3Signer|Charon)/.test(item.service);
-      if (manageStore.currentNetwork.network == "gnosis") {
-        filter = (item) =>
-          item.category === element.category &&
-          /(Lighthouse|Teku|Nethermind|Erigon|Nimbus|Lodestar)/.test(item.service);
-      }
       break;
     default:
       break;

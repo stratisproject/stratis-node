@@ -431,7 +431,7 @@
     "thirdSlide": "Click on “Add Network”",
     "fourthSlide": "Type in a name for your network",
     "fivethSlide": "Paste in the copied URL from Stereum",
-    "sixthSlide": "Type in the CHAIN-ID your node runs on(for GoerliTestnet it is 5)",
+    "sixthSlide": "Type in the CHAIN-ID your node runs on(for AuroriaTestnet it is 205205)",
     "seventhSlide": "Type in “ETH” as the currency symbol",
     "eightthSlide": "OPTIONAL - you can paste in a Block Explorer URL",
     "ninethSlide": "Click on “SAVE”"

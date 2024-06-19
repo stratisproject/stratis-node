@@ -21,10 +21,9 @@ export class SSVNetworkService extends NodeService {
 
 ssv:
   # The SSV network to join to
-  # Mainnet = Network: mainnet (default)
-  # Testnet (Goerli) = Network: jato-v2
-  # Testnet (Holesky) = Network: holesky
-  Network: ${network === "goerli" ? "jato-v2" : network}
+  # Mainnet = Network: stratis (default)
+  # Testnet (Auroria) = Network: auroria
+  Network: ${network === "auroria" ? "auroria" : network}
   
   ValidatorOptions:
     # Whether to enable MEV block production. Requires the connected Beacon node to be MEV-enabled.

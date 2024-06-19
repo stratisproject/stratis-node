@@ -35,32 +35,34 @@
         mode: 0644
         content: |
           command:
-            - lighthouse
-            - bn
-            - --debug-level=debug
-            - --network=prater
+            - /app/cmd/beacon-chain/beacon-chain
+            - --auroria
+            - --accept-terms-of-use=true
             - --datadir=/opt/app/beacon
-            - --http
-            - --http-address=0.0.0.0
-            - --metrics
-            - --metrics-address=0.0.0.0
-            - --disable-upnp
-            - --validator-monitor-auto
-            - --slasher
-            - --slasher-dir=/opt/app/slasher
-            - --slasher-max-db-size=16
+            - --p2p-host-dns=""
+            - --block-batch-limit=512
+            - --rpc-host=0.0.0.0
+            - --grpc-gateway-host=0.0.0.0
+            - --p2p-max-peers=100
+            - --execution-endpoint=http://stereum-{{ geth_service }}:8551
+            - --monitoring-host=0.0.0.0
+            - --monitoring-port=8080
+            - --p2p-tcp-port=13001
+            - --p2p-udp-port=12001
+            - --jwt-secret=/engine.jwt
           entrypoint: []
           env: {}
-          service: LighthouseBeaconService
+          service: PrysmBeaconService
           id: {{ beacon_service }}
-          image: "sigp/lighthouse:{{ stereum_static.defaults.versions.lighthouse }}"
+          image: "stratisevm/prysm-beacon-chain:{{ stereum_static.defaults.versions.prysm }}"
           ports:
-            - 0.0.0.0:9000:9000/tcp
-            - 0.0.0.0:9000:9000/udp
-            - 127.0.0.1:5052:5052/tcp
+            - 0.0.0.0:13001:13001/tcp
+            - 0.0.0.0:12001:12001/udp
+            - 127.0.0.1:4000:4000/tcp
+            - 127.0.0.1:3500:3500/tcp
           volumes:
-            - "/opt/stereum/lighthouse/beacon:/opt/app/beacon"
-            - "/opt/stereum/lighthouse/slasher:/opt/app/slasher"
+            - "/opt/app/services/{{ beacon_service }}/prysm/beacon:/opt/app/beacon"
+            - "/opt/app/services/{{ beacon_service }}/genesis:/opt/app/genesis"
           user: 2000
       become: yes
 

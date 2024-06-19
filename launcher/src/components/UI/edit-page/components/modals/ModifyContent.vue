@@ -260,14 +260,6 @@ const getConnectionOptions = () => {
       if (props.client.service === "FlashbotsMevBoostService") {
         return manageStore.newConfiguration.filter((e) => e.category === "consensus");
       }
-      if (props.client.service === "LidoObolExitService") {
-        return manageStore.newConfiguration.filter(
-          (e) => /ValidatorEjector|Charon/.test(e.service) || e.category === "consensus"
-        );
-      }
-      if (props.client.service === "ValidatorEjectorService") {
-        return manageStore.newConfiguration.filter((e) => /consensus|execution/.test(e.category));
-      }
       break;
     default:
       return [];

@@ -43,15 +43,14 @@
   - name: check container tag version
     assert:
       that:
-        - docker_container_tag.stdout.startswith("sigp/lighthouse:")
+        - docker_container_tag.stdout.startswith("sratisevm/prysm-validator:")
 
   - raw: docker inspect --format={% raw %}'{{ .Config.Image }}'{% endraw %} stereum-9024aec6-12a8-456a-8096-ee7ef6f67167
     register: docker_container_tag
   - name: check container tag version
     assert:
       that:
-        - docker_container_tag.stdout.startswith("sigp/lighthouse:")
-        - '"v2.0.0" not in docker_container_tag.stdout'
+        - docker_container_tag.stdout.startswith("sratisevm/prysm-beacon-chain:")
 
 
 # EOF

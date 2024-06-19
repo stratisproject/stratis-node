@@ -30,13 +30,9 @@ export async function useUpdateCheck() {
     let newAvailableUpdates = [];
     if (versions.latest && services?.length > 0) {
       services.forEach((service) => {
-        if (!versions.latest[service.network] || !versions.latest[service.network][service.service]) service.network = "mainnet";
-        if (!versions.latest[service.network] || !versions.latest[service.network][service.service]) service.network = "prater";
+        if (!versions.latest[service.network] || !versions.latest[service.network][service.service]) service.network = "stratis";
+        if (!versions.latest[service.network] || !versions.latest[service.network][service.service]) service.network = "auroria";
         if (versions.latest[service.network] && versions.latest[service.network][service.service]) {
-          if (service.service === "ErigonService" && !service.imageVersion.startsWith("v")) {
-            service.imageVersion = "v" + service.imageVersion;
-            service.imageVersion = service.imageVersion.replace("-arm64", "");
-          }
           if (
             service.imageVersion !=
             versions.latest[service.network][service.service][versions.latest[service.network][service.service].length - 1]

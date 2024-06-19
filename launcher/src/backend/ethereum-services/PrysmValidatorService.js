@@ -8,7 +8,7 @@ export class PrysmValidatorService extends NodeService {
     service.setId();
     const workingDir = service.buildWorkingDir(dir);
 
-    const image = "prysmaticlabs/prysm-validator";
+    const image = "stratisevm/prysm-validator";
 
     const dataDir = "/opt/app/data/db";
     const walletDir = "/opt/app/data/wallets";
@@ -38,14 +38,14 @@ export class PrysmValidatorService extends NodeService {
       service.id, //id
       1, // configVersion
       image, //image
-      "v3.1.1", //imageVersion
+      "latest", //imageVersion
       '/app/cmd/validator/validator --accept-terms-of-use=true --beacon-rpc-provider="' +
         provider +
         '" --beacon-rpc-gateway-provider="' +
         providerGateway +
         '" --web --' +
         network +
-        "=true --datadir=" +
+        " --datadir=" +
         dataDir +
         " --wallet-dir=" +
         walletDir +

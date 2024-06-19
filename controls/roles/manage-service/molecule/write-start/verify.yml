@@ -15,8 +15,8 @@
       msg: "{{ stereum_docker_ps }}"
   - assert:
       that:
-      - stereum_docker_ps.stdout.find("sigp/lighthouse") != -1
-      - stereum_docker_ps.stdout.find("9000->9000") != -1
+      - stereum_docker_ps.stdout.find("stratisevm/prysm-beacon-chain") != -1
+      - stereum_docker_ps.stdout.find("12000->12000") != -1
   # data dir
   - stat: path=/opt/stereum/services/587c7432-e01a-11ec-8d93-6b4ba42e911c/beacon
     register: service_beacon_dir

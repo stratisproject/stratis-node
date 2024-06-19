@@ -4,14 +4,14 @@ import { ServicePort, servicePortProtocol } from "../../ethereum-services/Servic
 test("buildConfiguration", () => {
   const ports = [new ServicePort("127.0.0.1", 9090, 9090, servicePortProtocol.tcp)];
 
-  jest.mock("../../ethereum-services/NimbusBeaconService");
-  const NimbusBeaconService = require("../../ethereum-services/NimbusBeaconService");
-  NimbusBeaconService.NimbusBeaconService.mockImplementation(() => {
+  jest.mock("../../ethereum-services/PrysmBeaconService");
+  const PrysmBeaconService = require("../../ethereum-services/PrysmBeaconService");
+  PrysmBeaconService.PrysmBeaconService.mockImplementation(() => {
     return {
       buildMinimalConfiguration: jest.fn(() => {
         return {
-          id: "nimbus-id",
-          service: "NimbusBeaconService",
+          id: "prysm-id",
+          service: "PrysmBeaconService",
         };
       }),
     };
@@ -30,8 +30,8 @@ test("buildConfiguration", () => {
     };
   });
 
-  const prometheus = PrometheusService.buildByUserInput("prater", ports, "/opt/stereum/prometheus", [
-    new NimbusBeaconService.NimbusBeaconService(),
+  const prometheus = PrometheusService.buildByUserInput("auroria", ports, "/opt/stereum/prometheus", [
+    new PrysmBeaconService.PrysmBeaconService(),
     new PrometheusNodeExporterService.PrometheusNodeExporterService(),
   ]).buildConfiguration();
 
@@ -47,7 +47,7 @@ test("buildConfiguration", () => {
 
 test("getAvailablePorts", () => {
   const prometheus = PrometheusService.buildByUserInput(
-    "prater",
+    "auroria",
     [],
     "/opt/stereum/prometheus",
     [],

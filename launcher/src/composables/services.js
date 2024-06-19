@@ -80,32 +80,6 @@ export async function useFrontendServices() {
             oldService.config = service?.config;
           }
           oldService.state = service.state;
-          if (
-            (oldService.service === "TekuBeaconService" || oldService.service === "NimbusBeaconService") &&
-            oldService.config.configVersion &&
-            oldService.config.configVersion < 2
-          ) {
-            let existing = serviceStore.installedServices.find(
-              (s) =>
-                s.config.serviceID === oldService.config.serviceID && s.service === oldService.name + "ValidatorService"
-            );
-            let vs;
-            if (existing) {
-              vs = existing;
-            } else {
-              vs = allServices.find((element) => element.service === oldService.name + "ValidatorService");
-            }
-            if (vs.service === "TekuValidatorService") {
-              vs.icon = require("/public/img/icon/service-icons/validator/Teku-Validator-Linked-Circle.png");
-              vs.sIcon = require("/public/img/icon/service-icons/validator/Teku-Validator-Linked-s.png");
-            } else if (vs.service === "NimbusValidatorService") {
-              vs.icon = require("/public/img/icon/service-icons/validator/Nimbus-Validator-Linked-Circle.png");
-              vs.sIcon = require("/public/img/icon/service-icons/validator/Nimbus-Validator-Linked-s.png");
-            }
-            vs.config = oldService.config;
-            vs.state = oldService.state;
-            otherServices.push(vs);
-          }
           return oldService;
         });
         serviceStore.installedServices = newServices.concat(otherServices).map((e, i) => {
@@ -152,7 +126,7 @@ export async function useFrontendServices() {
         }
       }
       if (!nodeManageStore.currentNetwork) {
-        nodeManageStore.currentNetwork = nodeManageStore.networkList.find((item) => item.network === "goerli");
+        nodeManageStore.currentNetwork = nodeManageStore.networkList.find((item) => item.network === "auroria");
       }
     }
     // Trigger watchSSV in background (thus, intentionally without await!)

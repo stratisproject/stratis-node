@@ -31,7 +31,7 @@ test("buildConfiguration", () => {
   });
 
   const prysm = PrysmBeaconService.buildByUserInput(
-    "prater",
+    "auroria",
     ports,
     "/opt/stereum/prysm/",
     [new GethService.GethService(), new GethService.GethService()],
@@ -77,7 +77,7 @@ test("buildConsensusClientHttpEndpointUrl", () => {
   ];
 
   const prysm = PrysmBeaconService.buildByUserInput(
-    "prater",
+    "auroria",
     ports,
     "/opt/stereum/prysm",
     [new GethService.GethService()],
@@ -115,7 +115,7 @@ test("buildConsensusClientGateway", () => {
   ];
 
   const prysm = PrysmBeaconService.buildByUserInput(
-    "prater",
+    "auroria",
     ports,
     "/opt/stereum/prysm",
     [new GethService.GethService()],
@@ -164,7 +164,7 @@ test("buildConsensusClientEndpoint", () => {
   });
 
   const prysm = PrysmBeaconService.buildByUserInput(
-    "prater",
+    "auroria",
     ports,
     "/opt/stereum/prysm",
     [new GethService.GethService()],
@@ -197,7 +197,7 @@ test("getAvailablePorts", () => {
   });
 
   const prysmPorts = PrysmBeaconService.buildByUserInput(
-    "prater",
+    "auroria",
     [],
     "/opt/stereum/prysm",
     [new GethService.GethService()],
@@ -230,14 +230,14 @@ test("network", () => {
   });
 
   const prysmNetwork = PrysmBeaconService.buildByUserInput(
-    "prater",
+    "auroria",
     [],
     "/opt/stereum/prysm",
     [new GethService.GethService()],
     []
   ).buildConfiguration();
 
-  expect(prysmNetwork.network).toMatch(/prater/);
+  expect(prysmNetwork.network).toMatch(/auroria/);
 });
 
 test("buildByConfiguration", () => {

@@ -431,7 +431,7 @@
     "thirdSlide": "「ネットワークを追加」をクリックする",
     "fourthSlide": "ネットワークの名前を入力する",
     "fivethSlide": "StereumからコピーしたURLを貼り付ける",
-    "sixthSlide": "ノードが実行しているCHAIN-IDを入力する（GoerliTestnetの場合は5）",
+    "sixthSlide": "ノードが実行しているCHAIN-IDを入力する（AuroriaTestnetの場合は205205）",
     "seventhSlide": "通貨記号として「ETH」を入力する",
     "eightthSlide": "オプション - ブロックエクスプローラーURLを貼り付けることができます",
     "ninethSlide": "「SAVE」をクリックする"

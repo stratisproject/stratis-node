@@ -1,8 +1,6 @@
 stereum_static:
   defaults:
     controls_install_path: /opt/stereum
-    cloud:
-      notifications_api_key: 4cTLZL8gcZ5knP49murPh2qaZSchryfHraHQHFDPuuA8jqJLrSdr7Bd4s4TSSVBW
     updates:
       lane: stable
       unattended:
@@ -10,17 +8,10 @@ stereum_static:
     arch: x86_64
     versions:
       # consensus clients
-      lighthouse: v4.5.0
-      nimbus: multiarch-v23.10.0
-      teku: "23.10.0"
-      prysm: v4.1.0
-      lodestar: v1.11.3
+      prysm: latest
 
       # execution clients
-      geth: v1.13.4
-      besu: "23.10.0"
-      nethermind: "1.21.0"
-      erigon: v2.52.5
+      geth: latest
 
       # mevboost
       mevboost: "1.6"

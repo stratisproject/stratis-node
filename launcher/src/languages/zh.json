@@ -431,7 +431,7 @@
     "thirdSlide": "点击“添加网络”",
     "fourthSlide": "输入您网络的名称",
     "fivethSlide": "粘贴从以太坊复制的网址",
-    "sixthSlide": "输入您节点运行的CHAIN-ID（对于GoerliTestnet是5）",
+    "sixthSlide": "输入您节点运行的CHAIN-ID（对于AuroriaTestnet是205205）",
     "seventhSlide": "输入“ETH”作为货币符号",
     "eightthSlide": "可选项-您可以粘贴区块链资源管理器的URL",
     "ninethSlide": "点击“保存”"

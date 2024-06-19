@@ -11,7 +11,7 @@
     geth_service: c41a8602-e123-4f8e-9ada-b4d471afd863
     ssv_config: |
       eth2:
-        Network: "prater"
+        Network: "auroria"
         BeaconNodeAddr: "http://stereum-{{ beacon_service }}:3500"
       eth1:
         ETH1Addr: "ws://stereum-{{ geth_service }}:8546"
@@ -74,14 +74,14 @@
             configuration:
               service: GethService
               id: "{{ geth_service }}"
-              image: "ethereum/client-go:{{ stereum_static.defaults.versions.geth }}"
+              image: "stratisevm/go-stratis:{{ stereum_static.defaults.versions.geth }}"
               ports:
                 - 0.0.0.0:30303:30303/tcp
                 - 0.0.0.0:30303:30303/udp
               entrypoint: ["geth"]
               env: {}
               command:
-                - --goerli
+                - --auroria
                 - --http
                 - --datadir=/opt/app/geth
                 - --http.addr=0.0.0.0
@@ -116,7 +116,7 @@
             configuration:
               id: "{{ beacon_service }}"
               service: PrysmBeaconService
-              image: "prysmaticlabs/prysm-beacon-chain:{{ stereum_static.defaults.versions.prysm }}"
+              image: "stratisevm/prysm-beacon-chain:{{ stereum_static.defaults.versions.prysm }}"
               ports:
                 - 127.0.0.1:4000:4000/tcp
                 - 0.0.0.0:12001:12001/udp
@@ -135,14 +135,12 @@
                 --grpc-gateway-host=0.0.0.0
                 --grpc-gateway-port=3500
                 --execution-endpoint=http://stereum-{{ geth_service }}:8551
-                --prater=true
+                --auroria=true
                 --block-batch-limit=512
                 --p2p-udp-port=12001
                 --p2p-tcp-port=13001
-                --genesis-state=/opt/app/genesis/prysm-prater-genesis.ssz
                 --jwt-secret=/engine.jwt
               user: "2000"
               volumes:
                 - "/opt/app/services/{{ beacon_service }}/prysm/beacon:/opt/app/beacon"
-                - "/opt/app/services/{{ beacon_service }}/genesis:/opt/app/genesis"
                 - "/opt/app/services/{{ geth_service }}/engine.jwt:/engine.jwt"

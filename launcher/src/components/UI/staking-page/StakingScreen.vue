@@ -480,9 +480,7 @@ const doppelgangerController = async (item) => {
   try {
     const res = await ControlService.getServiceYAML(item?.config.serviceID);
     item.expertOptions.map((option) => {
-      if (item.service === "LighthouseValidatorService" && option.title === "Doppelganger") {
-        stakingStore.doppelgangerStatus = res.indexOf(option.pattern[0]) === -1 ? false : true;
-      } else if (option.title === "Doppelganger") {
+      if (option.title === "Doppelganger") {
         const matchedValue = res.match(new RegExp(option.pattern[0]))
           ? [...res.match(new RegExp(option.pattern[0]))][2]
           : "";

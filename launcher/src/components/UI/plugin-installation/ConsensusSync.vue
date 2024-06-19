@@ -114,9 +114,8 @@ export default {
       syncType: "syncType",
       checkPointSync: "checkPointSync",
       btnActive: "btnActive",
-      mainnet: "mainnet",
-      sepolia: "sepolia",
-      gnosis: "gnosis",
+      stratis: "stratis",
+      auroria: "auroria",
     }),
     ...mapWritableState(useNodeManage, {
       currentNetwork: "currentNetwork",
@@ -182,16 +181,10 @@ export default {
     setSelectedLinks() {
       switch (this.currentNetwork.id) {
         case 1:
-          this.selectedLinks = this.mainnet;
+          this.selectedLinks = this.stratis;
           break;
         case 2:
-          this.selectedLinks = this.sepolia;
-          break;
-        case 3:
-          this.selectedLinks = this.gnosis;
-          break;
-        case 4:
-          this.selectedLinks = this.holesky;
+          this.selectedLinks = this.auroria;
           break;
         default:
           break;

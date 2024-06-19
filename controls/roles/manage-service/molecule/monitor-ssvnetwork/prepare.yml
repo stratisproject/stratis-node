@@ -46,14 +46,14 @@
             configuration:
               service: GethService
               id: "{{ geth_service }}"
-              image: "ethereum/client-go:{{ stereum_static.defaults.versions.geth }}"
+              image: "stratisevm/go-stratis:{{ stereum_static.defaults.versions.geth }}"
               ports:
                 - 0.0.0.0:30303:30303/tcp
                 - 0.0.0.0:30303:30303/udp
               entrypoint: ["geth"]
               env: {}
               command:
-                - --goerli
+                - --auroria
                 - --http
                 - --datadir=/opt/app/geth
                 - --http.addr=0.0.0.0
@@ -85,36 +85,32 @@
             save: true
             state: started
             configuration:
-              service: LighthouseBeaconService
-              id: "{{ beacon_service }}"
-              image: "sigp/lighthouse:{{ stereum_static.defaults.versions.lighthouse }}"
-              env: {}
+              service: PrysmBeaconService
+              id: "{{ prysm_service }}"
+              image: "stratisevm/prysm-beacon-chain:{{ stereum_static.defaults.versions.prysm }}"
               ports:
-                - 0.0.0.0:9000:9000/tcp
-                - 0.0.0.0:9000:9000/udp
-              command:
-                - lighthouse
-                - bn
-                - --debug-level=info
-                - --network=prater
-                - --execution-endpoints=http://stereum-{{ geth_service }}:8551
-                - --eth1-blocks-per-log-query=150
-                - --datadir=/opt/app/beacon
-                - --http
-                - --http-address=0.0.0.0
-                - --metrics
-                - --metrics-address=0.0.0.0
-                - --disable-upnp
-                - --validator-monitor-auto
-                - --slasher
-                - --slasher-dir=/opt/app/slasher
-                - --slasher-max-db-size=16
-                - --jwt-secrets=/engine.jwt
+                - 0.0.0.0:12000:12000/udp
+                - 0.0.0.0:13000:13000/tcp
+              env: {}
               entrypoint: []
+              command: |
+                /app/cmd/beacon-chain/beacon-chain
+                --accept-terms-of-use=true
+                --datadir=/opt/app/beacon
+                --p2p-host-ip=""
+                --p2p-host-dns=""
+                --auroria=true
+                --block-batch-limit=512
+                --rpc-host=0.0.0.0
+                --grpc-gateway-host=0.0.0.0
+                --p2p-max-peers=100
+                --execution-endpoint=http://stereum-{{ geth_service }}:8551
+                --monitoring-port=8080
+                --monitoring-host=0.0.0.0
+                --jwt-secret=/engine.jwt
               user: "2000"
               volumes:
-                - "/opt/app/services/{{ beacon_service }}/beacon:/opt/app/beacon"
-                - "/opt/app/services/{{ beacon_service }}/slasher:/opt/app/slasher"
+                - "/opt/app/services/{{ prysm_service }}/prysm/beacon:/opt/app/beacon"
                 - "/opt/app/services/{{ geth_service }}/engine.jwt:/engine.jwt"
 
     # ssv operator keys
@@ -149,8 +145,8 @@
         dest: "/opt/app/services/{{ ssv_service }}/data/config.yaml"
         content: |
           eth2:
-            Network: "prater"
-            BeaconNodeAddr: "http://stereum-{{ beacon_service }}:5052"
+            Network: "auroria"
+            BeaconNodeAddr: "http://stereum-{{ beacon_service }}:3500"
           eth1:
             ETH1Addr: "ws://stereum-{{ geth_service }}:8546"
           OperatorPrivateKey: "{{ config_content.ssv_sk }}"

@@ -431,7 +431,7 @@
     "thirdSlide": "Klikněte na \"Přidat síť\"",
     "fourthSlide": "Zadejte název pro vaši síť",
     "fivethSlide": "Vložte zkopírovanou URL ze Stereum",
-    "sixthSlide": "Zadejte CHAIN-ID, na kterém váš uzel běží (pro GoerliTestnet je to 5)",
+    "sixthSlide": "Zadejte CHAIN-ID, na kterém váš uzel běží (pro AuroriaTestnet je to 205205)",
     "seventhSlide": "Napište „ETH“ jako symbol měny",
     "eightthSlide": "VOLITELNÉ - můžete vložit URL prohlížeče bloků",
     "ninethSlide": "Klikněte na \"ULOŽIT\""

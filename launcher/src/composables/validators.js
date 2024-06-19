@@ -153,11 +153,7 @@ export async function useUpdateValidatorStats() {
       let now = new Date();
       latestEpoch = latestEpoch ? parseInt(latestEpoch) : parseInt(info.latestEpoch);
       let activationEpoch = parseInt(info.activationepoch);
-      if (key.network === "gnosis") {
-        d.setMilliseconds(d.getMilliseconds() - (latestEpoch - activationEpoch) * 80000);
-      } else {
-        d.setMilliseconds(d.getMilliseconds() - (latestEpoch - activationEpoch) * 384000);
-      }
+      d.setMilliseconds(d.getMilliseconds() - (latestEpoch - activationEpoch) * 384000);
       key.index = info.validatorindex;
       key.status = info.status;
       key.balance = info.balance / 1000000000;

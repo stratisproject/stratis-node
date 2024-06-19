@@ -37,41 +37,8 @@ export class OneClickInstall {
     );
   }
 
-  //this is broken
   async chooseClient(clients) {
-    clients = {
-      PRYSM: 24,
-      LIGHTHOUSE: 24,
-      NIMBUS: 24,
-      TEKU: 20,
-    };
-    let buffer = [];
-    let clientDistribution = [];
-    let sum = 0;
-    let range = 0;
-
-    Object.keys(clients).forEach((key) => {
-      buffer.push({ name: key, coverage: clients[key] });
-    });
-
-    buffer.forEach((client) => {
-      sum += 100 / client.coverage;
-    });
-
-    buffer.forEach((client) => {
-      clientDistribution.push({ name: client.name, percentage: (100 / client.coverage / sum) * 100 });
-    });
-
-    clientDistribution.forEach((client) => {
-      client.min = range;
-      range = range + client.percentage;
-      client.max = range;
-    });
-
-    const ran = Math.random() * 100;
-    const winner = clientDistribution.find((client) => client.min <= ran && client.max >= ran);
-    log.info(winner, ran);
-    return winner.name.toLowerCase();
+    return 'prysm'
   }
 
   clearSetup() {
@@ -113,47 +80,9 @@ export class OneClickInstall {
       this.executionClient = this.serviceManager.getService("GethService", args);
     }
 
-    if (constellation.includes("RethService")) {
-      //RethService
-      this.executionClient = this.serviceManager.getService("RethService", args);
-    }
-
-    if (constellation.includes("BesuService")) {
-      //BesuService
-      this.executionClient = this.serviceManager.getService("BesuService", args);
-    }
-
-    if (constellation.includes("NethermindService")) {
-      //NethermindService
-      this.executionClient = this.serviceManager.getService("NethermindService", args);
-    }
-
-    if (constellation.includes("ErigonService")) {
-      //ErigonService
-      this.executionClient = this.serviceManager.getService("ErigonService", args);
-    }
-
     if (constellation.includes("FlashbotsMevBoostService")) {
       //FlashbotsMevBoostService
       this.mevboost = this.serviceManager.getService("FlashbotsMevBoostService", args);
-    }
-
-    if (constellation.includes("LighthouseBeaconService")) {
-      //LighthouseBeaconService
-      this.beaconService = this.serviceManager.getService("LighthouseBeaconService", {
-        ...args,
-        executionClients: [this.executionClient],
-        ...(this.mevboost && { mevboost: [this.mevboost] }),
-      });
-    }
-
-    if (constellation.includes("LodestarBeaconService")) {
-      //LodestarBeaconService
-      this.beaconService = this.serviceManager.getService("LodestarBeaconService", {
-        ...args,
-        executionClients: [this.executionClient],
-        ...(this.mevboost && { mevboost: [this.mevboost] }),
-      });
     }
 
     if (constellation.includes("PrysmBeaconService")) {
@@ -165,23 +94,6 @@ export class OneClickInstall {
       });
     }
 
-    if (constellation.includes("NimbusBeaconService")) {
-      //NimbusBeaconService
-      this.beaconService = this.serviceManager.getService("NimbusBeaconService", {
-        ...args,
-        executionClients: [this.executionClient],
-        ...(this.mevboost && { mevboost: [this.mevboost] }),
-      });
-    }
-
-    if (constellation.includes("TekuBeaconService")) {
-      //TekuBeaconService
-      this.beaconService = this.serviceManager.getService("TekuBeaconService", {
-        ...args,
-        executionClients: [this.executionClient],
-        ...(this.mevboost && { mevboost: [this.mevboost] }),
-      });
-    }
     let charon = undefined;
     if (constellation.includes("CharonService")) {
       //SSVNetworkService
@@ -191,46 +103,12 @@ export class OneClickInstall {
       this.notToStart.push(charon.id);
     }
 
-    if (constellation.includes("LighthouseValidatorService")) {
-      //LighthouseValidatorService
-      this.validatorService = this.serviceManager.getService("LighthouseValidatorService", {
-        ...args,
-        consensusClients: [charon ? charon : this.beaconService],
-      });
-    }
-
-    if (constellation.includes("LodestarValidatorService")) {
-      //LodestarValidatorService
-      this.validatorService = this.serviceManager.getService("LodestarValidatorService", {
-        ...args,
-        consensusClients: [charon ? charon : this.beaconService],
-      });
-    }
-
     if (constellation.includes("PrysmValidatorService")) {
       //PrysmValidatorService
       this.validatorService = this.serviceManager.getService("PrysmValidatorService", {
         ...args,
         consensusClients: [charon ? charon : this.beaconService],
       });
-    }
-
-    if (constellation.includes("NimbusValidatorService")) {
-      //NimbusBeaconService
-      this.validatorService = this.serviceManager.getService("NimbusValidatorService", {
-        ...args,
-        consensusClients: [charon ? charon : this.beaconService],
-      });
-      this.needsKeystore.push(this.validatorService);
-    }
-
-    if (constellation.includes("TekuValidatorService")) {
-      //TekuBeaconService
-      this.validatorService = this.serviceManager.getService("TekuValidatorService", {
-        ...args,
-        consensusClients: [charon ? charon : this.beaconService],
-      });
-      this.needsKeystore.push(this.validatorService);
     }
 
     if (constellation.includes("SSVNetworkService")) {
@@ -261,30 +139,6 @@ export class OneClickInstall {
     if (constellation.includes("NotificationService")) {
       //NotificationService
       this.extraServices.push(this.serviceManager.getService("NotificationService", args));
-    }
-
-    if (constellation.includes("ValidatorEjectorService")) {
-      //ValidatorEjectorService
-      this.extraServices.push(
-        this.serviceManager.getService("ValidatorEjectorService", {
-          ...args,
-          consensusClients: [this.beaconService],
-          executionClients: [this.executionClient],
-        })
-      );
-    }
-
-    if (constellation.includes("LidoObolExitService")) {
-      //LidoObolExitService
-      this.extraServices.push(
-        this.serviceManager.getService("LidoObolExitService", {
-          ...args,
-          consensusClients: [this.beaconService].concat(
-            this.extraServices.filter((s) => s.service === "CharonService")
-          ),
-          otherServices: this.extraServices.filter((s) => s.service === "ValidatorEjectorService"),
-        })
-      );
     }
 
     if (constellation.includes("SSVDKGService")) {
@@ -327,58 +181,17 @@ export class OneClickInstall {
   }
 
   handleArchiveTags(selectedPreset) {
-    if (selectedPreset == "staking") {
-      switch (this.executionClient.service) {
-        case "RethService":
-          this.executionClient.command.push("--full");
-          break;
-      }
-    } else if (selectedPreset == "archive") {
+    if (selectedPreset == "archive") {
       switch (this.executionClient.service) {
         case "GethService":
           this.executionClient.command.push("--syncmode=full");
           this.executionClient.command.push("--gcmode=archive");
           break;
-        case "RethService":
-          //archvie by default
-          break;
-        case "ErigonService":
-          this.executionClient.command = this.executionClient.command.filter((c) => !c.includes("--prune"));
-          break;
-        case "BesuService":
-          this.executionClient.command[
-            this.executionClient.command.findIndex((c) => c.includes("--sync-mode=X_SNAP"))
-          ] = "--sync-mode=FULL";
-          break;
-        case "NethermindService":
-          this.executionClient.command[this.executionClient.command.findIndex((c) => c.includes("--config"))] +=
-            "_archive";
-          this.executionClient.command[this.executionClient.command.findIndex((c) => c.includes("--Pruning.Mode="))] =
-            "--Pruning.Mode=None";
-          this.executionClient.command = this.executionClient.command.filter(
-            (c) => !c.includes("--Pruning.FullPruningTrigger")
-          );
-          break;
       }
       switch (this.beaconService.service) {
-        case "LighthouseBeaconService":
-          this.beaconService.command.push("--reconstruct-historic-states", "--genesis-backfill");
-          break;
-        case "LodestarBeaconService":
-          this.beaconService.command = this.beaconService.command.filter((c) => !c.includes("--checkpointSyncUrl"));
-          break;
-        case "NimbusBeaconService":
-          if (this.beaconService.command.some((c) => c.includes("--trusted-node-url="))) {
-            this.beaconService.command.push("--backfill=true");
-          }
-          this.beaconService.command.push("--history=archive");
-          break;
         case "PrysmBeaconService":
           this.beaconService.command += " --slots-per-archive-point=32";
           break;
-        case "TekuBeaconService":
-          this.beaconService.command[this.beaconService.command.findIndex((c) => c.includes("--data-storage-mode"))] =
-            "--data-storage-mode=archive";
       }
     }
   }
@@ -388,10 +201,10 @@ export class OneClickInstall {
     let version = service.imageVersion;
     if (versions[network] && versions[network][service.service]) {
       version = versions[network][service.service].slice(-1).pop();
-    } else if (versions["mainnet"] && versions["mainnet"][service.service]) {
-      version = versions["mainnet"][service.service].slice(-1).pop();
-    } else if (versions["prater"] && versions["prater"][service.service]) {
-      version = versions["prater"][service.service].slice(-1).pop();
+    } else if (versions["stratis"] && versions["stratis"][service.service]) {
+      version = versions["stratis"][service.service].slice(-1).pop();
+    } else if (versions["auroria"] && versions["auroria"][service.service]) {
+      version = versions["auroria"][service.service].slice(-1).pop();
     }
     return version;
   }
@@ -442,17 +255,6 @@ export class OneClickInstall {
     services.push(this.choosenClient + "ValidatorService");
     services.push(this.choosenClient + "BeaconService");
 
-    if (network === "gnosis")
-      services = [
-        "NethermindService",
-        "LighthouseBeaconService",
-        "LighthouseValidatorService",
-        "GrafanaService",
-        "PrometheusNodeExporterService",
-        "PrometheusService",
-        "NotificationService",
-      ];
-
     switch (setup) {
       case "staking":
         break;
@@ -462,43 +264,8 @@ export class OneClickInstall {
       case "ssv.network":
         services.push("SSVNetworkService");
         break;
-      case "obol":
-        services = [
-          "GethService",
-          "LighthouseBeaconService",
-          "TekuValidatorService",
-          "CharonService",
-          "GrafanaService",
-          "PrometheusNodeExporterService",
-          "PrometheusService",
-          "NotificationService",
-        ];
-        break;
-      case "rocketpool":
-        services.push("ROCKETPOOL");
-        break;
-      case "stereum on arm":
-        services = services.filter(
-          (s) =>
-            !["GrafanaService", "PrometheusNodeExporterService", "PrometheusService", "NotificationService"].includes(s)
-        );
-        break;
       case "archive":
         break;
-      case "lidoobol":
-        services = [
-          "NethermindService",
-          "LighthouseBeaconService",
-          "LodestarValidatorService",
-          "GrafanaService",
-          "PrometheusNodeExporterService",
-          "PrometheusService",
-          "NotificationService",
-        ];
-        services.push("LidoObolExitService", "CharonService", "ValidatorEjectorService", "FlashbotsMevBoostService");
-        break;
-      case "lidossv":
-        services.push("SSVNetworkService", "SSVDKGService");
     }
     return services;
   }

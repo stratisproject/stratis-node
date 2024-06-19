@@ -431,7 +431,7 @@
     "thirdSlide": "Klicken Sie auf „Netzwerk hinzufügen“",
     "fourthSlide": "Geben Sie einen Namen für Ihr Netzwerk ein",
     "fivethSlide": "Fügen Sie die kopierte URL von Stereum ein",
-    "sixthSlide": "Geben Sie die CHAIN-ID ein, auf der Ihr Node läuft (für GoerliTestnet ist es 5)",
+    "sixthSlide": "Geben Sie die CHAIN-ID ein, auf der Ihr Node läuft (für AuroriaTestnet ist es 205205)",
     "seventhSlide": "Geben Sie „ETH“ als Währungssymbol ein",
     "eightthSlide": "OPTIONAL - Sie können eine Block-Explorer-URL einfügen",
     "ninethSlide": "Klicken Sie auf „SPEICHERN“"

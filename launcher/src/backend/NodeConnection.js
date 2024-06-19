@@ -244,7 +244,7 @@ export class NodeConnection {
         `mkdir -p "${this.installationDirectory}/ansible" &&
           cd "${this.installationDirectory}/ansible" &&
           git init &&
-          git remote add -f ethereum-node https://github.com/stereum-dev/ethereum-node.git &&
+          git remote add -f stratis-node https://github.com/stratisproject/stratis-node.git &&
           git config core.sparseCheckout true &&
           echo 'controls' >> .git/info/sparse-checkout &&
           git checkout ${global.branch ? global.branch : commit}`

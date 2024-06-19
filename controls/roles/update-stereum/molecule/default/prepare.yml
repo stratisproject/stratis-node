@@ -61,7 +61,7 @@
         chdir: "/opt/stereum/ansible"
       with_items:
       - "git init"
-      - "git remote add -f ethereum-node https://github.com/stereum-dev/ethereum-node.git"
+      - "git remote add -f stratis-node https://github.com/stratisproject/stratis-node.git"
       - "git config core.sparseCheckout true"
       - "echo 'controls' >> .git/info/sparse-checkout"
       - "git checkout 0f442c192c1fe508f6d2ef4288b56cbd0ffbfe68"

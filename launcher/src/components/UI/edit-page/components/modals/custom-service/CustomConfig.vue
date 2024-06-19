@@ -30,7 +30,7 @@
                 v-model="manageStore.customConfig.image"
                 class="w-full h-full bg-transparent text-gray-700 p-2 text-sm"
                 type="text"
-                placeholder="hyperledger/besu:22.7.6"
+                placeholder="stratisevm/go-stratis:latest"
               />
             </div>
           </div>
@@ -49,7 +49,7 @@
                 v-model="manageStore.customConfig.entrypoint"
                 class="w-full h-full bg-transparent text-gray-700 p-2 text-sm"
                 type="text"
-                placeholder="besu"
+                placeholder="geth"
               />
             </div>
           </div>

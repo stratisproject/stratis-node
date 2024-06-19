@@ -364,7 +364,6 @@ export default {
   methods: {
     openDocs(docsUrl) {
       window.open(docsUrl, "_blank");
-      if (this.currentNetwork.network === "gnosis") window.open("https://docs.gnosischain.com/node/", "_blank");
     },
 
     somethingIsChanged(item) {

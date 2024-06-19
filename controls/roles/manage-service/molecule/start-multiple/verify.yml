@@ -12,16 +12,16 @@
       msg: "{{ stereum_docker_ps }}"
   - assert:
       that:
-      - stereum_docker_ps.stdout.find("sigp/lighthouse") != -1
-      - stereum_docker_ps.stdout.find("9000->9000") != -1
+      - stereum_docker_ps.stdout.find("stratisevm/prysm-beacon-chain") != -1
+      - stereum_docker_ps.stdout.find("13001->13001") != -1
   - shell: ufw status
     register: stereum_ufw_status
   - debug:
       msg: "{{ stereum_ufw_status }}"
   - assert:
       that:
-      - stereum_ufw_status.stdout.find("9000/tcp") != -1
-      - stereum_ufw_status.stdout.find("9000/udp") != -1
+      - stereum_ufw_status.stdout.find("13001/tcp") != -1
+      - stereum_ufw_status.stdout.find("12001/udp") != -1
       - stereum_ufw_status.stdout.find("30303/tcp") != -1
       - stereum_ufw_status.stdout.find("30303/udp") != -1
   - assert:

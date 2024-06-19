@@ -431,7 +431,7 @@
     "thirdSlide": "Cliquez sur « Ajouter un réseau »",
     "fourthSlide": "Entrez un nom pour votre réseau",
     "fivethSlide": "Collez l'URL copiée de Stereum",
-    "sixthSlide": "Entrez le CHAIN-ID sur lequel votre nœud fonctionne (pour GoerliTestnet c'est 5)",
+    "sixthSlide": "Entrez le CHAIN-ID sur lequel votre nœud fonctionne (pour AuroriaTestnet c'est 205205)",
     "seventhSlide": "Entrez « ETH » comme symbole de monnaie",
     "eightthSlide": "OPTIONNEL - vous pouvez coller une URL d'explorateur de blocs",
     "ninethSlide": "Cliquez sur « ENREGISTRER »"

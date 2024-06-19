@@ -48,16 +48,12 @@ export default {
     }),
   },
   mounted() {
-    if (this.currentNetwork.network === "gnosis") {
-      this.docsImage = "/img/icon/base-header-icons/help-modal-doc-gnosis.png";
-    } else {
-      this.docsImage = "/img/icon/base-header-icons/help-modal-doc-ethereum.png";
-    }
+    this.docsImage = "/img/icon/base-header-icons/help-modal-doc-ethereum.png";
   },
   methods: {
     OpenStereumGithub() {
       let URL =
-        "https://github.com/stereum-dev/ethereum-node/issues/new?assignees=&labels=bug&template=bug_report.yml&title=%5BBug%5D%3A+";
+        "https://github.com/stratisproject/stratis-node/issues/new";
       window.open(URL, "_blank");
     },
     OpenStereumDiscord() {
@@ -65,12 +61,7 @@ export default {
       window.open(URL, "_blank");
     },
     openGnoEthDocs() {
-      let url;
-      if (this.currentNetwork.network === "gnosis") {
-        url = "https://docs.gnosischain.com/node/manual/";
-      } else {
-        url = "https://ethereum.org/en/developers/docs/";
-      }
+      let url = "https://ethereum.org/en/developers/docs/";
       window.open(url, "_blank");
     },
   },
