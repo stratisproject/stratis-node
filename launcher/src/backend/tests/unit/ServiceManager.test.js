@@ -136,7 +136,7 @@ test("addDependencies FlashbotsMevBoost", () => {
 
   const result = sm.addDependencies(mevboost, [prysmService1, prysmService2]);
   expect(result).toHaveLength(2)
-  expect(result[0].command.join(" ")).toMatch(/--builder=http:\/\/stereum-.{36}:18550/)
+  expect(result[0].command).toMatch(/--http-mev-relay=http:\/\/stereum-.{36}:18550/)
 });
 
 test("addConnection String", () => {
@@ -164,14 +164,14 @@ test("addConnection array empty dependencies", () => {
   const result = sm.addCommandConnection(prysmService, endpointCommand, dependencies, filter);
 
   expect(result).not.toContain("--execution-endpoint=");
-  expect(result.join(" ")).not.toMatch(/--execution-endpoint=/);
+  expect(result).not.toMatch(/--execution-endpoint=/);
 });
 
 test("addConnection array", () => {
   const geth1 = GethService.buildByUserInput("auroria", [], "/opt/stereum/geth");
   const geth2 = GethService.buildByUserInput("auroria", [], "/opt/stereum/geth");
   const prysmService = PrysmBeaconService.buildByUserInput("auroria", [], "/opt/stereum/prysm", [geth1], []);
-  const dependencies = lhService.dependencies.executionClients.concat([geth2]);
+  const dependencies = prysmService.dependencies.executionClients.concat([geth2]);
   const endpointCommand = "--execution-endpoint=";
   const filter = (e) => e.buildExecutionClientEngineRPCHttpEndpointUrl();
 

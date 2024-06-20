@@ -8,7 +8,7 @@ module.exports = {
   },
   moduleDirectories: ["node_modules", "src"],
   testEnvironment: "jsdom",
-  transformIgnorePatterns: ["node_modules/(?!(sucrase)/)"],
+  transformIgnorePatterns: ["node_modules/(?!(sucrase)/|@babel)"],
   transform: {
     ".*\\.(vue)$": "@vue/vue3-jest",
     "^.+\\.(js|jsx|ts|tsx|mjs)$": "babel-jest",

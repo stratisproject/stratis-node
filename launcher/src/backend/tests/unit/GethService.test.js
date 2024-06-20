@@ -21,7 +21,7 @@ test("user", () => {
 
 test("image", () => {
   expect(GethService.buildByUserInput("mainnet", null, null).buildConfiguration().image).toMatch(
-    /ethereum\/client-go/
+    /stratisevm\/go-stratis/
   );
 });
 

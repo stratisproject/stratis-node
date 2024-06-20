@@ -39,7 +39,7 @@ test("buildConfiguration", () => {
   expect(prysm.ports).toHaveLength(1);
   expect(prysm.id).toHaveLength(36);
   expect(prysm.user).toMatch(/2000/);
-  expect(prysm.image).toMatch(/prysmaticlabs\/prysm-validator/);
+  expect(prysm.image).toMatch(/stratisevm\/prysm-validator/);
   expect(prysm.configVersion).toBe(1);
 
   expect(prysm.service).toMatch(/PrysmValidatorService/);

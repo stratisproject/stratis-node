@@ -45,7 +45,7 @@ test("buildConfiguration", () => {
   expect(prysm.ports).toHaveLength(3);
   expect(prysm.id).toHaveLength(36);
   expect(prysm.user).toMatch(/2000/);
-  expect(prysm.image).toMatch(/prysmaticlabs\/prysm-beacon-chain/);
+  expect(prysm.image).toMatch(/stratisevm\/prysm-beacon-chain/);
   expect(prysm.configVersion).toBe(1);
 });
 

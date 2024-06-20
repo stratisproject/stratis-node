@@ -363,28 +363,6 @@ export class ServiceManager {
         });
       case "SSVNetwork":
         return this.addSSVNetworkConnection(service, dependencies, ssvConfig);
-      case "Ejector":
-        // create a new function to handle dependencies for env vars
-        keyValuePairs = [
-          {
-            key: "EXECUTION_NODE",
-            value: (e) => e.buildExecutionClientHttpEndpointUrl(),
-            filter: (d) => typeof d.buildExecutionClientHttpEndpointUrl === "function",
-          },
-          {
-            key: "CONSENSUS_NODE",
-            value: (e) => e.buildConsensusClientHttpEndpointUrl(),
-            filter: (d) => typeof d.buildConsensusClientHttpEndpointUrl === "function",
-          },
-        ];
-        this.addENVConnction(service, dependencies, keyValuePairs);
-        service.dependencies.executionClients = dependencies.filter(
-          (d) => typeof d.buildExecutionClientHttpEndpointUrl === "function"
-        );
-        service.dependencies.consensusClients = dependencies.filter(
-          (d) => typeof d.buildConsensusClientHttpEndpointUrl === "function"
-        );
-        return service;
       default:
         return service;
     }
