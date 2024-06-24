@@ -51,7 +51,6 @@ export class PrysmBeaconService extends NodeService {
         dataDir +
         ' --p2p-host-dns="" ' +
         (network === 'stratis' ? '' : `--${network}`) +
-        " --block-batch-limit=512" +
         " --rpc-host=0.0.0.0 --grpc-gateway-host=0.0.0.0 --p2p-max-peers=100 --execution-endpoint=" +
         executionEndpoint +
         " --monitoring-host=0.0.0.0 --monitoring-port=8080 --p2p-tcp-port=13001 --p2p-udp-port=12001 --jwt-secret=" +
