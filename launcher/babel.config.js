@@ -6,8 +6,5 @@ module.exports = {
         polyfills: ["es.promise", "es.symbol", "es.object.entries", "es.array.includes"],
       },
     ],
-  ],
-  plugins: [
-    '@babel/plugin-transform-modules-commonjs',
   ]
 };

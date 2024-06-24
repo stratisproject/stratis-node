@@ -10,13 +10,13 @@ export const useWelcomeStore = defineStore("welcomePage", {
           path: "/oneClick/preset",
           display: true,
         },
-        {
-          img: "/img/icon/welcome-page-icons/custom-install.png",
-          imgHover: "img/icon/welcome-page-icons/custom-install-hover.png",
-          imgDisabled: "img/icon/welcome-page-icons/custom-install-disabled.png",
-          path: "/custom/path",
-          display: true,
-        },
+        // {
+        //   img: "/img/icon/welcome-page-icons/custom-install.png",
+        //   imgHover: "img/icon/welcome-page-icons/custom-install-hover.png",
+        //   imgDisabled: "img/icon/welcome-page-icons/custom-install-disabled.png",
+        //   path: "/custom/path",
+        //   display: true,
+        // },
         {
           img: "/img/icon/welcome-page-icons/config-import.png",
           imgHover: "/img/icon/welcome-page-icons/config-import-hover.png",
