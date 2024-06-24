@@ -41,6 +41,10 @@ export class PrysmBeaconService extends NodeService {
     let builderCommand = mevboostEndpoint ? " --http-mev-relay=" + mevboostEndpoint : "";
     let checkpointCommand = checkpointURL ? " --checkpoint-sync-url=" + checkpointURL : "";
 
+    if (network === 'stratis') {
+      network = 'mainnet'
+    }
+
     service.init(
       "PrysmBeaconService", //service
       service.id, //id

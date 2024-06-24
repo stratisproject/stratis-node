@@ -33,6 +33,10 @@ export class PrysmValidatorService extends NodeService {
       })
       .join();
 
+    if (network === 'stratis') {
+      network = 'mainnet'
+    }
+
     service.init(
       "PrysmValidatorService", //service
       service.id, //id
