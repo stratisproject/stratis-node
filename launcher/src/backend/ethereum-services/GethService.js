@@ -43,6 +43,7 @@ export class GethService extends NodeService {
         "--metrics.expensive",
         "--metrics.port=6060",
         "--metrics.addr=0.0.0.0",
+        "--syncmode=full",
       ], // command
       ["geth"], // entrypoint
       null, // env

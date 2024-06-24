@@ -10,9 +10,9 @@ module.exports = {
         directories: {
           output: "dist/${platform}",
         },
-        appId: "com.stereum.launcher",
-        productName: "Stereum-Launcher",
-        afterSign: "@sapien99/vue-cli-plugin-electron-builder-notarize",
+        // appId: "com.stereum.launcher",
+        // productName: "Stereum-Launcher",
+        // afterSign: "@sapien99/vue-cli-plugin-electron-builder-notarize",
         // options placed here will be merged with default configuration and passed to electron-builder
         buildDependenciesFromSource: false,
         nodeGypRebuild: false,
@@ -23,8 +23,8 @@ module.exports = {
         },
         mac: {
           hardenedRuntime: true,
-          entitlements:
-            "./node_modules/@sapien99/vue-cli-plugin-electron-builder-notarize/entitlements.mac.inherit.plist",
+          // entitlements:
+          //   "./node_modules/@sapien99/vue-cli-plugin-electron-builder-notarize/entitlements.mac.inherit.plist",
           gatekeeperAssess: false,
           artifactName: "Stereum-Launcher-${version}.${ext}",
         },
