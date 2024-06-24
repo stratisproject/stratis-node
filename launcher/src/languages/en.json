@@ -844,7 +844,7 @@
   "oneClick": {
     "installedService": "INSTALLED SERVICES",
     "addOption": "ADDITIONAL OPTIONS",
-    "chooseNetwork": "CHOOSE YOUR USE CASE AND NETWORK. AFTER CHOOSING AND PRESSING START A RANDOM CLIENT SELECTION WILL BE TAKEN TO SERVE YOUR USE CASE",
+    "chooseNetwork": "CHOOSE YOUR NETWORK",
     "oneClckInstall": "ONE-CLICK INSTALLATION",
     "setNodeClient": "Set how the Node clients where synchronize their blockchain data from",
     "process": "Processing"

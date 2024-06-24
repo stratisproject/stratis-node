@@ -73,7 +73,7 @@ export const useNodeManage = defineStore("nodeManage", {
           icon: "/img/icon/network-icons/stratis-mainnet.png",
           currencyIcon: "/img/icon/control-page-icons/mainnet-currency-symbol.png",
           dataEndpoint: "https://beacon.stratisevm.com/api/v1",
-          support: ["staking", "archive"],
+          support: ["staking"],
         },
 
         {
@@ -83,7 +83,7 @@ export const useNodeManage = defineStore("nodeManage", {
           icon: "/img/icon/network-icons/ethereum-testnet-icon.png",
           currencyIcon: "/img/icon/control-page-icons/network-currency-icons/network-currency-icons-goerli-testnet.png",
           dataEndpoint: "https://auroria.stratisevm.com/api/v1",
-          support: ["staking", "archive"],
+          support: ["staking"],
         },
       ],
       currentNetwork: {},

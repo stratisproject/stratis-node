@@ -66,13 +66,13 @@ export const useClickInstall = defineStore("clickInstallation", {
         //   icon: "/img/icon/one-click-icons/preset-icons/ssv-network-preset.png",
         //   includedPlugins: [],
         // },
-        {
-          id: 5,
-          name: "archive",
-          defaultPath: "/opt/stereum",
-          icon: "/img/icon/one-click-icons/preset-icons/archive-preset.png",
-          includedPlugins: [],
-        },
+        // {
+        //   id: 5,
+        //   name: "archive",
+        //   defaultPath: "/opt/stereum",
+        //   icon: "/img/icon/one-click-icons/preset-icons/archive-preset.png",
+        //   includedPlugins: [],
+        // },
       ],
       services: [
         {

@@ -66,7 +66,7 @@ import { ref, onMounted, watch } from 'vue';
             </li>
           </ul>
         </Transition>
-        <div
+        <!-- <div
           class="col-start-1 col-span-full row-start-2 row-span-full py-4 px-8 grid grid-cols-5 grid-rows-2 overflow-x-hidden overflow-y-auto"
         >
           <div
@@ -91,7 +91,7 @@ import { ref, onMounted, watch } from 'vue';
               alt="Preset Icon"
             />
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -123,7 +123,9 @@ watch(displayItem, () => {
 onMounted(() => {
   clickStore.installMonitoring = false;
   displayItem.value = "Click to select a network";
-  clickStore.presets.forEach((p) => (p.selected = false));
+  // clickStore.presets.forEach((p) => (p.selected = false));
+  // Select `staking` preset by default
+  emit("installPreset", clickStore.presets.find((p) => p.name === 'staking'))
 });
 
 //Methods
