@@ -33,10 +33,6 @@ export class PrysmValidatorService extends NodeService {
       })
       .join();
 
-    if (network === 'stratis') {
-      network = 'mainnet'
-    }
-
     service.init(
       "PrysmValidatorService", //service
       service.id, //id
@@ -47,8 +43,8 @@ export class PrysmValidatorService extends NodeService {
         provider +
         '" --beacon-rpc-gateway-provider="' +
         providerGateway +
-        '" --web --' +
-        network +
+        '" --web ' +
+        (network === 'stratis' ? '' : `--${network}`) +
         " --datadir=" +
         dataDir +
         " --wallet-dir=" +

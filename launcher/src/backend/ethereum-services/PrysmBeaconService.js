@@ -41,10 +41,6 @@ export class PrysmBeaconService extends NodeService {
     let builderCommand = mevboostEndpoint ? " --http-mev-relay=" + mevboostEndpoint : "";
     let checkpointCommand = checkpointURL ? " --checkpoint-sync-url=" + checkpointURL : "";
 
-    if (network === 'stratis') {
-      network = 'mainnet'
-    }
-
     service.init(
       "PrysmBeaconService", //service
       service.id, //id
@@ -53,8 +49,8 @@ export class PrysmBeaconService extends NodeService {
       "latest", //imageVersion
       "/app/cmd/beacon-chain/beacon-chain --accept-terms-of-use=true --datadir=" +
         dataDir +
-        ' --p2p-host-dns="" --' +
-        network +
+        ' --p2p-host-dns="" ' +
+        (network === 'stratis' ? '' : `--${network}`) +
         " --block-batch-limit=512" +
         " --rpc-host=0.0.0.0 --grpc-gateway-host=0.0.0.0 --p2p-max-peers=100 --execution-endpoint=" +
         executionEndpoint +

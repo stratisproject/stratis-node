@@ -41,15 +41,23 @@ import { ref, onMounted } from 'vue';
 </template>
 <script setup>
 import { useClickInstall } from "@/store/clickInstallation";
+import { useNodeManage } from "@/store/nodeManage";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
 const clickStore = useClickInstall();
+const manageStore = useNodeManage();
 
 onMounted(() => {
   if (Object.keys(clickStore.selectedPreset).length === 0) {
     router.push("/oneClick/config");
   }
+});
+
+onMounted(() => {
+  manageStore.currentNetwork = manageStore.currentNetwork.hasOwnProperty("id")
+    ? manageStore.currentNetwork
+    : manageStore.configNetwork;
 });
 </script>

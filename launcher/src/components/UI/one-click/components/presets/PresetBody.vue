@@ -112,11 +112,11 @@ const openDropdown = ref(false);
 
 //watchers
 
-watch(displayItem, () => {
-  if (displayItem.value === "Click to select a network") {
-    clickStore.selectedPreset = null;
-  }
-});
+// watch(displayItem, () => {
+//   if (displayItem.value === "Click to select a network") {
+//     clickStore.selectedPreset = null;
+//   }
+// });
 
 //Lifecycle
 
@@ -124,8 +124,6 @@ onMounted(() => {
   clickStore.installMonitoring = false;
   displayItem.value = "Click to select a network";
   // clickStore.presets.forEach((p) => (p.selected = false));
-  // Select `staking` preset by default
-  emit("installPreset", clickStore.presets.find((p) => p.name === 'staking'))
 });
 
 //Methods
@@ -138,6 +136,9 @@ const getNetwork = (network) => {
   clickStore.presets.forEach((p) => (p.selected = false));
   manageStore.currentNetwork = network;
   displayItem.value = network;
+  // Select `staking` preset by default
+  const preset = clickStore.presets.find((p) => p.name === 'staking')
+  getPreset(preset)
 };
 
 const getPreset = (preset) => {

@@ -14,37 +14,41 @@ export class GethService extends NodeService {
       new ServiceVolume(workingDir + "/engine.jwt", JWTDir),
     ];
 
+    const command = [
+      `--datadir=${dataDir}`,
+      "--http",
+      "--http.port=8545",
+      "--http.addr=0.0.0.0",
+      "--http.vhosts=*",
+      "--http.api=eth,web3,net",
+      "--http.corsdomain=*",
+      "--ws",
+      "--ws.port=8546",
+      "--ws.addr=0.0.0.0",
+      "--ws.api=eth,net,web3",
+      "--ws.origins=*",
+      "--authrpc.port=8551",
+      "--authrpc.addr=0.0.0.0",
+      "--authrpc.vhosts=*",
+      "--authrpc.jwtsecret=/engine.jwt",
+      "--metrics",
+      "--metrics.expensive",
+      "--metrics.port=6060",
+      "--metrics.addr=0.0.0.0",
+      "--syncmode=full",
+    ]
+
+    if (network !== 'stratis') {
+      command.unshift(`--${network}`)
+    }
+
     service.init(
       "GethService", // service
       service.id, // id
       1, // configVersion
       "stratisevm/go-stratis", // image
       "latest", // imageVersion
-      [
-        `--${network}`,
-        `--datadir=${dataDir}`,
-        "--state.scheme=path",
-        "--http",
-        "--http.port=8545",
-        "--http.addr=0.0.0.0",
-        "--http.vhosts=*",
-        "--http.api=eth,web3,net",
-        "--http.corsdomain=*",
-        "--ws",
-        "--ws.port=8546",
-        "--ws.addr=0.0.0.0",
-        "--ws.api=eth,net,web3",
-        "--ws.origins=*",
-        "--authrpc.port=8551",
-        "--authrpc.addr=0.0.0.0",
-        "--authrpc.vhosts=*",
-        "--authrpc.jwtsecret=/engine.jwt",
-        "--metrics",
-        "--metrics.expensive",
-        "--metrics.port=6060",
-        "--metrics.addr=0.0.0.0",
-        "--syncmode=full",
-      ], // command
+      command, // command
       ["geth"], // entrypoint
       null, // env
       ports, // ports
