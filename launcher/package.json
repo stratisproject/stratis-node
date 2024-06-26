@@ -1,6 +1,6 @@
 {
   "name": "stratis-launcher",
-  "version": "2.2.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Stratis Node Setup Launcher",
   "scripts": {
