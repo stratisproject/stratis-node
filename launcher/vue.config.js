@@ -10,8 +10,8 @@ module.exports = {
         directories: {
           output: "dist/${platform}",
         },
-        // appId: "com.stereum.launcher",
-        // productName: "Stereum-Launcher",
+        // appId: "com.stratis.launcher",
+        // productName: "Stratis-Launcher",
         // afterSign: "@sapien99/vue-cli-plugin-electron-builder-notarize",
         // options placed here will be merged with default configuration and passed to electron-builder
         buildDependenciesFromSource: false,
@@ -19,18 +19,18 @@ module.exports = {
         npmRebuild: false,
         linux: {
           target: "AppImage",
-          artifactName: "Stereum-Launcher-${version}.${ext}",
+          artifactName: "Stratis-Launcher-${version}.${ext}",
         },
         mac: {
           hardenedRuntime: true,
           // entitlements:
           //   "./node_modules/@sapien99/vue-cli-plugin-electron-builder-notarize/entitlements.mac.inherit.plist",
           gatekeeperAssess: false,
-          artifactName: "Stereum-Launcher-${version}.${ext}",
+          artifactName: "Stratis-Launcher-${version}.${ext}",
         },
         win: {
           // sign: "./customsign.js", // use custom sign hook on windows
-          artifactName: "Stereum-Launcher-Setup-${version}.${ext}",
+          artifactName: "Stratis-Launcher-Setup-${version}.${ext}",
         },
       },
     },

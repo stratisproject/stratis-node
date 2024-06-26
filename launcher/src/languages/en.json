@@ -934,7 +934,7 @@
     "readConeq": "I READ THE TEXT AND I AM AWARE OF THE CONSEQUENCES"
   },
   "welcomePage": {
-    "logedOut": "You will be logged out of the Stereum Launcher. You will need to log back in to access your node.",
+    "logedOut": "You will be logged out of the Stratis Launcher. You will need to log back in to access your node.",
     "logOut": "Logging out",
     "logOutMsg": "Are you sure you want to log out?",
     "logOutBtn": "Logout",

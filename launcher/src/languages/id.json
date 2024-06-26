@@ -934,7 +934,7 @@
     "readConeq": "SAYA TELAH MEMBACA TEKS DAN SAYA MENYADARI KONSEKUENSINYA"
   },
   "welcomePage": {
-    "logedOut": "Anda akan keluar dari Stereum Launcher. Anda perlu login kembali untuk mengakses node Anda.",
+    "logedOut": "Anda akan keluar dari Stratis Launcher. Anda perlu login kembali untuk mengakses node Anda.",
     "logOut": "Keluar",
     "logOutMsg": "Apakah Anda yakin ingin keluar?",
     "logOutBtn": "Logout",

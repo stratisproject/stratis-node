@@ -72,7 +72,7 @@ function updateResults(newData, creditType) {
 
 async function fetchGithubContributors() {
   try {
-    const response = await fetch("https://api.github.com/repos/stereum-dev/ethereum-node/contributors");
+    const response = await fetch("https://api.github.com/repos/stratisproject/stratis-node/contributors");
     if (!response.ok) throw new Error("Network response was not ok");
     const contributors = await response.json();
     results.value = contributors.map((contributor, index) => ({

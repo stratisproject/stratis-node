@@ -8,7 +8,7 @@ Install [docker-ce](https://docs.docker.com/engine/install/ubuntu/).
 
 ```
 # Clone this repository:
-git clone https://github.com/stereum-dev/ethereum-node.git
+git clone https://github.com/stratisproject/stratis-node.git
 
 # change directory
 cd launcher
@@ -17,10 +17,10 @@ cd launcher
 sudo DOCKER_BUILDKIT=1 docker build -o out .
 
 # now install the generated package
-sudo snap install out/stereum-launcher_0.0.0_amd64.snap --dangerous
+sudo snap install out/stratis-launcher_0.0.0_amd64.snap --dangerous
 
-# run stereum-launcher
-stereum-launcher
+# run stratis-launcher
+stratis-launcher
 ```
 
 ## Common

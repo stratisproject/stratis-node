@@ -1,9 +1,8 @@
 {
-  "name": "stereum-launcher",
+  "name": "stratis-launcher",
   "version": "2.2.0",
   "private": true,
-  "description": "Stereum Ethereum Node Setup Launcher",
-  "author": "stereum.net",
+  "description": "Stratis Node Setup Launcher",
   "scripts": {
     "serve": "vue-cli-service serve --port 8081",
     "build": "vue-cli-service build",
@@ -97,6 +96,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:stereum-dev/ethereum-node.git"
+    "url": "git@github.com:stratisproject/stratis-node.git"
   }
 }

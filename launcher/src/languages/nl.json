@@ -934,7 +934,7 @@
     "readConeq": "IK HEB DE TEKST GELEZEN EN IK BEN ME BEWUST VAN DE GEVOLGEN"
   },
   "welcomePage": {
-    "logedOut": "U wordt uitgelogd uit de Stereum Launcher. U moet opnieuw inloggen om toegang te krijgen tot uw node.",
+    "logedOut": "U wordt uitgelogd uit de Stratis Launcher. U moet opnieuw inloggen om toegang te krijgen tot uw node.",
     "logOut": "Uitloggen",
     "logOutMsg": "Weet u zeker dat u wilt uitloggen?",
     "logOutBtn": "Uitloggen",
