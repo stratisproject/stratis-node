@@ -138,7 +138,7 @@
           </div>
         </div>
 
-        <div
+        <!-- <div
           v-if="stereumUpdate.current !== stereumUpdate.version"
           class="alert-message_green"
           @mouseenter="cursorLocation = `${clkUpdate}`"
@@ -155,7 +155,7 @@
               <span>{{ stereumUpdate.version }}</span>
             </div>
           </div>
-        </div>
+        </div> -->
         <div
           v-for="item in updatedNewUpdates"
           :key="item"
