@@ -52,6 +52,10 @@
     line: "auth required pam_google_authenticator.so grace_period=43200"
     insertafter: EOF
 
+- name: Enable SSH service
+  shell: systemctl enable ssh.service
+  become: true
+
 - name: Restart SSH service
   systemd:
     name: sshd

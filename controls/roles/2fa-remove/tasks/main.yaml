@@ -31,6 +31,10 @@
     state: absent
   ignore_errors: yes
 
+- name: Enable SSH service
+  shell: systemctl enable ssh.service
+  become: true
+
 - name: Restart SSH service
   systemd:
     name: sshd
