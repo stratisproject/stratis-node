@@ -2185,10 +2185,10 @@ export class NodeConnection {
       const ref = StringUtils.createRandomString();
       this.taskManager.otherTasksHandler(ref, "Restarting Server");
       await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait for the TaskManager to pick up the task
-      await this.sshService.exec("/sbin/shutdown -r now");
+      await this.sshService.exec("reboot --reboot --force");
       this.taskManager.otherTasksHandler(ref, "trigger restart", true);
       await this.sshService.disconnect();
-      await new Promise((resolve) => setTimeout(resolve, 30000)); // Wait for the disconnect to be fully done
+      await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait for the disconnect to be fully done
       const retry = { connected: false, counter: 0, maxTries: 300 };
       log.info("Connecting via SSH");
 
