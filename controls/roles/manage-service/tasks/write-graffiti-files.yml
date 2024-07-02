@@ -3,7 +3,7 @@
   set_fact:
     service: "{{ stereum_service_configuration.service }}"
     graffiti_path: "{{ stereum_service_configuration.volumes | select('search', '/graffitis') | first | split(':') | first }}/graffitis.yaml"
-    default_graffiti: "stereum.net"
+    default_graffiti: "stratis-launcher"
 
 - name: Prysm - Create Graffiti File
   copy:

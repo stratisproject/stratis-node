@@ -54,7 +54,7 @@ watchEffect(() => {
 const getStats = () => {
   ControlService.getAttestationRewards(stakingStore.keys.map((k) => k.index).filter((k) => k)).then((data) => {
     if (data.rewards?.length > 0)
-      totalRewards.value = data.rewards.map((item) => item.total_rewards).reduce((a, b) => a + b, 0);
+      totalRewards.value = data.rewards.filter((item) => !isNaN(item.total_rewards)).map((item) => item.total_rewards).reduce((a, b) => a + b, 0);
   });
 };
 
