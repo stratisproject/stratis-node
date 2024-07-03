@@ -18,7 +18,7 @@
     <div
       class="w-full h-full col-start-3 col-span-full rounded-r-full self-center flex justify-center items-center bg-[#151618] px-1"
     >
-      <span class="text-2xs text-gray-300 font-semibold">{{ totalRewards }}</span>
+      <span class="text-2xs text-gray-300 font-semibold">{{ totalRewards / 1000000000 }}</span>
     </div>
   </div>
 </template>
@@ -43,14 +43,18 @@ const totalRewards = ref(0);
 watchEffect(() => {
   if (stakingStore.secondsPerSlot > 0 && intervalID.value == null) {
     intervalID.value = setInterval(() => {
-      if (stakingStore.currentSlot != lastSlotChecked.value) {
-        if (stakingStore.currentSlot % stakingStore.slotsPerEpoch == 0) totalRewards.value = 0;
-        lastSlotChecked.value = stakingStore.currentSlot;
-        ControlService.getBlockRewards(lastSlotChecked.value).then((data) => {
-          if (data?.proposer_index && stakingStore.keys.map((k) => k.index).includes(data.proposer_index))
-            totalRewards.value += parseInt(data.total);
-        });
+      if (stakingStore.currentSlot === lastSlotChecked.value) {
+        return
       }
+      if (stakingStore.currentSlot % stakingStore.slotsPerEpoch == 0) totalRewards.value = 0;
+      lastSlotChecked.value = stakingStore.currentSlot;
+      ControlService.getBlockRewards(lastSlotChecked.value)
+        .then((data) => {
+          if (data?.proposer_index && stakingStore.keys.map((k) => k.index).includes(data.proposer_index)) {
+            // Deduct amount that were sent to MasterNode staking contract
+            totalRewards.value += parseInt(data.total) - 30000000000;
+          }
+        });
     }, 1000);
   }
 });

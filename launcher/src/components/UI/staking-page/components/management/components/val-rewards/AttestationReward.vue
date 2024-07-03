@@ -18,7 +18,7 @@
     <div
       class="w-full h-full col-start-3 col-span-full rounded-r-full self-center flex justify-center items-center bg-[#151618] px-1"
     >
-      <span class="text-2xs text-gray-300 font-semibold">{{ totalRewards }}</span>
+      <span class="text-2xs text-gray-300 font-semibold">{{ totalRewards / 1000000000 }}</span>
     </div>
   </div>
 </template>
@@ -52,10 +52,12 @@ watchEffect(() => {
 });
 
 const getStats = () => {
-  ControlService.getAttestationRewards(stakingStore.keys.map((k) => k.index).filter((k) => k)).then((data) => {
-    if (data.rewards?.length > 0)
-      totalRewards.value = data.rewards.filter((item) => !isNaN(item.total_rewards)).map((item) => item.total_rewards).reduce((a, b) => a + b, 0);
-  });
+  ControlService.getAttestationRewards(stakingStore.keys.map((k) => k.index).filter((k) => k))
+    .then((data) => {
+      if (data.rewards?.length > 0)
+        totalRewards.value = data.rewards.filter((item) => !isNaN(item.total_rewards))
+          .reduce((sum, item) => sum += item.total_rewards, 0);
+    });
 };
 
 onUnmounted(() => {
