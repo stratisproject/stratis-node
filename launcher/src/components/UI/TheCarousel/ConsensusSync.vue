@@ -9,16 +9,10 @@
       </div>
     </div>
 
-    <!-- <div
+    <div
       class="h-14 col-start-4 col-span-full rounded-md py-1 pl-1 pr-4 flex justify-start items-center z-10 bg-[#33393e] relative"
     >
       <TheCarousel :client="props.client" />
-    </div> -->
-    <div class="col-start-4 col-span-full bg-[#33393e] rounded-md py-1 px-2 flex justify-start items-center">
-      <div class="w-1/2 flex flex-col justify-center items-start">
-        <span class="text-md text-gray-300 font-semibold">{{ $t("executionSync.gen") }}</span>
-        <span class="text-xs text-teal-500 font-normal">{{ $t("executionSync.syncClient") }}</span>
-      </div>
     </div>
   </div>
 </template>

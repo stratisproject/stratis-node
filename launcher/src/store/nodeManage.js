@@ -80,7 +80,7 @@ export const useNodeManage = defineStore("nodeManage", {
           id: 2,
           name: "Auroria Testnet",
           network: "auroria",
-          icon: "/img/icon/network-icons/ethereum-testnet-icon.png",
+          icon: "/img/icon/network-icons/auroria.jpg",
           currencyIcon: "/img/icon/control-page-icons/network-currency-icons/network-currency-icons-goerli-testnet.png",
           dataEndpoint: "https://auroria.stratisevm.com/api/v1",
           support: ["staking"],

@@ -16,10 +16,17 @@ export const useClickInstall = defineStore("clickInstallation", {
       syncType: [
         {
           id: 1,
+          name: "checkpoint sync",
+          type: "recommended",
+          displayCategory: "Sync your client",
+          display: true,
+        },
+        {
+          id: 2,
           name: "genesis",
           type: "Syncs from genesis",
           displayCategory: "Syncs from genesis",
-          display: false,
+          display: true,
         },
       ],
       selectedNetwork: {},
@@ -101,8 +108,22 @@ export const useClickInstall = defineStore("clickInstallation", {
       configServices: [],
       removedServices: [],
       configNetwork: {},
-      stratis: [],
-      auroria: [],
+      stratis: [
+        {
+          id: 1,
+          name: "Stratis",
+          icon: "/img/icon/network-icons/stratis-mainnet.png",
+          url: "https://checkpoint.stratisevm.com/",
+        },
+      ],
+      auroria: [
+        {
+          id: 1,
+          name: "Stratis Auroria",
+          icon: "/img/icon/network-icons/auroria.jpg",
+          url: "https://auroria.checkpoint.stratisevm.com/",
+        },
+      ],
     };
   },
   actions: {},

@@ -11,25 +11,7 @@
     >
       <slide v-for="(item, index) in installStore.syncType" :key="index" aria-current="0">
         <div class="w-full h-full flex justify-center items-center">
-          <div v-if="item.name === 'genesis'" class="w-full h-full flex flex-col justify-center items-start">
-            <span class="text-md text-gray-300 font-semibold text-left uppercase">{{ item.name }}</span>
-            <span class="text-sm text-teal-600 font-semibold text-left">{{ item.type }}</span>
-          </div>
-          <div v-else-if="item.type === 'custom source'" class="w-full h-full flex justify-between items-center">
-            <div class="w-fit h-full flex flex-col justify-center items-start">
-              <span class="w-fit h-5 text-sm text-gray-300 font-semibold text-left uppercase">{{ item.name }}</span>
-              <span class="w-fit text-xs text-teal-600 font-semibold text-left">{{ item.type }}</span>
-            </div>
-            <div class="w-[60%] h-full flex justify-center items-center">
-              <input
-                v-model="installStore.checkPointSync"
-                type="text"
-                placeholder="https://example.cc/"
-                class="w-[230px] h-10 bg-[#1E2429] rounded-md pl-1 text-gray-300 placeholder:text-gray-500 text-xs"
-              />
-            </div>
-          </div>
-          <div v-else-if="item.type === 'recommended'" class="w-full h-full flex justify-between items-center">
+          <div v-if="item.type === 'recommended'" class="w-full h-full flex justify-between items-center">
             <div class="w-fit h-full flex flex-col justify-center items-start">
               <span class="w-fit h-5 text-sm text-gray-300 font-semibold text-left uppercase">{{ item.name }}</span>
               <span class="w-fit text-xs text-teal-600 font-semibold text-left">{{ item.type }}</span>
@@ -69,6 +51,24 @@
               </div>
             </div>
           </div>
+          <div v-else-if="item.name === 'genesis'" class="w-full h-full flex flex-col justify-center items-start">
+            <span class="text-md text-gray-300 font-semibold text-left uppercase">{{ item.name }}</span>
+            <span class="text-sm text-teal-600 font-semibold text-left">{{ item.type }}</span>
+          </div>
+          <div v-else-if="item.type === 'custom source'" class="w-full h-full flex justify-between items-center">
+            <div class="w-fit h-full flex flex-col justify-center items-start">
+              <span class="w-fit h-5 text-sm text-gray-300 font-semibold text-left uppercase">{{ item.name }}</span>
+              <span class="w-fit text-xs text-teal-600 font-semibold text-left">{{ item.type }}</span>
+            </div>
+            <div class="w-[60%] h-full flex justify-center items-center">
+              <input
+                v-model="installStore.checkPointSync"
+                type="text"
+                placeholder="https://example.cc/"
+                class="w-[230px] h-10 bg-[#1E2429] rounded-md pl-1 text-gray-300 placeholder:text-gray-500 text-xs"
+              />
+            </div>
+          </div>
         </div>
       </slide>
 
@@ -76,7 +76,7 @@
         <navigation />
       </template>
     </Carousel>
-    <Transition name="slide-fade">
+    <!-- <Transition name="slide-fade">
       <ul
         v-if="dropdown"
         class="absolute top-20 right-3 transition-all w-64 h-[200px] duration-400 ease-in-out bg-gray-700 rounded-b-lg shadow-lg pt-18 pb-1 z-10 divide-y divide-gray-500 overflow-y-auto flex flex-col justify-start items-center"
@@ -100,7 +100,7 @@
           >
         </li>
       </ul>
-    </Transition>
+    </Transition> -->
   </div>
 </template>
 <script setup>
@@ -133,8 +133,8 @@ watch(currentSlide, (val) => {
   if (router.currentRoute.value.path === "/sync" || router.currentRoute.value.path === "/importingSyncing") {
     if (val !== prevVal.value) {
       prevVal.value = val;
-      installStore.checkPointSync = "";
-      selectedItem.value = "- SELECT A SOURCE -";
+      // installStore.checkPointSync = "";
+      // selectedItem.value = "- SELECT A SOURCE -";
     }
     if (installStore.selectedPreset.name === "archive") {
       val = 3;
@@ -150,7 +150,7 @@ watch(currentSlide, (val) => {
 
 // Lifecycle hooks
 onBeforeMount(() => {
-  currentSlide.value = 3;
+  currentSlide.value = 0;
 });
 
 onMounted(() => {
@@ -158,6 +158,7 @@ onMounted(() => {
     ? manageStore.currentNetwork
     : manageStore.configNetwork;
   setSelectedLinks();
+  linkPicker(selectedLinks.value[0])
 });
 
 // Methods
@@ -201,7 +202,10 @@ const linkPicker = async (item) => {
 };
 
 const setSelectedLinks = () => {
-  const networkLinks = {};
+  const networkLinks = {
+    1: installStore.stratis,
+    2: installStore.auroria,
+  };
 
   selectedLinks.value = networkLinks[manageStore.currentNetwork?.id] || [];
 };

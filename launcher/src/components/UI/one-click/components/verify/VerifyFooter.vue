@@ -4,7 +4,7 @@
     @mousedown.prevent
   >
     <router-link
-      to="/oneClick/config"
+      to="/oneClick/sync"
       class="col-start-1 col-span-2 row-start-1 row-span-2 justify-self-end w-[120px] h-12 bg-[#264744] hover:bg-[#447a75] rounded-full py-2 px-4 flex justify-center items-center hover:scale-110 hover:shadow-lg hover:shadow-[#1e2a29] transition-all duration-300 ease-in-out active:scale-100 active:shadow-none"
     >
       <span class="text-gray-200 text-xl font-semibold text-center uppercase">{{ $t("customFooter.back") }}</span>
