@@ -167,7 +167,6 @@ export default {
     },
   },
   mounted() {
-    this.getqrcode();
     this.beaconChainConnectionController();
   },
   methods: {
@@ -246,14 +245,6 @@ export default {
         }
       } catch (error) {
         console.error("Error Connection Result:", error);
-      }
-    },
-    async getqrcode() {
-      const response = await ControlService.getQRCode();
-      if (response instanceof Error) {
-        this.qrCode = this.ErrorQRCode;
-      } else {
-        this.qrCode = response;
       }
     },
     openBeaconcha() {

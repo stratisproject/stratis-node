@@ -395,10 +395,6 @@ class ControlService extends EventEmitter {
     return await this.promiseIpc.send("writePrometheusConfig", args);
   }
 
-  async getQRCode() {
-    return await this.promiseIpc.send("getQRCode");
-  }
-
   async importRemoteKeys(args) {
     return await this.promiseIpc.send("importRemoteKeys", args);
   }

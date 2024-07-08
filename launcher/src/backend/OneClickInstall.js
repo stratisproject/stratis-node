@@ -136,11 +136,6 @@ export class OneClickInstall {
       this.extraServices.push(this.serviceManager.getService("GrafanaService", args));
     }
 
-    if (constellation.includes("NotificationService")) {
-      //NotificationService
-      this.extraServices.push(this.serviceManager.getService("NotificationService", args));
-    }
-
     if (constellation.includes("SSVDKGService")) {
       let SSVDKGService = this.serviceManager.getService("SSVDKGService", {
         ...args,
@@ -246,7 +241,6 @@ export class OneClickInstall {
       "GrafanaService",
       "PrometheusNodeExporterService",
       "PrometheusService",
-      "NotificationService",
     ];
 
     this.choosenClient = await this.chooseClient();

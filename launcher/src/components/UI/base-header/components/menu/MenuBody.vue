@@ -23,10 +23,10 @@ const items = ref([
     name: "Help",
     icon: "/img/icon/base-header-icons/header-help-button.png",
   },
-  {
-    name: "Notifications",
-    icon: "/img/icon/base-header-icons/header-notification-button.png",
-  },
+  // {
+  //   name: "Notifications",
+  //   icon: "/img/icon/base-header-icons/header-notification-button.png",
+  // },
   {
     name: "Available Update",
     activeIcon: "/img/icon/base-header-icons/header-update-button-green.png",

@@ -5,22 +5,19 @@
     state: absent
   become: yes
 
-- name: Download update metadata
-  uri:
-    url: https://stereum.net/downloads/updates.json
-    method: GET
-    return_content: true
-    status_code: 200
-    body_format: json
-  register: update_data_download
-
 - name: Set update data
   set_fact:
-    update_data: "{{ update_data_test | default(update_data_download) }}"
+    update_data: |
+      {
+          stereum: [{
+              name: 'HEAD',
+              commit: 'main'
+          }]
+      }
 
 - name: Checkout commit of latest version
   git:
-    repo: https://github.com/stereum-dev/ethereum-node.git
+    repo: https://github.com/stratisproject/stratis-node.git
     remote: ethereum-node
     dest: "{{ stereum.settings.controls_install_path }}/ansible"
     version: "{{ (update_data.json['stereum'] | last)['commit'] }}"
@@ -29,7 +26,7 @@
 
 - name: Checkout commit of specific version
   git:
-    repo: https://github.com/stereum-dev/ethereum-node.git
+    repo: https://github.com/stratisproject/stratis-node.git
     remote: ethereum-node
     dest: "{{ stereum.settings.controls_install_path }}/ansible"
     version: "{{ stereum.override_gitcommit }}"
