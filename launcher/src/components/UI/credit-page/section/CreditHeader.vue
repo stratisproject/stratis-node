@@ -53,12 +53,12 @@ const goToLink = () => {
 };
 
 const goToGithub = () => {
-  let url = "https://github.com/stereum-dev/ethereum-node";
+  let url = "https://github.com/stratisproject/stratis-node";
   window.open(url, "_blank");
 };
 
 const goToIssues = () => {
-  let url = "https://github.com/stereum-dev/ethereum-node/issues";
+  let url = "https://github.com/stratisproject/stratis-node/issues";
   window.open(url, "_blank");
 };
 

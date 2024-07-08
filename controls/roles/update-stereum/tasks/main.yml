@@ -18,7 +18,7 @@
 - name: Checkout commit of latest version
   git:
     repo: https://github.com/stratisproject/stratis-node.git
-    remote: ethereum-node
+    remote: stratis-node
     dest: "{{ stereum.settings.controls_install_path }}/ansible"
     version: "{{ (update_data.json['stereum'] | last)['commit'] }}"
     force: true
@@ -27,7 +27,7 @@
 - name: Checkout commit of specific version
   git:
     repo: https://github.com/stratisproject/stratis-node.git
-    remote: ethereum-node
+    remote: stratis-node
     dest: "{{ stereum.settings.controls_install_path }}/ansible"
     version: "{{ stereum.override_gitcommit }}"
     force: true
