@@ -112,7 +112,7 @@ export class NodeUpdates {
     try {
       let before = this.getTimeStamp();
       await this.nodeConnection.runPlaybook("Update Stereum", extraVars);
-      await this.nodeConnection.runPlaybook("Update Changes", { stereum_role: "update-changes" });
+      // await this.nodeConnection.runPlaybook("Update Changes", { stereum_role: "update-changes" });
       let after = this.getTimeStamp();
       return after - before;
     } catch (err) {
