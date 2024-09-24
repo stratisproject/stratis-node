@@ -151,7 +151,7 @@ watch(currentSlide, (val) => {
   if (router.currentRoute.value.path === "/oneClick/sync") {
     if (val !== prevVal.value) {
       prevVal.value = val;
-      // installStore.checkPointSync = "";
+      installStore.checkPointSync = "";
       // selectedItem.value = "- SELECT A SOURCE -";
     }
     if (installStore.selectedPreset?.name === "archive") {
