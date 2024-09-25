@@ -116,6 +116,7 @@
         entrypoint: "{{ stereum_service_configuration.entrypoint | default([]) }}"
         restart_policy: "unless-stopped"
         state: started
+        pull: always
         # recreate: yes # default: no
         ports: "{{ stereum_service_configuration.ports | default([]) }}"
         networks:
