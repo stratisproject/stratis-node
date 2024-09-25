@@ -62,7 +62,7 @@
 
 - name: Parse update file
   set_fact:
-    update_data: "{{ update_data_raw['content'] | from_json }}"
+    update_data: "{{ update_data_raw['content'] | b64decode | from_json }}"
 
 - name: List services
   find:
