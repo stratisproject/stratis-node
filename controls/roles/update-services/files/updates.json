@@ -1,0 +1,42 @@
+{
+  "stratis": {
+      "PrysmBeaconService": [
+          "latest"
+      ],
+      "PrysmValidatorService": [
+          "latest"
+      ],
+      "GethService": [
+          "latest"
+      ],
+      "PrometheusService": [
+          "v2.47.2"
+      ],
+      "GrafanaService": [
+          "10.1.5"
+      ],
+      "PrometheusNodeExporterService": [
+          "v1.6.1"
+      ]
+  },
+  "auroria": {
+      "PrysmBeaconService": [
+          "latest"
+      ],
+      "PrysmValidatorService": [
+          "latest"
+      ],
+      "GethService": [
+          "latest"
+      ],
+      "PrometheusService": [
+          "v2.47.2"
+      ],
+      "GrafanaService": [
+          "10.1.5"
+      ],
+      "PrometheusNodeExporterService": [
+          "v1.6.1"
+      ]
+  }
+}
