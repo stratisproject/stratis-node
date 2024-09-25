@@ -29,7 +29,7 @@
 - name: Update configuration
   set_fact:
     new_service_configuration: "{{ service_configuration | combine(new_service_configuration_fraction) }}"
-  when: service_configuration.autoupdate and new_service_docker_image_tag != service_docker_image_tag
+  when: service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
 
 - name: Write configuration
   copy:
@@ -38,7 +38,7 @@
     owner: "root"
     group: "root"
     mode: 0644
-  when: service_configuration.autoupdate and new_service_docker_image_tag != service_docker_image_tag
+  when: service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
   become: yes
 
 # EOF

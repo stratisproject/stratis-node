@@ -10,7 +10,49 @@
 
 - name: Set update data
   set_fact:
-    update_data_raw: '{ "stratis": { "PrysmBeaconService": ["latest"], "PrysmValidatorService": ["latest"], "GethService": ["latest"] }, "auroria": { "PrysmBeaconService": ["latest"], "PrysmValidatorService": ["latest"], "GethService": ["latest"] } }'
+    update_data: |
+      {
+          "stratis": {
+              "PrysmBeaconService": [
+                  "latest"
+              ],
+              "PrysmValidatorService": [
+                  "latest"
+              ],
+              "GethService": [
+                  "latest"
+              ],
+              "PrometheusService": [
+                  "v2.47.2"
+              ],
+              "GrafanaService": [
+                  "10.1.5"
+              ],
+              "PrometheusNodeExporterService": [
+                  "v1.6.1"
+              ]
+          }
+          "auroria": {
+              "PrysmBeaconService": [
+                  "latest"
+              ],
+              "PrysmValidatorService": [
+                  "latest"
+              ],
+              "GethService": [
+                  "latest"
+              ],
+              "PrometheusService": [
+                  "v2.47.2"
+              ],
+              "GrafanaService": [
+                  "10.1.5"
+              ],
+              "PrometheusNodeExporterService": [
+                  "v1.6.1"
+              ]
+          }
+      }
 
 - name: Set update data
   set_fact:
