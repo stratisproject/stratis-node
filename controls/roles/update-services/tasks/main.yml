@@ -22,7 +22,7 @@
               "GethService": [
                   "latest"
               ]
-          }
+          },
           "auroria": {
               "PrysmBeaconService": [
                   "latest"
