@@ -31,7 +31,7 @@
               "PrometheusNodeExporterService": [
                   "v1.6.1"
               ]
-          }
+          },
           "auroria": {
               "PrysmBeaconService": [
                   "latest"
