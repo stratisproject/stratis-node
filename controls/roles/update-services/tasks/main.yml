@@ -10,7 +10,11 @@
 
 - name: Set update data
   set_fact:
-    update_data: '{ "stratis": { "PrysmBeaconService": ["latest"], "PrysmValidatorService": ["latest"], "GethService": ["latest"] }, "auroria": { "PrysmBeaconService": ["latest"], "PrysmValidatorService": ["latest"], "GethService": ["latest"] } }'
+    update_data_raw: '{ "stratis": { "PrysmBeaconService": ["latest"], "PrysmValidatorService": ["latest"], "GethService": ["latest"] }, "auroria": { "PrysmBeaconService": ["latest"], "PrysmValidatorService": ["latest"], "GethService": ["latest"] } }'
+
+- name: Set update data
+  set_fact:
+    update_data: "{{ update_data_raw | from_json }}"
 
 - name: List services
   find:
