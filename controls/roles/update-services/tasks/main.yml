@@ -56,7 +56,7 @@
 
 - name: Read updates file
   slurp:
-    src: "/opt/stereum/ansible/controls/roles/update-service/files/updates.json"
+    src: "/opt/stereum/ansible/controls/roles/update-services/files/updates.json"
   register: update_data_raw
   become: yes
 
