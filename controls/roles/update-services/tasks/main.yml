@@ -8,53 +8,59 @@
 #     body_format: json
 #   register: update_data_download
 
-- name: Set update data
-  set_fact:
-    update_data: |
-      {
-          "stratis": {
-              "PrysmBeaconService": [
-                  "latest"
-              ],
-              "PrysmValidatorService": [
-                  "latest"
-              ],
-              "GethService": [
-                  "latest"
-              ],
-              "PrometheusService": [
-                  "v2.47.2"
-              ],
-              "GrafanaService": [
-                  "10.1.5"
-              ],
-              "PrometheusNodeExporterService": [
-                  "v1.6.1"
-              ]
-          },
-          "auroria": {
-              "PrysmBeaconService": [
-                  "latest"
-              ],
-              "PrysmValidatorService": [
-                  "latest"
-              ],
-              "GethService": [
-                  "latest"
-              ],
-              "PrometheusService": [
-                  "v2.47.2"
-              ],
-              "GrafanaService": [
-                  "10.1.5"
-              ],
-              "PrometheusNodeExporterService": [
-                  "v1.6.1"
-              ]
-          }
-      }
+# - name: Set update data
+#   set_fact:
+#     update_data: |
+#       {
+#           "stratis": {
+#               "PrysmBeaconService": [
+#                   "latest"
+#               ],
+#               "PrysmValidatorService": [
+#                   "latest"
+#               ],
+#               "GethService": [
+#                   "latest"
+#               ],
+#               "PrometheusService": [
+#                   "v2.47.2"
+#               ],
+#               "GrafanaService": [
+#                   "10.1.5"
+#               ],
+#               "PrometheusNodeExporterService": [
+#                   "v1.6.1"
+#               ]
+#           },
+#           "auroria": {
+#               "PrysmBeaconService": [
+#                   "latest"
+#               ],
+#               "PrysmValidatorService": [
+#                   "latest"
+#               ],
+#               "GethService": [
+#                   "latest"
+#               ],
+#               "PrometheusService": [
+#                   "v2.47.2"
+#               ],
+#               "GrafanaService": [
+#                   "10.1.5"
+#               ],
+#               "PrometheusNodeExporterService": [
+#                   "v1.6.1"
+#               ]
+#           }
+#       }
 
-- name: Set update data
+- name: Read updates file
+  slurp:
+    src: "/opt/stereum/ansible/controls/roles/update-service/files/updates.json"
+  register: update_data_raw
+  become: yes
+
+- name: Parse update file
   set_fact:
     update_data: "{{ update_data_raw | from_json }}"
 
