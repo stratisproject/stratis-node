@@ -12,6 +12,7 @@ export class PrysmValidatorService extends NodeService {
 
     const dataDir = "/opt/app/data/db";
     const walletDir = "/opt/app/data/wallets";
+    const authTokenFile = `${walletDir}/auth-token`
     const passwordDir = "/opt/app/data/passwords";
     const graffitiDir = "/opt/app/graffitis";
 
@@ -49,6 +50,8 @@ export class PrysmValidatorService extends NodeService {
         dataDir +
         " --wallet-dir=" +
         walletDir +
+        " --validator-api-bearer-file=" +
+        authTokenFile +
         " --wallet-password-file=" +
         passwordDir +
         '/wallet-password --monitoring-host=0.0.0.0 --grpc-gateway-port=7500 --grpc-gateway-host=0.0.0.0 --grpc-gateway-corsdomain="*"  --monitoring-host=0.0.0.0 --monitoring-port=8081 --suggested-fee-recipient=0x0000000000000000000000000000000000000000' +
