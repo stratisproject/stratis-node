@@ -17,11 +17,7 @@ import { ref, computed, onMounted, watch } from 'vue';
         </div>
       </div>
 
-      <PluginRows
-        :filtered-plugin="filteredPluginsOnCategory"
-        @change-handler="pluginChangeHandler"
-        @plugin-exchange="pluginExChange"
-      />
+      <PluginRows :filtered-plugin="filteredPluginsOnCategory" @change-handler="pluginChangeHandler" @plugin-exchange="pluginExChange" />
 
       <InstallationPath />
     </div>
@@ -76,17 +72,12 @@ const filterMonitoringServices = () => {
   if (clickStore.installMonitoring) {
     clickStore.selectedPreset.includedPlugins = clickStore.selectedPreset.includedPlugins.concat(
       serviceStore.allServices.filter((s) =>
-        ["GrafanaService", "PrometheusNodeExporterService", "PrometheusService", "MetricsExporterService"].includes(
-          s.service
-        )
+        ["GrafanaService", "PrometheusNodeExporterService", "PrometheusService", "MetricsExporterService"].includes(s.service)
       )
     );
   } else {
     clickStore.selectedPreset.includedPlugins = clickStore.selectedPreset.includedPlugins.filter(
-      (s) =>
-        !["GrafanaService", "PrometheusNodeExporterService", "PrometheusService", "MetricsExporterService"].includes(
-          s.service
-        )
+      (s) => !["GrafanaService", "PrometheusNodeExporterService", "PrometheusService", "MetricsExporterService"].includes(s.service)
     );
   }
 };
@@ -106,7 +97,7 @@ const pluginChangeHandler = (plugin, item, idx) => {
 
   clickStore.selectedPreset.includedPlugins.splice(idx, 0, item);
 
-  if (["staking", "mev boost", "stereum on arm", "archive"].includes(clickStore.selectedPreset.name)) {
+  if (["staking", "mev boost", "stereum on arm", "archive", "lidocsm"].includes(clickStore.selectedPreset.name)) {
     if (item.category === "consensus") {
       let valIndex = clickStore.selectedPreset.includedPlugins.findIndex((e) => e.category === "validator");
       clickStore.selectedPreset.includedPlugins[valIndex] = serviceStore.allServices.find(
@@ -114,32 +105,11 @@ const pluginChangeHandler = (plugin, item, idx) => {
       );
     } else if (item.category === "validator") {
       let conIndex = clickStore.selectedPreset.includedPlugins.findIndex((e) => e.category === "consensus");
-      clickStore.selectedPreset.includedPlugins[conIndex] = serviceStore.allServices.find(
-        (e) => e.service === item.name + "BeaconService"
-      );
+      clickStore.selectedPreset.includedPlugins[conIndex] = serviceStore.allServices.find((e) => e.service === item.name + "BeaconService");
     }
   }
   sortPlugins();
 };
-
-// const pluginChangeHandler = (plugin, item, idx) => {
-//   plugin.openReplaceModal = false;
-
-//   clickStore.selectedPreset.includedPlugins[idx] = item;
-//   if (["staking", "mev boost", "stereum on arm", "archive"].includes(clickStore.selectedPreset.name)) {
-//     if (item.category === "consensus") {
-//       let valIndex = clickStore.selectedPreset.includedPlugins.findIndex((e) => e.category === "validator");
-//       clickStore.selectedPreset.includedPlugins[valIndex] = serviceStore.allServices.find(
-//         (e) => e.service === item.name + "ValidatorService"
-//       );
-//     } else if (item.category === "validator") {
-//       let conIndex = clickStore.selectedPreset.includedPlugins.findIndex((e) => e.category === "consensus");
-//       clickStore.selectedPreset.includedPlugins[conIndex] = serviceStore.allServices.find(
-//         (e) => e.service === item.name + "BeaconService"
-//       );
-//     }
-//   }
-// };
 
 const sortPlugins = () => {
   if (clickStore.selectedPreset.includedPlugins) {
@@ -166,6 +136,7 @@ const pluginExChange = (el) => {
 const checkPluginCategory = (element) => {
   let filter;
   switch (clickStore.selectedPreset.name) {
+    case "lidocsm":
     case "staking":
       filter = (item) => item.category === element.category && !/(SSVNetwork|Web3Signer|Charon)/.test(item.service);
       break;

@@ -1,6 +1,6 @@
 <template>
   <div class="balance-parent">
-    <NoData v-if="installedServicesController !== ''" service-cat="install" />
+    <NoData v-if="isConsensusMissing" />
     <div v-else class="wrapper">
       <div class="finalized-box">
         <div class="finalized-value" @mouseenter="cursorLocation = `${finEPOCH} `" @mouseleave="cursorLocation = ''">
@@ -41,7 +41,11 @@ export default {
     ...mapWritableState(useFooter, {
       cursorLocation: "cursorLocation",
       installedServicesController: "installedServicesController",
+      missingServices: "missingServices",
     }),
+    isConsensusMissing() {
+      return this.missingServices?.includes("consensus");
+    },
   },
 
   watch: {

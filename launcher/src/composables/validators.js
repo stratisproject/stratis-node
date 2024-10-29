@@ -13,13 +13,10 @@ export async function useListKeys(forceRefresh) {
   let clients = serviceStore.installedServices.filter(
     (s) => s.category == "validator" && s.service != "CharonService" && s.service != "SSVNetworkService"
   );
-  if ((clients && clients.length > 0 && nodeManageStore.currentNetwork.network != "") || forceRefresh) {
+  if ((clients && clients.length > 0 && nodeManageStore.currentNetwork?.network != "") || forceRefresh) {
     for (let client of clients) {
       //if there is already a list of keys ()
-      if (
-        (client.config.keys === undefined || client.config.keys.length === 0 || forceRefresh) &&
-        client.state === "running"
-      ) {
+      if ((client.config.keys === undefined || client.config.keys.length === 0 || forceRefresh) && client.state === "running") {
         //refresh validaotr list
         let result = await ControlService.listValidators(client.config.serviceID);
 
@@ -27,24 +24,23 @@ export async function useListKeys(forceRefresh) {
           let resultRemote = await ControlService.listRemoteKeys(client.config.serviceID);
           let remoteKeys = resultRemote.data
             ? resultRemote.data.map((e) => {
-              return { validating_pubkey: e.pubkey, readonly: true };
-            })
+                return { validating_pubkey: e.pubkey, readonly: true };
+              })
             : [];
           result.data = result.data ? result.data.concat(remoteKeys) : remoteKeys;
 
           //make sure there are no duplicates
-          let validating_pubkeys = result.data.map(obj => obj.validating_pubkey);
+          let validating_pubkeys = result.data.map((obj) => obj.validating_pubkey);
           result.data = result.data.filter((obj, index) => {
             return validating_pubkeys.indexOf(obj.validating_pubkey) === index;
           });
-
         }
 
         //update service config (pinia)
         client.config.keys = result.data
           ? result.data.map((e) => {
-            return { key: e.validating_pubkey, isRemote: e.readonly };
-          })
+              return { key: e.validating_pubkey, isRemote: e.readonly };
+            })
           : [];
 
         //update service datasets in Pinia store
@@ -113,6 +109,7 @@ export async function useUpdateValidatorStats() {
 
   try {
     data = await ControlService.getValidatorState(stakingStore.keys.map((key) => key.key));
+
     if (!data || data.length == 0) {
       data = [];
       let latestEpochResponse = await axios.get(nodeManageStore.currentNetwork.dataEndpoint + "/epoch/latest", {
@@ -127,14 +124,12 @@ export async function useUpdateValidatorStats() {
       for (let i = 0; i < buffer.length; i += chunkSize) {
         //split validator accounts into chunks of 50 (api url limit)
         const chunk = buffer.slice(i, i + chunkSize);
-        let response = await axios.get(
-          nodeManageStore.currentNetwork.dataEndpoint + "/validator/" + encodeURIComponent(chunk.join()),
-          {
-            validateStatus: function (status) {
-              return status < 500;
-            },
-          }
-        );
+        let response = await axios.get(nodeManageStore.currentNetwork.dataEndpoint + "/validator/" + encodeURIComponent(chunk.join()), {
+          validateStatus: function (status) {
+            return status < 500;
+          },
+        });
+
         if (response.data.data) data = data.concat(response.data.data); //merge all gathered stats in one array
       }
     }
@@ -148,16 +143,38 @@ export async function useUpdateValidatorStats() {
 
   stakingStore.keys.forEach((key) => {
     let info = data.find((k) => k.pubkey === key.key);
+
     if (info) {
-      let d = new Date();
+      let dateActive = new Date();
+      let dateExit = new Date();
+      let dateEligibility = new Date();
+      let dateWithdrawable = new Date();
       let now = new Date();
       latestEpoch = latestEpoch ? parseInt(latestEpoch) : parseInt(info.latestEpoch);
-      let activationEpoch = parseInt(info.activationepoch);
-      d.setMilliseconds(d.getMilliseconds() - (latestEpoch - activationEpoch) * 384000);
+      let activationEpoch = parseInt(info.activationEpoch);
+      let exitEpoch = parseInt(info.exitEpoch);
+      let elgibilityEpoch = parseInt(info.activationElgibilityEpoch);
+      let withdrawableEpoch = parseInt(info.withdrawableEpoch);
+
+      dateActive.setMilliseconds(dateActive.getMilliseconds() - (latestEpoch - activationEpoch) * 384000);
+      dateExit =
+        exitEpoch > latestEpoch
+          ? null
+          : new Date(dateExit.setMilliseconds(dateExit.getMilliseconds() - (latestEpoch - exitEpoch) * 384000));
+      dateWithdrawable =
+        withdrawableEpoch > latestEpoch
+          ? null
+          : new Date(dateWithdrawable.setMilliseconds(dateWithdrawable.getMilliseconds() - (latestEpoch - withdrawableEpoch) * 384000));
+      dateEligibility.setMilliseconds(dateEligibility.getMilliseconds() - (latestEpoch - elgibilityEpoch) * 384000);
+
       key.index = info.validatorindex;
       key.status = info.status;
       key.balance = info.balance / 1000000000;
-      key.activeSince = ((now.getTime() - d.getTime()) / 86400000).toFixed(1) + " Days";
+      key.activeSince = ((now.getTime() - dateActive.getTime()) / 86400000).toFixed(1) + " Days";
+      key.exitSince = dateExit === null ? null : ((now.getTime() - dateExit.getTime()) / 86400000).toFixed(1) + " Days";
+      key.elgibilitySince = ((now.getTime() - dateEligibility.getTime()) / 86400000).toFixed(1) + " Days";
+      key.withdrawableSince =
+        dateWithdrawable === null ? null : ((now.getTime() - dateWithdrawable.getTime()) / 86400000).toFixed(1) + " Days";
       if (key.isRemote) {
         if (!stakingStore.keys.some((k) => k.key === key.key && !k.isRemote)) {
           totalBalance += key.balance;

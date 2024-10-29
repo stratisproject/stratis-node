@@ -16,10 +16,14 @@ import { MetricsExporterService } from "./ethereum-services/MetricsExporterServi
 import { ExternalConsensusService } from "./ethereum-services/ExternalConsensusService";
 import { ExternalExecutionService } from "./ethereum-services/ExternalExecutionService";
 import { CustomService } from "./ethereum-services/CustomService";
+import { ConfigManager } from "./ConfigManager";
 import YAML from "yaml";
+// import { file } from "jszip";
+// import { config } from "process";
 const axios = require("axios");
 const path = require("path");
 const log = require("electron-log");
+const yaml = require("js-yaml");
 
 async function Sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -37,6 +41,7 @@ export const serivceState = {
 export class ServiceManager {
   constructor(nodeConnection) {
     this.nodeConnection = nodeConnection;
+    this.configManager = new ConfigManager(this.nodeConnection);
     this.watchSSVDKGLock = false;
     this.lastKnownOperatorIdCheckUnixTime = 0;
   }
@@ -233,8 +238,10 @@ export class ServiceManager {
     if (checkpointSyncIndex > -1) {
       command.splice(checkpointSyncIndex, 1);
     }
+    // remove genesisSync if used
+    if (genesisSyncCommands[client.service]) command = command.filter((c) => !c.includes(genesisSyncCommands[client.service]));
     //add checkpointSync if Url was send
-    if (checkpointUrl) {
+    if (checkpointUrl && checkpointCommands[client.service]) {
       command.push(checkpointCommands[client.service] + checkpointUrl);
     }
 
@@ -249,11 +256,20 @@ export class ServiceManager {
     await this.nodeConnection.sshService.exec(`rm -r ${dataDir}/*`);
   }
 
+  async deleteSlasherVolume(serviceID) {
+    let services = await this.readServiceConfigurations();
+    let service = services.find((s) => s.id === serviceID);
+    let workingDir = this.getWorkindDir(service);
+    if (!workingDir.endsWith("/")) {
+      workingDir += "/";
+    }
+    await this.nodeConnection.sshService.exec(`rm -r ${workingDir}/slasher`);
+  }
+
   getWorkindDir(service) {
     if (service.volumes.length > 0) {
       let volumeWithID = service.volumes.find((v) => v.destinationPath.includes(service.id));
-      if (volumeWithID && volumeWithID.destinationPath)
-        return volumeWithID.destinationPath.replace(new RegExp(`(?<=${service.id}).*`), "");
+      if (volumeWithID && volumeWithID.destinationPath) return volumeWithID.destinationPath.replace(new RegExp(`(?<=${service.id}).*`), "");
     }
     return undefined;
   }
@@ -272,28 +288,24 @@ export class ServiceManager {
     for (let task of tasks) {
       let ssvConfig;
       let service = services.find((s) => s.id === task.service.config.serviceID);
-      let dependencies = task.data.executionClients
-        .concat(task.data.consensusClients, task.data.otherServices)
-        .map((s) =>
-          services.find((e) => {
-            if (e.id === s.config.serviceID) {
-              return true;
-            } else if (
-              newInstallTasks &&
-              newInstallTasks.length > 0 &&
-              e.id === newInstallTasks.find((i) => i.service.id === s.id).service.config.serviceID
-            ) {
-              return true;
-            }
-            return false;
-          })
-        );
+      let dependencies = task.data.executionClients.concat(task.data.consensusClients, task.data.otherServices).map((s) =>
+        services.find((e) => {
+          if (e.id === s.config.serviceID) {
+            return true;
+          } else if (
+            newInstallTasks &&
+            newInstallTasks.length > 0 &&
+            e.id === newInstallTasks.find((i) => i.service.id === s.id).service.config.serviceID
+          ) {
+            return true;
+          }
+          return false;
+        })
+      );
 
       if (service.service === "FlashbotsMevBoostService") {
         modifiedServices.push(service);
-        let dependenciesToRemove = services.filter((s) =>
-          s.dependencies.mevboost.map((m) => m.id).includes(service.id)
-        );
+        let dependenciesToRemove = services.filter((s) => s.dependencies.mevboost.map((m) => m.id).includes(service.id));
         dependenciesToRemove.forEach((dependency) => {
           modifiedServices.push(this.removeDependencies(dependency, service));
         });
@@ -397,9 +409,7 @@ export class ServiceManager {
     command = command.filter((c) => !c.includes(endpointCommand));
     let newProps;
     if (fullCommand) {
-      newProps = [this.formatCommand(fullCommand, endpointCommand, filter, dependencies)].filter(
-        (c) => c !== undefined
-      );
+      newProps = [this.formatCommand(fullCommand, endpointCommand, filter, dependencies)].filter((c) => c !== undefined);
     } else {
       newProps = endpointCommand + dependencies.map(filter).join();
     }
@@ -566,6 +576,7 @@ export class ServiceManager {
   }
 
   async switchServices(switchTask) {
+    await this.configManager.deleteServiceFromSetup(switchTask.id, switchTask.setupId);
     let services = await this.readServiceConfigurations();
 
     let previousService = services.find((service) => service.id === switchTask.service.config.serviceID);
@@ -600,6 +611,7 @@ export class ServiceManager {
       installTask.push({
         service: switchTask.data.itemToInstall,
         data: switchTask.data.data,
+        setupId: switchTask.setupId,
       });
 
       await this.addServices(installTask, services);
@@ -664,12 +676,7 @@ export class ServiceManager {
 
       case "PrysmValidatorService":
         ports = [new ServicePort("127.0.0.1", args.port ? args.port : 7500, 7500, servicePortProtocol.tcp)];
-        return PrysmValidatorService.buildByUserInput(
-          args.network,
-          ports,
-          args.installDir + "/prysm",
-          args.consensusClients
-        );
+        return PrysmValidatorService.buildByUserInput(args.network, ports, args.installDir + "/prysm", args.consensusClients);
 
       case "PrometheusNodeExporterService":
         return PrometheusNodeExporterService.buildByUserInput(args.network);
@@ -709,12 +716,7 @@ export class ServiceManager {
 
       case "ExternalExecutionService":
         ports = [];
-        return ExternalExecutionService.buildByUserInput(
-          args.network,
-          args.installDir + "/externalExecution",
-          args.source,
-          args.jwtToken
-        );
+        return ExternalExecutionService.buildByUserInput(args.network, args.installDir + "/externalExecution", args.source, args.jwtToken);
       case "ExternalConsensusService":
         ports = [];
         return ExternalConsensusService.buildByUserInput(
@@ -735,10 +737,7 @@ export class ServiceManager {
           args.volumes
         );
       case "SSVDKGService":
-        ports = [
-          new ServicePort(null, 3030, 3030, servicePortProtocol.udp),
-          new ServicePort(null, 3030, 3030, servicePortProtocol.tcp),
-        ];
+        ports = [new ServicePort(null, 3030, 3030, servicePortProtocol.udp), new ServicePort(null, 3030, 3030, servicePortProtocol.tcp)];
         return SSVDKGService.buildByUserInput(
           args.network,
           ports,
@@ -764,9 +763,14 @@ export class ServiceManager {
       keyAPI.env.DB_HOST = `cachingDB-${keyAPI.id}`;
     } catch (err) {
       log.error("Creating CachingDB failed: ", err);
-      await this.nodeConnection.sshService.exec(
-        `docker stop cachingDB-${keyAPI.id} && docker rm cachingDB-${keyAPI.id}`
-      );
+      await this.nodeConnection.sshService.exec(`docker stop cachingDB-${keyAPI.id} && docker rm cachingDB-${keyAPI.id}`);
+    }
+  }
+
+  async initKeysAPI(services) {
+    for (const service of services) {
+      await this.createCachingDB(service);
+      await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());
     }
   }
 
@@ -795,9 +799,7 @@ export class ServiceManager {
       );
     } catch (err) {
       log.error("Creating SlashingDB failed: ", err);
-      await this.nodeConnection.sshService.exec(
-        `docker stop slashingdb-${web3signer.id} && docker rm slashingdb-${web3signer.id}`
-      );
+      await this.nodeConnection.sshService.exec(`docker stop slashingdb-${web3signer.id} && docker rm slashingdb-${web3signer.id}`);
     }
   }
 
@@ -805,9 +807,7 @@ export class ServiceManager {
     for (const service of services) {
       await this.manageServiceState(service.id, "started");
       const workingDir = this.getWorkindDir(service);
-      await this.nodeConnection.sshService.exec(
-        "docker cp stereum-" + service.id + ":/opt/web3signer/migrations/postgresql " + workingDir
-      );
+      await this.nodeConnection.sshService.exec("docker cp stereum-" + service.id + ":/opt/web3signer/migrations/postgresql " + workingDir);
       await this.manageServiceState(service.id, "stopped");
       service.command = service.command.filter((c) => c != "--slashing-protection-enabled=false");
       await this.createSlashingDB(service, workingDir);
@@ -832,18 +832,13 @@ export class ServiceManager {
         if (config.ssv_sk) {
           replacementString = "OperatorPrivateKey: " + config.ssv_sk;
         } else {
-          replacementString =
-            "KeyStore:\n  PrivateKeyFile: /secrets/encrypted_private_key.json\n  PasswordFile: /secrets/password";
+          replacementString = "KeyStore:\n  PrivateKeyFile: /secrets/encrypted_private_key.json\n  PasswordFile: /secrets/password";
         }
 
         // prepare service's config file
         const dataDir = service.volumes.find((vol) => vol.servicePath === "/data").destinationPath;
-        const escapedConfigFile = StringUtils.escapeStringForShell(
-          ssvConfig.replace(/^OperatorPrivateKey.*/gm, replacementString)
-        );
-        this.nodeConnection.sshService.exec(
-          `mkdir -p ${dataDir} && echo ${escapedConfigFile} > ${dataDir}/config.yaml`
-        );
+        const escapedConfigFile = StringUtils.escapeStringForShell(ssvConfig.replace(/^OperatorPrivateKey.*/gm, replacementString));
+        this.nodeConnection.sshService.exec(`mkdir -p ${dataDir} && echo ${escapedConfigFile} > ${dataDir}/config.yaml`);
       } else if (service.service.includes("External")) {
         const extConnDir = service.volumes
           .find((vol) => vol.destinationPath.includes("link.txt"))
@@ -852,7 +847,7 @@ export class ServiceManager {
           .join("/");
         await this.nodeConnection.sshService.exec(
           `mkdir -p ${extConnDir} && echo -e ${service.env.link} > ${extConnDir}/link.txt` +
-          (service.env.gateway ? ` && echo -e ${service.env.gateway} > ${extConnDir}/gateway.txt` : "")
+            (service.env.gateway ? ` && echo -e ${service.env.gateway} > ${extConnDir}/gateway.txt` : "")
         );
         if (service.service.includes("Execution")) {
           await this.nodeConnection.sshService.exec(`echo -e ${service.env.jwtToken} > ${extConnDir}/engine.jwt`);
@@ -899,10 +894,12 @@ export class ServiceManager {
 
   async addServices(tasks, services) {
     let newServices = [];
+    let setupAndServiceIds = {};
     let ELInstalls = tasks.filter((t) => t.service.category === "execution");
     ELInstalls.forEach((t) => {
       let service = this.getService(t.service.service, t.data);
       t.service.config.serviceID = service.id;
+      setupAndServiceIds[service.id] = t.data.setupId;
       newServices.push(service);
     });
     let CLInstalls = tasks.filter((t) => t.service.category === "consensus");
@@ -910,14 +907,12 @@ export class ServiceManager {
       this.updateInfoForDependencies(t, services, newServices, ELInstalls);
       let service = this.getService(t.service.service, t.data);
       t.service.config.serviceID = service.id;
+      setupAndServiceIds[service.id] = t.data.setupId;
       newServices.push(service);
     });
     let DVTInstalls = tasks.filter((t) => /SSVNetwork|Charon/.test(t.service.service));
     DVTInstalls.forEach((t) => {
-      if (
-        t.service.service == "SSVNetworkService" &&
-        services.filter((s) => s.service === "SSVNetworkService").length
-      ) {
+      if (t.service.service == "SSVNetworkService" && services.filter((s) => s.service === "SSVNetworkService").length) {
         // TODO: Make SSVNetworkService multiservice (which depends also on SSVDKGService)
         log.error("Multiple SSVNetworkService services currently not supported - ignoring setup!");
         return;
@@ -925,15 +920,15 @@ export class ServiceManager {
       this.updateInfoForDependencies(t, services, newServices, ELInstalls, CLInstalls);
       let service = this.getService(t.service.service, t.data);
       t.service.config.serviceID = service.id;
+      setupAndServiceIds[service.id] = t.data.setupId;
       newServices.push(service);
     });
-    let VLInstalls = tasks.filter(
-      (t) => t.service.category === "validator" && !/SSVNetwork|Charon/.test(t.service.service)
-    );
+    let VLInstalls = tasks.filter((t) => t.service.category === "validator" && !/SSVNetwork|Charon/.test(t.service.service));
     VLInstalls.forEach((t) => {
       this.updateInfoForDependencies(t, services, newServices, ELInstalls, CLInstalls, undefined, DVTInstalls);
       let service = this.getService(t.service.service, t.data);
       t.service.config.serviceID = service.id;
+      setupAndServiceIds[service.id] = t.data.setupId;
       newServices.push(service);
     });
     let PInstalls = tasks.filter((t) => t.service.category === "service");
@@ -954,6 +949,7 @@ export class ServiceManager {
         });
       }
       t.service.config.serviceID = service.id;
+      setupAndServiceIds[service.id] = t.data.setupId;
       newServices.push(service);
     });
 
@@ -1005,12 +1001,13 @@ export class ServiceManager {
       }
       if (service.switchImageTag) service.switchImageTag(this.nodeConnection.settings.stereum.settings.arch);
     });
+    for (const service of newServices) {
+      await this.nodeConnection.writeServiceConfiguration(
+        service.buildConfiguration(),
+        setupAndServiceIds[service.id] ? setupAndServiceIds[service.id] : tasks[0].setupId
+      );
+    }
 
-    await Promise.all(
-      newServices.map(async (service) => {
-        await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());
-      })
-    );
     await this.createKeystores(
       newServices.filter(
         (s) =>
@@ -1212,10 +1209,7 @@ export class ServiceManager {
         // 2. Adjust SSV operator ID in DKG config
         if (ssvTotalConfig) {
           // Set operator ID to last known operator ID (revert or 0) in DKG config file (if needed)
-          if (
-            ssvTotalConfig.lastKnownOperatorId &&
-            ssvDkgTotalConfig.operatorId != ssvTotalConfig.lastKnownOperatorId
-          ) {
+          if (ssvTotalConfig.lastKnownOperatorId && ssvDkgTotalConfig.operatorId != ssvTotalConfig.lastKnownOperatorId) {
             log.silly("SSVNetworkService exists");
             log.info(`Update operator ID in DKG config file to ${ssvTotalConfig.lastKnownOperatorId}`);
             ssvDkgTotalConfig.ssvDkgConfig.operatorID = parseInt(ssvTotalConfig.lastKnownOperatorId, 10);
@@ -1274,8 +1268,7 @@ export class ServiceManager {
   //make sure there are no double tasks
   static uniqueByID(job) {
     return (value, index, self) =>
-      self.map((t) => t.service.config.serviceID).indexOf(value.service.config.serviceID) === index &&
-      value.content === job;
+      self.map((t) => t.service.config.serviceID).indexOf(value.service.config.serviceID) === index && value.content === job;
   }
 
   //remove all service data
@@ -1355,6 +1348,9 @@ export class ServiceManager {
       let ssvConfigs = await this.getSSVConfigs(services);
       let before = this.nodeConnection.nodeUpdates.getTimeStamp();
       try {
+        for (const task of tasks) {
+          await this.configManager.deleteServiceFromSetup(task.id, task.setupId);
+        }
         await Promise.all(
           tasks.filter(ServiceManager.uniqueByID("DELETE")).map((task, index, tasks) => {
             return this.deleteService(task, tasks, services, ssvConfigs);
@@ -1424,104 +1420,273 @@ export class ServiceManager {
     }
   }
 
-  async exportConfig() {
-    let arrayOfServices = await this.nodeConnection.listServicesConfigurations();
-    let serviceNameConfig = [];
-    for (let i = 0; i < arrayOfServices.length; i++) {
-      let serviceObject = await this.nodeConnection.readServiceYAML(arrayOfServices[i]);
+  async exportSingleSetup(setupId) {
+    const ref = StringUtils.createRandomString();
+    this.nodeConnection.taskManager.otherTasksHandler(ref, `Exporting A Setup`);
 
-      const exportObject = {
-        filename: arrayOfServices[i],
-        content: serviceObject,
-      };
-      serviceNameConfig.push(exportObject);
+    try {
+      let setup = await this.configManager.getSetup(setupId);
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Read ${setup[setupId].name} Setup`, true);
+
+      let arrayOfServices = await this.nodeConnection.listServicesConfigurations();
+
+      arrayOfServices = arrayOfServices
+        .map((service) => service.replace(".yaml", ""))
+        .filter((service) => setup[setupId].services.includes(service));
+
+      let serviceNameConfig = [];
+
+      for (let i = 0; i < arrayOfServices.length; i++) {
+        let serviceObject = await this.nodeConnection.readServiceYAML(arrayOfServices[i]);
+        const exportObject = {
+          filename: arrayOfServices[i] + ".yaml",
+          content: serviceObject,
+        };
+        serviceNameConfig.push(exportObject);
+      }
+
+      serviceNameConfig.push({
+        filename: setup[setupId].name + ".yaml",
+        content: yaml.dump(setup),
+      });
+
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Export setup Completed`, true);
+
+      return serviceNameConfig;
+    } catch (error) {
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Export Failed`, false, `Failed to export setup: ${error}`);
+      console.error(`Failed to export setup: ${error}`);
+    } finally {
+      this.nodeConnection.taskManager.otherTasksHandler(ref);
     }
-    return serviceNameConfig;
+  }
+
+  async exportConfig() {
+    const ref = StringUtils.createRandomString();
+    this.nodeConnection.taskManager.otherTasksHandler(ref, `Exporting Configuration`);
+    try {
+      let multiSetups = await this.configManager.readMultiSetup();
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Read Multi Setup`, true);
+      let arrayOfServices = await this.nodeConnection.listServicesConfigurations();
+      let serviceNameConfig = [];
+      for (let i = 0; i < arrayOfServices.length; i++) {
+        let serviceObject = await this.nodeConnection.readServiceYAML(arrayOfServices[i]);
+        this.nodeConnection.taskManager.otherTasksHandler(ref, `Read Service YAML for ${arrayOfServices[i]}`, true);
+
+        const exportObject = {
+          filename: arrayOfServices[i],
+          content: serviceObject,
+        };
+        serviceNameConfig.push(exportObject);
+      }
+
+      serviceNameConfig.push({
+        filename: "multisetup.yaml",
+        content: multiSetups,
+      });
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Export Configuration Completed`, true);
+      return serviceNameConfig;
+    } catch (error) {
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Export Failed`, false, `Failed to export config: ${error}`);
+      console.error(`Failed to export config: ${error}`);
+    } finally {
+      this.nodeConnection.taskManager.otherTasksHandler(ref);
+    }
+  }
+
+  async getCurrentPath() {
+    const stereumConfig = await this.nodeConnection.sshService.exec("cat /etc/stereum/stereum.yaml");
+    if (stereumConfig.rc == 0) {
+      return YAML.parse(stereumConfig.stdout).stereum_settings.settings.controls_install_path;
+    }
+    return "/opt/stereum";
+  }
+
+  async getAllPorts(installedServices) {
+    return installedServices
+      .map((s) => s.ports)
+      .flat(1)
+      .map((p) => p.destinationPort + "/" + p.servicePortProtocol);
+  }
+
+  async importSingleSetup(configFiles) {
+    const ref = StringUtils.createRandomString();
+    this.nodeConnection.taskManager.otherTasksHandler(ref, `Importing a setup`);
+    try {
+      const currentPath = await this.getCurrentPath();
+      let multiSetup = {};
+
+      let installedServices = await this.readServiceConfigurations();
+      let allPorts = await this.getAllPorts(installedServices);
+
+      //write config files
+      for (let file of configFiles) {
+        if (file.id && file.content && file.service) {
+          file.content = file.content.replace(/(\s+-\s)\/[^\s]+\/([a-zA-Z]+-[^/]+\/[^:]+):/g, `$1${currentPath}/$2:`);
+          const findUniquePort = (port, protocol, allPorts) => {
+            while (allPorts.includes(`${port}/${protocol}`)) {
+              port += 1;
+            }
+            allPorts.push(`${port}/${protocol}`);
+            return port;
+          };
+
+          file.content = file.content.replace(/(\d+\.\d+\.\d+\.\d+:\d+):(\d+\/(tcp|udp))/g, (match, p1, p2, p3) => {
+            const [ip, originalPort] = p1.split(":");
+            const newPort = findUniquePort(parseInt(originalPort), p3, allPorts);
+            return `${ip}:${newPort}:${originalPort}/${p3}`;
+          });
+          await this.nodeConnection.writeServiceYAML({ id: file.id, data: file.content, service: file.service });
+        } else {
+          multiSetup = yaml.safeLoad(file.content);
+        }
+      }
+
+      let currentSetups = await this.configManager.readMultiSetup();
+      let setupsObj = yaml.load(currentSetups);
+      let mergedSetup = { ...setupsObj, ...multiSetup };
+      await this.configManager.writeMultiSetup(mergedSetup);
+
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Wrote multi setup`, true);
+
+      let services = await this.readServiceConfigurations();
+      let importingSetupServices = services.filter((service) => multiSetup[Object.keys(multiSetup)[0]].services.includes(service.id));
+
+      await Promise.all(
+        importingSetupServices.map(async (service) => {
+          await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());
+        })
+      );
+
+      await this.createKeystores(importingSetupServices);
+
+      // start service
+      const runRefs = [];
+      if (importingSetupServices[0] !== undefined) {
+        await Promise.all(
+          importingSetupServices.map(async (service, index) => {
+            Sleep(index * 1000).then(() => runRefs.push(this.manageServiceState(service.id, "started")));
+          })
+        );
+      }
+
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Import Configuration Completed`, true);
+      return runRefs;
+    } catch (error) {
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Import Failed`, false, `Failed to import config: ${error}`);
+      console.error(`Failed to import config: ${error}`);
+    } finally {
+      this.nodeConnection.taskManager.otherTasksHandler(ref);
+    }
   }
 
   async importConfig(configFiles, removedServices, checkPointSync) {
-    let consensusClients = [];
-    //remove existing config files
-    await this.nodeConnection.sshService.exec(`rm -rf /etc/stereum && mkdir -p /etc/stereum/services`);
+    const ref = StringUtils.createRandomString();
+    this.nodeConnection.taskManager.otherTasksHandler(ref, `Importing Configuration`);
+    try {
+      let multiSetup = {};
+      let consensusClients = [];
+      //remove existing config files
+      await this.nodeConnection.sshService.exec(`rm -rf /etc/stereum && mkdir -p /etc/stereum/services`);
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Removed existing config files`, true);
 
-    //write config files
-    for (let file of configFiles.concat(removedServices)) {
-      await this.nodeConnection.writeServiceYAML({ id: file.id, data: file.content, service: file.service });
-      if (file.category === "consensus") {
-        consensusClients.push(file.id);
-      }
-    }
-    let services = await this.readServiceConfigurations();
-
-    for (let serviceToDelete of removedServices) {
-      let dependents = [];
-      services.forEach((service) => {
-        for (const dependency in service.dependencies) {
-          service.dependencies[dependency].forEach((s) => {
-            if (s.id === serviceToDelete.id) dependents.push(service);
-          });
+      //write config files
+      for (let file of configFiles.concat(removedServices)) {
+        if (file.id && file.content && file.service && file.category) {
+          await this.nodeConnection.writeServiceYAML({ id: file.id, data: file.content, service: file.service });
+          if (file.category === "consensus") {
+            consensusClients.push(file.id);
+          }
+        } else {
+          multiSetup = yaml.safeLoad(file.content);
         }
-      });
-      dependents.forEach((service) => {
-        this.removeDependencies(service, serviceToDelete);
-      });
-      services = services.filter((s) => s.id !== serviceToDelete.id);
-    }
+      }
 
-    //Add or Remove Checkpoint Sync
-    for (let service of services.filter((s) => consensusClients.includes(s.id))) {
-      this.updateSyncCommand(service, checkPointSync);
-    }
+      await this.configManager.writeMultiSetup(multiSetup);
 
-    // create stereum config file
-    await this.nodeConnection.sshService.exec(`rm -rf /etc/stereum && mkdir -p /etc/stereum/services`);
-    const settings = {
-      stereum_settings: {
-        settings: {
-          controls_install_path: "/opt/stereum",
-          updates: {
-            lane: "stable",
-            unattended: {
-              install: false,
+      let services = await this.readServiceConfigurations();
+
+      for (let serviceToDelete of removedServices) {
+        for (let setupId of Object.keys(multiSetup)) {
+          await this.configManager.deleteServiceFromSetup(serviceToDelete.id, setupId);
+        }
+        let dependents = [];
+        services.forEach((service) => {
+          for (const dependency in service.dependencies) {
+            service.dependencies[dependency].forEach((s) => {
+              if (s.id === serviceToDelete.id) dependents.push(service);
+            });
+          }
+        });
+        dependents.forEach((service) => {
+          this.removeDependencies(service, serviceToDelete);
+        });
+        services = services.filter((s) => s.id !== serviceToDelete.id);
+      }
+
+      let updatedMultiSetup = await this.configManager.readMultiSetup();
+
+      //Add or Remove Checkpoint Sync
+      for (let service of services.filter((s) => consensusClients.includes(s.id))) {
+        this.updateSyncCommand(service, checkPointSync);
+      }
+
+      // create stereum config file
+      await this.nodeConnection.sshService.exec(`rm -rf /etc/stereum && mkdir -p /etc/stereum/services`);
+      const settings = {
+        stereum_settings: {
+          settings: {
+            controls_install_path: "/opt/stereum",
+            updates: {
+              lane: "stable",
+              unattended: {
+                install: false,
+              },
             },
           },
         },
-      },
-    };
-    await this.nodeConnection.sshService.exec(
-      `echo -e ${StringUtils.escapeStringForShell(YAML.stringify(settings))} > /etc/stereum/stereum.yaml`
-    );
+      };
+      await this.nodeConnection.sshService.exec(
+        `echo -e ${StringUtils.escapeStringForShell(YAML.stringify(settings))} > /etc/stereum/stereum.yaml`
+      );
+      await this.configManager.writeMultiSetup(yaml.load(updatedMultiSetup));
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Wrote multi setup`, true);
 
-    //prepare node
-    await this.nodeConnection.findStereumSettings();
-    await this.nodeConnection.prepareStereumNode(this.nodeConnection.settings.stereum.settings.controls_install_path);
+      //prepare node
+      await this.nodeConnection.findStereumSettings();
+      await this.nodeConnection.prepareStereumNode(this.nodeConnection.settings.stereum.settings.controls_install_path);
 
-    await Promise.all(
-      services.map(async (service) => {
-        await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());
-      })
-    );
-
-    await this.createKeystores(services);
-
-    // start service
-    const runRefs = [];
-    if (services[0] !== undefined) {
       await Promise.all(
-        services.map(async (service, index) => {
-          Sleep(index * 1000).then(() => runRefs.push(this.manageServiceState(service.id, "started")));
+        services.map(async (service) => {
+          await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());
         })
       );
+
+      await this.createKeystores(services);
+
+      // start service(s)
+      const runRefs = [];
+      if (services[0] !== undefined) {
+        await Promise.all(
+          services.map(async (service, index) => {
+            Sleep(index * 1000).then(() => runRefs.push(this.manageServiceState(service.id, "started")));
+          })
+        );
+      }
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Import Configuration Completed`, true);
+      return runRefs;
+    } catch (error) {
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Import Failed`, false, `Failed to import config: ${error}`);
+      console.error(`Failed to import config: ${error}`);
+    } finally {
+      this.nodeConnection.taskManager.otherTasksHandler(ref);
     }
-    return runRefs;
   }
 
   async beaconchainMonitoringModification(data) {
     let services = await this.readServiceConfigurations();
     let selectedValidator = services.find((service) => service.id === data.selectedVal);
-    let firstConsensusClient = services.find(
-      (service) => service.id === selectedValidator.dependencies.consensusClients[0].id
-    );
+    let firstConsensusClient = services.find((service) => service.id === selectedValidator.dependencies.consensusClients[0].id);
 
     let metricsExporterAdded = false;
 
@@ -1529,6 +1694,15 @@ export class ServiceManager {
       case "PrysmValidatorService":
         await this.addMetricsExporter(services);
         metricsExporterAdded = true;
+        break;
+    }
+
+    switch (firstConsensusClient.service) {
+      case "PrysmBeaconService":
+        if (!metricsExporterAdded) {
+          await this.addMetricsExporter(services);
+          metricsExporterAdded = true;
+        }
         break;
     }
 
@@ -1541,10 +1715,7 @@ export class ServiceManager {
         `--system.partition=/host/rootfs`
       );
       if (selectedValidator.service == "PrysmValidatorService") {
-        metricsExporter.command.push(
-          `--validator.type=prysm`,
-          `--validator.address=http://stereum-${selectedValidator.id}:8081/metrics`
-        );
+        metricsExporter.command.push(`--validator.type=prysm`, `--validator.address=http://stereum-${selectedValidator.id}:8081/metrics`);
       }
       if (firstConsensusClient.service == "PrysmBeaconService") {
         metricsExporter.command.push(

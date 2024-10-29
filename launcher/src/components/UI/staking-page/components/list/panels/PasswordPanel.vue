@@ -4,20 +4,8 @@
   >
     <div class="w-full h-full col-start-1 col-end-11 relative flex justify-start items-center">
       <button class="absolute right-2 focus:outline-none rtl:left-0 rtl:right-auto" @click="togglePasswordVisibility">
-        <img
-          v-if="isPasswordVisible"
-          class="w-4"
-          src="/img/icon/staking-page-icons/visible.png"
-          alt="Visible Icon"
-          @mousedown.prevent
-        />
-        <img
-          v-else
-          class="w-4"
-          src="/img/icon/staking-page-icons/invisible.png"
-          alt="Invisible Icon"
-          @mousedown.prevent
-        />
+        <img v-if="isPasswordVisible" class="w-4" src="/img/icon/staking-page-icons/visible.png" alt="Visible Icon" @mousedown.prevent />
+        <img v-else class="w-4" src="/img/icon/staking-page-icons/invisible.png" alt="Invisible Icon" @mousedown.prevent />
       </button>
 
       <input
@@ -48,7 +36,7 @@
 
 <script setup>
 import { useStakingStore } from "@/store/theStaking";
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 const emit = defineEmits(["confirmPassword"]);
 
@@ -63,6 +51,7 @@ const togglePasswordVisibility = () => {
 };
 
 const cancelPassword = () => {
+  eneteredPassword.value = "";
   stakingStore.isPreviewListActive = false;
   stakingStore.setActivePanel(null);
   stakingStore.previewKeys = [];
@@ -74,4 +63,12 @@ const confirmPassword = () => {
   eneteredPassword.value = "";
   isPasswordVisible.value = false;
 };
+
+onMounted(() => {
+  eneteredPassword.value = "";
+});
+
+onUnmounted(() => {
+  eneteredPassword.value = "";
+});
 </script>

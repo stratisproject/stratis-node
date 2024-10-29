@@ -1,10 +1,11 @@
 <template>
   <div
-    class="flex flex-col justify-between box-border items-center w-screen h-screen border-2 border-slate-500 rounded-lg z-30 select-none relative"
+    class="flex flex-col justify-between box-border items-center w-screen h-screen border-2 border-slate-500 rounded-lg z-30 select-none"
   >
     <HeaderScreen />
 
-    <div class="flex justify-center items-center w-full h-full max-h-[503px] bg-[#33393E] relative">
+    <div class="flex justify-center items-center w-full h-full max-h-[503px] bg-[#33393E]">
+      <LoaderAnime v-if="isPageLoading" :anime="getLoadingAnime" />
       <slot></slot>
     </div>
     <div class="w-full h-[30px] rounded-b-lg bg-[#33393E]" @pointerdown.prevent.stop @mousedown.prevent.stop>
@@ -47,32 +48,34 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
-import TaskManager from "../UI/task-manager/TaskManager.vue";
 import TheFooter from "../layers/TheFooter.vue";
-import MultiServerScreen from "../UI/server-management/MultiServerScreen.vue";
+import LogoutModal from "../UI/base-header/components/modals/LogoutModal.vue";
+import NotifModal from "../UI/base-header/components/modals/NotifModal.vue";
+import ReconnectModal from "../UI/base-header/components/modals/ReconnectModal.vue";
+import SupportModal from "../UI/base-header/components/modals/SupportModal.vue";
+import UpdatePanel from "../UI/base-header/components/modals/UpdatePanel.vue";
 import HeaderScreen from "../UI/base-header/HeaderScreen.vue";
+import StakeGuide from "../UI/guide-page/StakeGuide.vue";
+import TutorialGuide from "../UI/guide-page/TutorialGuide.vue";
+import MultiServerScreen from "../UI/server-management/MultiServerScreen.vue";
 import GrafanaModal from "../UI/services-modal/GrafanaModal.vue";
-import SsvModal from "../UI/services-modal/SsvModal.vue";
-import PrometheusModal from "../UI/services-modal/PrometheusModal.vue";
 import MevboostModal from "../UI/services-modal/MevboostModal.vue";
 import ObolModal from "../UI/services-modal/ObolModal.vue";
+import PrometheusModal from "../UI/services-modal/PrometheusModal.vue";
 import SsvDkg from "../UI/services-modal/SsvDkg.vue";
-import UpdatePanel from "../UI/base-header/components/modals/UpdatePanel.vue";
-import ReconnectModal from "../UI/base-header/components/modals/ReconnectModal.vue";
-import LogoutModal from "../UI/base-header/components/modals/LogoutModal.vue";
-import SupportModal from "../UI/base-header/components/modals/SupportModal.vue";
-import NotifModal from "../UI/base-header/components/modals/NotifModal.vue";
-import TutorialGuide from "../UI/guide-page/TutorialGuide.vue";
-import StakeGuide from "../UI/guide-page/StakeGuide.vue";
+import SsvModal from "../UI/services-modal/SsvModal.vue";
+import TaskManager from "../UI/task-manager/TaskManager.vue";
+import LoaderAnime from "../UI/edit-page/components/loader-anime/LoaderAnime.vue";
+
 import { useUpdateCheck } from "@/composables/version";
-import { useNodeHeader } from "@/store/nodeHeader";
-import { useRouter } from "vue-router";
-import { useServers } from "@/store/servers";
-import { useFooter } from "@/store/theFooter";
 import ControlService from "@/store/ControlService";
+import { useNodeHeader } from "@/store/nodeHeader";
+import { useServers } from "@/store/servers";
 import { useServices } from "@/store/services.js";
+import { useFooter } from "@/store/theFooter";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 const serverStore = useServers();
@@ -80,6 +83,11 @@ const headerStore = useNodeHeader();
 const footerStore = useFooter();
 const serviceStore = useServices();
 const UpdatePanelCompRef = ref(null);
+const isPageLoading = ref(false);
+
+const getLoadingAnime = computed(() => {
+  return "/animation/setup/loader.gif";
+});
 
 onMounted(() => {
   useUpdateCheck();

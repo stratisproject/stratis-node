@@ -1,8 +1,7 @@
 <template>
-  <div class="w-full h-full col-start-2 col-end-20 row-start-1 row-span-full grid grid-cols-24 grid-rows-12">
-    <div
-      class="w-full h-full col-start-1 col-span-full row-start-1 row-span-full grid grid-cols-24 grid-rows-12 relative overflow-hidden"
-    >
+  <div class="w-full h-full col-start-2 col-end-20 row-start-1 row-span-full grid grid-cols-24 grid-rows-13 space-y-[1px]">
+    <StakingHeader />
+    <div class="w-full h-full col-start-1 col-span-full row-start-2 row-span-full grid grid-cols-24 grid-rows-12 relative overflow-hidden">
       <ListHeader
         v-if="stakingStore.isPreviewListActive || stakingStore.isGroupListActive || stakingStore.isRemoteListActive"
         @back-list="backList"
@@ -41,6 +40,7 @@ import DisabledSection from "../sections/DisabledSection.vue";
 import { useStakingStore } from "@/store/theStaking";
 import { onBeforeMount, watch } from "vue";
 import { useServices } from "@/store/services.js";
+import StakingHeader from "../components/header/StakingHeader.vue";
 
 const emit = defineEmits([
   "confirmGrouping",
@@ -70,9 +70,7 @@ const serviceStore = useServices();
 watch(
   () => serviceStore.installedServices,
   async () => {
-    const hasValidator = serviceStore.installedServices.some(
-      (s) => s.category === "validator" && s.state === "running"
-    );
+    const hasValidator = serviceStore.installedServices.some((s) => s.category === "validator" && s.state === "running");
     stakingStore.isStakingDisabled = !hasValidator;
   }
 );

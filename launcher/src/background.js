@@ -10,7 +10,9 @@ import { ValidatorAccountManager } from "./backend/ValidatorAccountManager.js";
 import { TaskManager } from "./backend/TaskManager.js";
 import { Monitoring } from "./backend/Monitoring.js";
 import { StereumUpdater } from "./StereumUpdater.js";
+import { ConfigManager } from "./backend/ConfigManager.js";
 import { AuthenticationService } from "./backend/AuthenticationService.js";
+import { TekuGasLimitConfig } from "./backend/TekuGasLimitConfig.js";
 import { SSHService } from "./backend/SSHService.js";
 import path from "path";
 import { readFileSync } from "fs";
@@ -23,7 +25,10 @@ const monitoring = new Monitoring(nodeConnection);
 const oneClickInstall = new OneClickInstall();
 const serviceManager = new ServiceManager(nodeConnection);
 const validatorAccountManager = new ValidatorAccountManager(nodeConnection, serviceManager);
+const configManager = new ConfigManager(nodeConnection);
+configManager.setServiceManager(serviceManager);
 const authenticationService = new AuthenticationService(nodeConnection);
+const tekuGasLimitConfig = new TekuGasLimitConfig(nodeConnection);
 const sshService = new SSHService();
 const { globalShortcut } = require("electron");
 const log = require("electron-log");
@@ -497,12 +502,7 @@ ipcMain.handle("getCurrentEpochSlot", async (event, args) => {
 
 ipcMain.handle("beginAuthSetup", async (event, args) => {
   const current_window = event.sender;
-  return await authenticationService.beginAuthSetup(
-    args.timeBased,
-    args.increaseTimeLimit,
-    args.enableRateLimit,
-    current_window
-  );
+  return await authenticationService.beginAuthSetup(args.timeBased, args.increaseTimeLimit, args.enableRateLimit, current_window);
 });
 
 ipcMain.handle("finishAuthSetup", async () => {
@@ -633,6 +633,34 @@ ipcMain.handle("copyExecutionJWT", async (event, args) => {
   return await serviceManager.copyExecutionJWT(args);
 });
 
+ipcMain.handle("readMultiSetup", async () => {
+  return await configManager.readMultiSetup();
+});
+
+ipcMain.handle("createSetup", async (event, args) => {
+  return await configManager.createSetup(args);
+});
+
+ipcMain.handle("deleteSetup", async (event, args) => {
+  return await configManager.deleteSetup(args);
+});
+
+ipcMain.handle("renameSetup", async (event, args) => {
+  return await configManager.renameSetup(args);
+});
+
+ipcMain.handle("exportSingleSetup", async (event, args) => {
+  return await serviceManager.exportSingleSetup(args);
+});
+
+ipcMain.handle("importSingleSetup", async (event, args) => {
+  return await serviceManager.importSingleSetup(args);
+});
+
+ipcMain.handle("switchSetupNetwork", async (event, args) => {
+  return await configManager.switchSetupNetwork(args);
+});
+
 ipcMain.handle("fetchTranslators", async (event, args) => {
   return await serviceManager.fetchTranslators(args);
 });
@@ -640,6 +668,15 @@ ipcMain.handle("fetchTranslators", async (event, args) => {
 ipcMain.handle("fetchGitHubTesters", async (event, args) => {
   return await serviceManager.fetchGitHubTesters(args);
 });
+
+ipcMain.handle("checkAndCreateMultiSetup", async () => {
+  return await configManager.checkAndCreateMultiSetup();
+});
+
+ipcMain.handle("checkConnectionQuality", async (event, args) => {
+  return await nodeConnection.sshService.checkConnectionQuality(args);
+});
+
 ipcMain.handle("startShell", async (event) => {
   if (!nodeConnection.sshService.shellStream) {
     try {
@@ -681,6 +718,50 @@ ipcMain.handle("stopShell", async () => {
 
 ipcMain.handle("create2FAQRCode", async (event, args) => {
   return await authenticationService.create2FAQRCode(args.type, args.name, args.ip, args.secret);
+});
+
+ipcMain.handle("createGasConfigFile", async (event, args) => {
+  return await tekuGasLimitConfig.createGasConfigFile(args.gasLimit, args.feeRecipient, args.configPath);
+});
+
+ipcMain.handle("removeGasConfigFile", async (event, args) => {
+  return await tekuGasLimitConfig.removeGasConfigFile(args);
+});
+
+ipcMain.handle("readGasConfigFile", async (event, args) => {
+  return await tekuGasLimitConfig.readGasConfigFile(args);
+});
+
+ipcMain.handle("handleOTPChange", async (event, args) => {
+  return await AuthenticationService.handleOTPChange(
+    nodeConnection.nodeConnectionParams.password,
+    args.newPassword,
+    nodeConnection.sshService
+  );
+});
+
+ipcMain.handle("fetchObolCharonAlerts", async () => {
+  return await monitoring.fetchObolCharonAlerts();
+});
+
+ipcMain.handle("fetchCsmAlerts", async () => {
+  return await monitoring.fetchCsmAlerts();
+});
+
+ipcMain.handle("ignoreUpdate", async (event) => {
+  return await stereumUpdater.ignoreUpdate(event.sender);
+});
+
+ipcMain.handle("updateLauncher", async () => {
+  return stereumUpdater.downloadUpdate();
+});
+
+ipcMain.handle("getNewLauncherVersion", async () => {
+  return stereumUpdater.getNewLauncherVersion();
+});
+
+ipcMain.handle("deleteSlasherVolume", async (event, args) => {
+  return await serviceManager.deleteSlasherVolume(args);
 });
 
 // Scheme must be registered before the app is ready

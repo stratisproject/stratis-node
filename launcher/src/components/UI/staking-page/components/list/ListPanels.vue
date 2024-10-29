@@ -1,13 +1,11 @@
 <template>
   <div
-    class="w-full h-full min-h-[40px] col-start-1 col-span-full row-start-12 row-span-1 grid grid-cols-12 items-center border border-gray-600 rounded-b-md bg-[#151618] px-1 pr-0"
+    class="w-full h-full min-h-9 col-start-1 col-span-full row-start-12 row-span-1 grid grid-cols-12 items-center border border-gray-600 rounded-b-md bg-[#151618] px-1 pr-0"
   >
     <div class="w-full h-full col-start-1 col-end-4 grid grid-cols-3 py-1">
       <div
         class="w-2/3 h-full col-start-1 col-span-1 flex justify-center items-center rounded-sm bg-[#336666] hover:bg-[#234545] transition-all duration-100 cursor-pointer px-1 active:scale-95"
-        :class="
-          stakingStore.isPreviewListActive || stakingStore.isStakingDisabled ? 'opacity-50 pointer-events-none ' : ''
-        "
+        :class="stakingStore.isPreviewListActive || stakingStore.isStakingDisabled ? 'opacity-50 pointer-events-none ' : ''"
       >
         <img
           v-if="stakingStore.isGroupListActive"
@@ -40,13 +38,7 @@
         @mouseenter="footerStore.cursorLocation = `${openSrch}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
-        <img
-          class="h-6"
-          src="/img/icon/staking-page-icons/filter.png"
-          alt="Insert Icon"
-          @click="searchPanel"
-          @mousedown.prevent
-        />
+        <img class="h-6" src="/img/icon/staking-page-icons/filter.png" alt="Insert Icon" @click="searchPanel" @mousedown.prevent />
       </div>
       <div
         class="w-2/3 h-full col-start-3 col-span-1 flex justify-center items-center rounded-sm bg-[#336666] hover:bg-[#234545] transition-all duration-100 cursor-pointer active:scale-95 px-1"
@@ -63,9 +55,7 @@
     </div>
 
     <div class="w-full h-full col-start-4 col-end-13 grid grid-cols-12 items-center self-center px-1 relative">
-      <keep-alive>
-        <component :is="activePanel.component" v-bind="activePanel.props" v-on="activePanel.events" />
-      </keep-alive>
+      <component :is="activePanel.component" v-bind="activePanel.props" v-on="activePanel.events" />
     </div>
   </div>
 </template>
@@ -175,9 +165,7 @@ watchEffect(() => {
 const displayKeyAlias = () => {
   stakingStore.isPubkeyVisible = !stakingStore.isPubkeyVisible;
   footerStore.cursorLocation = "";
-  !stakingStore.isPubkeyVisible
-    ? (footerStore.cursorLocation = `${showValKey}`)
-    : (footerStore.cursorLocation = `${showKeyNam}`);
+  !stakingStore.isPubkeyVisible ? (footerStore.cursorLocation = `${showValKey}`) : (footerStore.cursorLocation = `${showKeyNam}`);
 };
 
 const groupingPanel = () => {

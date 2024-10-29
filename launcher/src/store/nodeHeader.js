@@ -126,9 +126,9 @@ export const useNodeHeader = defineStore("nodeHeader", {
         case "Help":
           this.supportModalIsActive = true;
           break;
-        case "Notifications":
-          this.notificationModalIsActive = true;
-          break;
+        // case "Notifications":
+        //   this.notificationModalIsActive = true;
+        //   break;
         case "StakeGuide":
           this.isStakeGuideActive = true;
           break;

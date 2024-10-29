@@ -38,26 +38,26 @@ export class PrysmBeaconService extends NodeService {
       })
       .join();
 
-    let builderCommand = mevboostEndpoint ? " --http-mev-relay=" + mevboostEndpoint : "";
-    let checkpointCommand = checkpointURL ? " --checkpoint-sync-url=" + checkpointURL : "";
-
     service.init(
       "PrysmBeaconService", //service
       service.id, //id
       1, // configVersion
       image, //image
       "latest", //imageVersion
-      "/app/cmd/beacon-chain/beacon-chain --accept-terms-of-use=true --datadir=" +
-        dataDir +
-        ' --p2p-host-dns="" ' +
-        (network === 'stratis' ? '' : `--${network}`) +
-        " --rpc-host=0.0.0.0 --grpc-gateway-host=0.0.0.0 --p2p-max-peers=100 --execution-endpoint=" +
-        executionEndpoint +
-        " --monitoring-host=0.0.0.0 --monitoring-port=8080 --p2p-tcp-port=13001 --p2p-udp-port=12001 --jwt-secret=" +
-        JWTDir +
-        checkpointCommand +
-        builderCommand, //command
-      null, //entrypoint
+      [
+        "--accept-terms-of-use=true",
+        `--datadir=${dataDir}`,
+        "--rpc-host=0.0.0.0",
+        "--grpc-gateway-host=0.0.0.0",
+        "--p2p-max-peers=100",
+        `--execution-endpoint=${executionEndpoint}`,
+        `--jwt-secret=${JWTDir}`,
+        "--monitoring-host=0.0.0.0",
+        "--monitoring-port=8080",
+        "--p2p-tcp-port=13001",
+        "--p2p-udp-port=12001",
+      ],
+      ["/app/cmd/beacon-chain/beacon-chain"], //entrypoint
       null, //env
       ports, //ports
       volumes, //volumes
@@ -67,6 +67,19 @@ export class PrysmBeaconService extends NodeService {
       null, //consensusClients
       mevboost //mevboost
     );
+
+    if (network !== 'stratis') {
+      service.command.push(`--${network}`)
+    }
+
+    if (checkpointURL) {
+      service.command.push(`--checkpoint-sync-url=${checkpointURL}`);
+    }
+
+    if (mevboostEndpoint) {
+      service.command.push(`--http-mev-relay=${mevboostEndpoint}`);
+    }
+
     return service;
   }
 
@@ -95,9 +108,7 @@ export class PrysmBeaconService extends NodeService {
   }
 
   buildPrometheusJob() {
-    return `\n  - job_name: stereum-${
-      this.id
-    }\n    static_configs:\n      - targets: [${this.buildConsensusClientMetricsEndpoint()}]`;
+    return `\n  - job_name: stereum-${this.id}\n    static_configs:\n      - targets: [${this.buildConsensusClientMetricsEndpoint()}]`;
   }
 
   getAvailablePorts() {

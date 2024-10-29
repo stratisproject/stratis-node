@@ -620,8 +620,83 @@ class ControlService extends EventEmitter {
     return this.promiseIpc.send("executeCommand", args);
   }
 
+  async readMultiSetup() {
+    return this.promiseIpc.send("readMultiSetup");
+  }
+
+  async createSetup(args) {
+    return this.promiseIpc.send("createSetup", args);
+  }
+
+  async deleteSetup(args) {
+    return this.promiseIpc.send("deleteSetup", args);
+  }
+
+  async renameSetup(args) {
+    return this.promiseIpc.send("renameSetup", args);
+  }
+
+  async exportSingleSetup(args) {
+    return this.promiseIpc.send("exportSingleSetup", args);
+  }
+
+  async importSingleSetup(args) {
+    return this.promiseIpc.send("importSingleSetup", args);
+  }
+
+  async switchSetupNetwork(args) {
+    return this.promiseIpc.send("switchSetupNetwork", args);
+  }
+
+  async checkAndCreateMultiSetup(args) {
+    return this.promiseIpc.send("checkAndCreateMultiSetup", args);
+  }
+
+  async checkConnectionQuality() {
+    return this.promiseIpc.send("checkConnectionQuality");
+  }
+
   async create2FAQRCode(args) {
     return this.promiseIpc.send("create2FAQRCode", args);
+  }
+
+  async createGasConfigFile(args) {
+    return this.promiseIpc.send("createGasConfigFile", args);
+  }
+
+  async removeGasConfigFile(args) {
+    return this.promiseIpc.send("removeGasConfigFile", args);
+  }
+
+  async readGasConfigFile(args) {
+    return this.promiseIpc.send("readGasConfigFile", args);
+  }
+
+  async handleOTPChange(args) {
+    return this.promiseIpc.send("handleOTPChange", args);
+  }
+
+  async fetchObolCharonAlerts() {
+    return this.promiseIpc.send("fetchObolCharonAlerts");
+  }
+  async fetchCsmAlerts() {
+    return this.promiseIpc.send("fetchCsmAlerts");
+  }
+
+  async ignoreUpdate() {
+    return this.promiseIpc.send("ignoreUpdate");
+  }
+
+  async updateLauncher() {
+    return this.promiseIpc.send("updateLauncher");
+  }
+
+  async getNewLauncherVersion() {
+    return this.promiseIpc.send("getNewLauncherVersion");
+  }
+
+  async deleteSlasherVolume(args) {
+    return this.promiseIpc.send("deleteSlasherVolume", args);
   }
 }
 if (!instance) {

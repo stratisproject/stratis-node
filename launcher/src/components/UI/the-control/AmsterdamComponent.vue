@@ -1,12 +1,8 @@
 <template>
   <div class="amsterdam-parent">
-    <div
-      class="icoTitle"
-      @mouseenter="cursorLocation = `${footerInfo} ${currentNetwork.name}`"
-      @mouseleave="cursorLocation = ''"
-    >
+    <div class="icoTitle" @mouseenter="cursorLocation = `${footerInfo} ${getSetupNetwork?.name}`" @mouseleave="cursorLocation = ''">
       <div class="icoContainer">
-        <img :src="networkIcon" />
+        <img :src="getSetupNetwork?.icon" />
       </div>
       <span>{{ $t("controlPage.node") }}</span>
     </div>
@@ -19,8 +15,9 @@
         </div>
       </div>
       <no-data
-        v-else-if="consensusClientIsOff || prometheusIsOff || installedServicesController !== ''"
-        :service-cat="installedServicesController !== '' ? 'install' : prometheusIsOff ? 'prometheus' : ''"
+        v-else-if="isConsensusMissing || !isConsensusRunning || prometheusIsOff"
+        @mouseenter="cursorLocation = `${nodataMessage}`"
+        @mouseleave="cursorLocation = ''"
       />
       <div v-else class="box-wrapper">
         <div class="proposed-part">
@@ -35,7 +32,7 @@
                 red: n.slotStatus == 'missed',
               }"
               @mouseenter="
-                cursorLocation = `the current epoch: ${currentResult.currentEpoch} and the slot number is ${
+                cursorLocation = `the current epoch: ${currentResult?.currentEpoch || 'N/A'} and the slot number is ${
                   n.slotNumber === 0 ? 'N/A' : n.slotNumber
                 }`
               "
@@ -46,7 +43,7 @@
         <div class="justified-part">
           <div class="Finalized-row">
             <div
-              v-for="n in currentResult.justifiedEpochStatus[0]"
+              v-for="n in currentResult?.justifiedEpochStatus?.[0] || []"
               :key="n"
               class="Finalized-square"
               :class="{
@@ -55,14 +52,16 @@
                 red: n.slotStatus == 'missed',
               }"
               @mouseenter="
-                cursorLocation = `the justified epoch: ${currentResult.currentJustifiedEpoch} and the slot number is ${n.slotNumber}`
+                cursorLocation = `the justified epoch: ${currentResult?.currentJustifiedEpoch || 'N/A'} and the slot number is ${
+                  n.slotNumber
+                }`
               "
               @mouseleave="cursorLocation = ''"
             ></div>
           </div>
           <div class="Finalized-row">
             <div
-              v-for="n in currentResult.preJustifiedEpochStatus[0]"
+              v-for="n in currentResult?.preJustifiedEpochStatus?.[0] || []"
               :key="n"
               class="Finalized-square"
               :class="{
@@ -71,7 +70,9 @@
                 red: n.slotStatus == 'missed',
               }"
               @mouseenter="
-                cursorLocation = `the previous justified epoch: ${currentResult.previousJustifiedEpoch} and the slot number is ${n.slotNumber}`
+                cursorLocation = `the previous justified epoch: ${currentResult?.previousJustifiedEpoch || 'N/A'} and the slot number is ${
+                  n.slotNumber
+                }`
               "
               @mouseleave="cursorLocation = ''"
             ></div>
@@ -80,7 +81,7 @@
         <div class="Finalized-part">
           <div class="Finalized-row">
             <div
-              v-for="n in currentResult.finalizedEpochStatus[0]"
+              v-for="n in currentResult?.finalizedEpochStatus?.[0] || []"
               :key="n"
               class="Finalized-square"
               :class="{
@@ -89,7 +90,7 @@
                 red: n.slotStatus == 'missed',
               }"
               @mouseenter="
-                cursorLocation = `the Finalized epoch: ${currentResult.finalizedEpoch} and the slot number is ${n.slotNumber}`
+                cursorLocation = `the Finalized epoch: ${currentResult?.finalizedEpoch || 'N/A'} and the slot number is ${n.slotNumber}`
               "
               @mouseleave="cursorLocation = ''"
             ></div>
@@ -107,6 +108,8 @@ import { useControlStore } from "@/store/theControl";
 import { useServices } from "@/store/services";
 import ControlService from "@/store/ControlService";
 import NoData from "./NoData.vue";
+import { useSetups } from "@/store/setups";
+import { useRouter } from "vue-router";
 
 export default {
   components: {
@@ -125,13 +128,16 @@ export default {
       proposed: [],
       polling: {},
       loadingStrater: false,
-      prometheusIsOff: false,
+      // prometheusIsOff: false,
       consensusClientIsOff: false,
+      changeCounter: 0,
+      networkFlag: false,
     };
   },
   computed: {
     ...mapState(useNodeManage, {
       currentNetwork: "currentNetwork",
+      networkList: "networkList",
     }),
     ...mapState(useServices, {
       installedServices: "installedServices",
@@ -144,6 +150,9 @@ export default {
       slot: "slot",
       status: "status",
       installedServicesController: "installedServicesController",
+      missingServices: "missingServices",
+      prometheusIsOff: "prometheusIsOff",
+      nodataMessage: "nodataMessage",
     }),
     ...mapWritableState(useControlStore, {
       currentSlotData: "currentSlotData",
@@ -153,8 +162,11 @@ export default {
       consensusName: "consensusName",
       pageNumber: "pageNumber",
     }),
+    ...mapState(useSetups, {
+      selectedSetup: "selectedSetup",
+    }),
     proposedBlock() {
-      if (this.currentNetwork.id === 4) {
+      if (this.selectedSetup?.network === "gnosis") {
         return Array.from({ length: 16 }, () => ({
           slotNumber: 0,
           slotStatus: "pending",
@@ -166,9 +178,20 @@ export default {
         }));
       }
     },
+    isConsensusMissing() {
+      return this.missingServices?.includes("consensus");
+    },
+    getSetupNetwork() {
+      let setupNet;
+      const net = this.selectedSetup?.network;
+      if (net && this.networkList) {
+        setupNet = this.networkList.find((network) => network.network === net);
+      }
+      return setupNet;
+    },
 
     networkIcon() {
-      return this.currentNetwork.network ? this.currentNetwork.icon : this.defaultIcon;
+      return this.currentNetwork?.network ? this.currentNetwork?.icon : this.defaultIcon;
     },
     flag() {
       if (
@@ -177,6 +200,8 @@ export default {
         this.installedServicesController === "consensus and Prometheus"
       ) {
         return false;
+      } else if (this.proposedBlock === undefined) {
+        return true;
       } else if (this.consensusClientIsOff === true) {
         return false;
       } else if (this.prometheusIsOff === true) {
@@ -191,12 +216,25 @@ export default {
         return false;
       } else if (this.loadingStrater) {
         return true;
+      } else if (this.networkFlag) {
+        return true;
       }
       return false;
     },
   },
 
   watch: {
+    selectedSetup(newVal, oldVal) {
+      if (newVal?.network !== oldVal?.network) {
+        // If the network changes to or from "gnosis", set the networkFlag to true
+        if (newVal?.network === "gnosis" || oldVal?.network === "gnosis") {
+          this.networkFlag = true;
+        }
+
+        // Existing logic
+        this.currentEpochSlot(this.consensusName);
+      }
+    },
     installedServices() {
       this.serviceController(this.installedServices);
       this.serviceStateController(this.consensusName, "consensusClientIsOff");
@@ -212,8 +250,8 @@ export default {
     },
     currentResult: {
       handler(newResult) {
-        if (newResult && newResult.currentEpochStatus && newResult.currentEpochStatus[0]) {
-          const newArray = newResult.currentEpochStatus[0].slice(0, this.proposedBlock.length).map((slot) => ({
+        if (newResult && newResult.currentEpochStatus && newResult?.currentEpochStatus[0]) {
+          const newArray = newResult?.currentEpochStatus[0].slice(0, this.proposedBlock.length).map((slot) => ({
             slotNumber: slot.slotNumber,
             slotStatus: slot.slotStatus,
           }));
@@ -224,10 +262,31 @@ export default {
 
           this.proposedBlock.splice(0, this.proposedBlock.length, ...newArray);
         }
+
+        if (this.networkFlag) {
+          this.changeCounter++;
+          if (this.selectedSetup?.network === "gnosis" && this.changeCounter === 4) {
+            this.networkFlag = false;
+            this.changeCounter = 0;
+          } else if (this.selectedSetup?.network !== "gnosis" && this.changeCounter === 2) {
+            this.networkFlag = false;
+            this.changeCounter = 0;
+          }
+        }
       },
+
       deep: true,
+      immediate: true,
     },
   },
+
+  created() {
+    const router = useRouter();
+    if (!this.proposedBlock) {
+      router.push("/node");
+    }
+  },
+
   mounted() {
     this.refreshTimer();
   },
@@ -271,19 +330,13 @@ export default {
     },
 
     refreshTimer() {
-      if (this.currentNetwork.id === 4) {
-        this.polling = setInterval(() => {
-          if (this.currentSlotData !== undefined && this.currentEpochData !== undefined) {
-            this.currentEpochSlot(this.consensusName);
-          }
-        }, 5000);
-      } else {
-        this.polling = setInterval(() => {
-          if (this.currentSlotData !== undefined && this.currentEpochData !== undefined) {
-            this.currentEpochSlot(this.consensusName);
-          }
-        }, 12000);
-      }
+      const intervalTime = this.selectedSetup?.network === "gnosis" ? 5000 : 11000;
+
+      this.polling = setInterval(() => {
+        if (this.currentSlotData && this.currentEpochData) {
+          this.currentEpochSlot(this.consensusName);
+        }
+      }, intervalTime);
     },
     refreshHandling() {
       this.currentResult = {};
@@ -291,19 +344,19 @@ export default {
       this.currentEpochSlot(this.consensusName);
     },
 
-    initializeProposedBlock() {
-      if (this.currentNetwork.id === 4) {
-        return Array.from({ length: 16 }, () => ({
-          slotNumber: 0,
-          slotStatus: "pending",
-        }));
-      } else {
-        return Array.from({ length: 32 }, () => ({
-          slotNumber: 0,
-          slotStatus: "pending",
-        }));
-      }
-    },
+    // initializeProposedBlock() {
+    //   if (this.selectedSetup.network === "gnosis") {
+    //     return Array.from({ length: 16 }, () => ({
+    //       slotNumber: 0,
+    //       slotStatus: "pending",
+    //     }));
+    //   } else {
+    //     return Array.from({ length: 32 }, () => ({
+    //       slotNumber: 0,
+    //       slotStatus: "pending",
+    //     }));
+    //   }
+    // },
     async currentEpochSlot() {
       try {
         let res = await ControlService.getCurrentEpochSlot(this.consensusName);

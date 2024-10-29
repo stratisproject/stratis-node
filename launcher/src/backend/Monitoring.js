@@ -235,13 +235,7 @@ export class Monitoring {
     if (await this.checkStereumInstallation()) {
       var serviceConfigs = await this.serviceManagerProm.readServiceConfigurations();
       const serviceStates = await this.nodeConnectionProm.listServices();
-      if (
-        serviceConfigs &&
-        Array.isArray(serviceConfigs) &&
-        serviceConfigs.length > 0 &&
-        serviceStates &&
-        Array.isArray(serviceStates)
-      ) {
+      if (serviceConfigs && Array.isArray(serviceConfigs) && serviceConfigs.length > 0 && serviceStates && Array.isArray(serviceStates)) {
         serviceConfigs = args.length < 1 ? serviceConfigs : serviceConfigs.filter((s) => args.includes(s.service));
         serviceConfigs = serviceConfigs
           .map((config) => {
@@ -648,8 +642,7 @@ export class Monitoring {
     let requestdata = d ? `-d '${d}'` : "";
 
     // Build curl command
-    const cmd =
-      `curl -s --location --request ${method} -w "\\n%{http_code}" '${url}' ${requestheaders} ${requestdata}`.trim();
+    const cmd = `curl -s --location --request ${method} -w "\\n%{http_code}" '${url}' ${requestheaders} ${requestdata}`.trim();
 
     // Execute the CURL command on the node and return the result
     let result = null;
@@ -789,8 +782,7 @@ export class Monitoring {
     let requestdata = d ? `-d '${d}'` : "";
 
     // Build curl command
-    const cmd =
-      `curl -s --location --request ${method} -w "\\n%{http_code}" '${url}' ${requestheaders} ${requestdata}`.trim();
+    const cmd = `curl -s --location --request ${method} -w "\\n%{http_code}" '${url}' ${requestheaders} ${requestdata}`.trim();
 
     // Execute the CURL command on the node and return the result
     let result = null;
@@ -1064,8 +1056,7 @@ export class Monitoring {
     // Respond success
     return {
       code: 0,
-      info:
-        "success: rpc data" + (addinfo ? addinfo : " for all running execution clients") + " successfully retrieved",
+      info: "success: rpc data" + (addinfo ? addinfo : " for all running execution clients") + " successfully retrieved",
       data: data,
     };
   }
@@ -1131,11 +1122,7 @@ export class Monitoring {
 
     // Query Prometehus for all possible labels
     const prometheus_result = await this.queryPrometheus('{__name__=~"' + serviceLabels.join("|") + '"}');
-    if (
-      typeof prometheus_result !== "object" ||
-      !prometheus_result.hasOwnProperty("status") ||
-      prometheus_result.status != "success"
-    ) {
+    if (typeof prometheus_result !== "object" || !prometheus_result.hasOwnProperty("status") || prometheus_result.status != "success") {
       return {
         code: 113,
         info: "error: prometheus query for syncstatus failed",
@@ -1184,9 +1171,7 @@ export class Monitoring {
         let head_block_number = 0;
         if (typeof ecBlockNumberByRPC == "object") {
           last_known_head_block_number = await this.getLastKnownHeadBlock(network);
-          last_known_head_block_number = !this.is_numeric(last_known_head_block_number)
-            ? 0
-            : last_known_head_block_number;
+          last_known_head_block_number = !this.is_numeric(last_known_head_block_number) ? 0 : last_known_head_block_number;
           head_block_number = await this.getExecutionHeadBlockFromBeaconApi(consensus.config.serviceID);
           await this.setLastKnownHeadBlock(head_block_number, network); // does update only if head_block_number is a number and higher
           if (!this.is_numeric(head_block_number)) {
@@ -1200,9 +1185,7 @@ export class Monitoring {
           let labels = services[clientType][clt.service];
           let xx = prometheus_result.data.result.filter(
             (s) =>
-              labels.includes(s.metric.__name__) &&
-              s.metric.instance.includes(clt.config.instanceID) &&
-              s.metric.job == jobs[clt.service]
+              labels.includes(s.metric.__name__) && s.metric.instance.includes(clt.config.instanceID) && s.metric.job == jobs[clt.service]
           );
           let frstVal = 0,
             scndVal = 0;
@@ -1229,9 +1212,7 @@ export class Monitoring {
               const ecbfilt = ecBlockNumberByRPC.data.filter((s) => s.instance_id == clt.config.instanceID).pop();
               chain_head_block = ecbfilt.query_result.data.api_reponse;
               chain_head_block =
-                typeof chain_head_block === "string" && chain_head_block.startsWith("0x")
-                  ? parseInt(chain_head_block, 16)
-                  : 0;
+                typeof chain_head_block === "string" && chain_head_block.startsWith("0x") ? parseInt(chain_head_block, 16) : 0;
             } catch (e) {}
             let stay_on_hold_till_first_block = false; // true = enabled | false = disabled
             if (stay_on_hold_till_first_block && !chain_head_block) {
@@ -1321,11 +1302,7 @@ export class Monitoring {
 
     // Query Prometehus for all possible labels
     const prometheus_result = await this.queryPrometheus('{__name__=~"' + serviceLabels.join("|") + '"}');
-    if (
-      typeof prometheus_result !== "object" ||
-      !prometheus_result.hasOwnProperty("status") ||
-      prometheus_result.status != "success"
-    ) {
+    if (typeof prometheus_result !== "object" || !prometheus_result.hasOwnProperty("status") || prometheus_result.status != "success") {
       return {
         code: 223,
         info: "error: prometheus query for p2pstatus failed",
@@ -1461,9 +1438,7 @@ export class Monitoring {
             details[clientType]["numPeer"] > details[clientType]["maxPeer"]
               ? details[clientType]["maxPeer"]
               : details[clientType]["numPeer"];
-          details[clientType]["valPeer"] = Math.round(
-            (details[clientType]["numPeer"] / details[clientType]["maxPeer"]) * 100
-          );
+          details[clientType]["valPeer"] = Math.round((details[clientType]["numPeer"] / details[clientType]["maxPeer"]) * 100);
           details[clientType]["valPeer"] = details[clientType]["valPeer"] > 100 ? 100 : details[clientType]["valPeer"];
 
           // Summarize totals
@@ -1516,10 +1491,7 @@ export class Monitoring {
 
     // By default return cached data (if available)
     if (!live) {
-      if (
-        !this.globalMonitoringCache.hasOwnProperty("storagestatus") ||
-        !this.globalMonitoringCache.storagestatus.hasOwnProperty("data")
-      ) {
+      if (!this.globalMonitoringCache.hasOwnProperty("storagestatus") || !this.globalMonitoringCache.storagestatus.hasOwnProperty("data")) {
         return {
           code: 330,
           info: "error: storagestatus not available (waiting for updated cache)",
@@ -1640,6 +1612,9 @@ export class Monitoring {
       // Get latest finalized epoch
       const finalizedResult = await this.queryBeaconApi(baseURL, "/eth/v1/beacon/states/head/finality_checkpoints");
       const finalizedEpoch = finalizedResult.data.api_reponse.data.finalized.epoch;
+      if (validators.length === 0) {
+        return { finalized_epoch: finalizedEpoch }
+      }
 
       // Get attestation rewards for given validators
       const attestationResult = await this.queryBeaconApi(
@@ -1648,11 +1623,13 @@ export class Monitoring {
         validators,
         "POST"
       );
+      console.log(validators)
+      console.log(attestationResult)
+      console.log(attestationResult.data.api_reponse.data)
       const rewardsPerValidator = attestationResult.data.api_reponse.data.total_rewards.map((data) => {
         return {
           ...data,
-          total_rewards:
-            parseInt(data.head) + parseInt(data.source) + parseInt(data.target) + parseInt(data.inactivity),
+          total_rewards: parseInt(data.head) + parseInt(data.source) + parseInt(data.target) + parseInt(data.inactivity),
         };
       });
 
@@ -1693,6 +1670,9 @@ export class Monitoring {
   // Get Sync Committee for given validators and slot (count them together for whole epoch in frontend)
   async getSyncCommitteeRewards(validators, slot) {
     try {
+      if (validators.length === 0) {
+        return validators
+      } 
       // Get local beacon port from first available consensus client
       const beaconResult = await this.findBeaconPort();
       if (beaconResult.code) {
@@ -1701,12 +1681,7 @@ export class Monitoring {
       const baseURL = `http://127.0.0.1:${beaconResult.data.port}`;
 
       // Get attestation rewards for given validators
-      const blockResult = await this.queryBeaconApi(
-        baseURL,
-        "/eth/v1/beacon/rewards/sync_committee/" + slot,
-        validators,
-        "POST"
-      );
+      const blockResult = await this.queryBeaconApi(baseURL, "/eth/v1/beacon/rewards/sync_committee/" + slot, validators, "POST");
       return blockResult.data.api_httpcode == 200 ? blockResult.data.api_reponse.data : [];
     } catch (error) {
       log.error("Getting Block Rewards Failed:\n" + error);
@@ -2440,7 +2415,7 @@ export class Monitoring {
     };
   }
 
-  // Get a list of all ports (including the associated service and protocol) that are availble either publicly, locally or thru specific ip addresses
+  // Get a list of all ports (including the associated service and protocol) that are available either publicly, locally or thru specific ip addresses
   // Accepts an optional object of arguments:
   // [OPTIONAL] addr=<string|array> (default: "public"):
   // - "public": retrieve only ports that are publicly available (which means not localhost/127.0.0.1)
@@ -2470,11 +2445,7 @@ export class Monitoring {
     }
 
     // Check and format addr
-    const addr_type = Array.isArray(addr)
-      ? "arr"
-      : typeof addr === "string" && ["public", "local"].includes(addr)
-      ? "str"
-      : "invalid";
+    const addr_type = Array.isArray(addr) ? "arr" : typeof addr === "string" && ["public", "local"].includes(addr) ? "str" : "invalid";
     addr = addr_type == "str" ? addr.toLowerCase().trim() : addr;
     if (addr_type == "invalid") {
       return {
@@ -2494,11 +2465,7 @@ export class Monitoring {
       if (ports.length < 1) continue;
       for (let n = 0; n < ports.length; n++) {
         if (addr == "public" && addresses.some((w) => ports[n].destinationIp.toLowerCase().includes(w))) continue;
-        if (
-          (addr_type == "arr" || addr == "local") &&
-          !addresses.some((w) => ports[n].destinationIp.toLowerCase().includes(w))
-        )
-          continue;
+        if ((addr_type == "arr" || addr == "local") && !addresses.some((w) => ports[n].destinationIp.toLowerCase().includes(w))) continue;
         data.push({
           name: svc.service.replace(/Beacon|Service/gi, "").toUpperCase(),
           port: ports[n].destinationPort,
@@ -2516,8 +2483,7 @@ export class Monitoring {
     // );
 
     // Return success
-    const addinfo =
-      addr_type === "str" ? "that are " + addr + "ly available" : "that are available thru ip " + addr.join(" or ");
+    const addinfo = addr_type === "str" ? "that are " + addr + "ly available" : "that are available thru ip " + addr.join(" or ");
     return {
       code: 0,
       info: "success: open ports " + addinfo + " retrieved",
@@ -2561,8 +2527,7 @@ export class Monitoring {
     const easyInfos = [];
     for (let i = 0; i < serviceInfos.length; i++) {
       const hashDependencies =
-        serviceInfos[i].config.dependencies.consensusClients.length ||
-        serviceInfos[i].config.dependencies.executionClients.length
+        serviceInfos[i].config.dependencies.consensusClients.length || serviceInfos[i].config.dependencies.executionClients.length
           ? "yes"
           : "no";
       easyInfos.push({
@@ -2846,23 +2811,11 @@ rm -rf diskoutput
 
       const { current_epoch, current_slot } = await this.getCurrentEpochandSlot();
 
-      let proposerDutiesRes = await this.queryBeaconApi(
-        baseURL,
-        "/eth/v1/validator/duties/proposer/" + current_epoch,
-        [],
-        "GET"
-      );
-      let syncDutiesRes = await this.queryBeaconApi(
-        baseURL,
-        "/eth/v1/validator/duties/sync/" + current_epoch,
-        validatorIndices,
-        "POST"
-      );
+      let proposerDutiesRes = await this.queryBeaconApi(baseURL, "/eth/v1/validator/duties/proposer/" + current_epoch, [], "GET");
+      let syncDutiesRes = await this.queryBeaconApi(baseURL, "/eth/v1/validator/duties/sync/" + current_epoch, validatorIndices, "POST");
 
       return {
-        proposerDuties: proposerDutiesRes.data.api_reponse.data.filter((d) =>
-          validatorIndices.some((i) => i === d.validator_index)
-        ), // filter out duties for validators that are not in the validatorIndices (imported vals) array
+        proposerDuties: proposerDutiesRes.data.api_reponse.data.filter((d) => validatorIndices.some((i) => i === d.validator_index)), // filter out duties for validators that are not in the validatorIndices (imported vals) array
         syncDuties: syncDutiesRes.data.api_reponse.data,
         currentEpoch: current_epoch,
         currentSlot: current_slot,
@@ -2899,15 +2852,15 @@ rm -rf diskoutput
             const chunk = validatorPublicKeys.slice(i, i + chunkSize);
             const beaconAPICmd = `curl -s -X GET 'http://localhost:${beaconAPIPort}/eth/v1/beacon/states/head/validators?id=${chunk.join()}' -H 'accept: application/json'`;
             beaconAPIRunCmd = await this.nodeConnection.sshService.exec(beaconAPICmd);
+
             //check response
             validatorNotFound =
-              beaconAPIRunCmd.rc != 0 ||
-              beaconAPIRunCmd.stderr ||
-              JSON.parse(beaconAPIRunCmd.stdout).hasOwnProperty("message");
+              beaconAPIRunCmd.rc != 0 || beaconAPIRunCmd.stderr || JSON.parse(beaconAPIRunCmd.stdout).hasOwnProperty("message");
             if (!validatorNotFound) data = data.concat(JSON.parse(beaconAPIRunCmd.stdout).data); //merge all gathered stats in one array
           }
           const beaconAPICmdLastEpoch = `curl -s -X GET 'http://localhost:${beaconAPIPort}/eth/v1/beacon/states/head/finality_checkpoints' -H 'accept: application/json'`;
           beaconAPIRunCmdLastEpoch = await this.nodeConnection.sshService.exec(beaconAPICmdLastEpoch);
+
           const queryResult = data;
           validatorBalances = queryResult.map((key, id) => {
             return {
@@ -2916,7 +2869,10 @@ rm -rf diskoutput
               balance: key.balance,
               status: key.validator.slashed === "true" ? "slashed" : key.status.replace(/_.*/, ""),
               pubkey: key.validator.pubkey,
-              activationepoch: key.validator.activation_epoch,
+              activationEpoch: key.validator.activation_epoch,
+              activationElgibilityEpoch: key.validator.activation_eligibility_epoch,
+              withdrawableEpoch: key.validator.withdrawable_epoch,
+              exitEpoch: key.validator.exit_epoch,
               latestEpoch: parseInt(JSON.parse(beaconAPIRunCmdLastEpoch.stdout).data.current_justified.epoch) + 1,
             };
           });
@@ -2957,9 +2913,7 @@ rm -rf diskoutput
         let notFound = ":404";
 
         let beaconAPISlotRunCmd = await this.nodeConnection.sshService.exec(`${APIBegin}headers/head${cmdEnd}`);
-        let beaconAPIEpochRunCmd = await this.nodeConnection.sshService.exec(
-          `${APIBegin}states/head/finality_checkpoints${cmdEnd}`
-        );
+        let beaconAPIEpochRunCmd = await this.nodeConnection.sshService.exec(`${APIBegin}states/head/finality_checkpoints${cmdEnd}`);
 
         let currentSlot = parseInt(JSON.parse(beaconAPISlotRunCmd.stdout).data.header.message.slot);
         let currentEpoch = Math.floor(currentSlot / epochLength);
@@ -2996,8 +2950,7 @@ rm -rf diskoutput
         };
 
         for (const slots in firstSlots) {
-          let slotsNumberInEpoch =
-            `${slots}` === "firstSlotInCurrentEpoch" ? (currentSlot % epochLength) + 1 : epochLength;
+          let slotsNumberInEpoch = `${slots}` === "firstSlotInCurrentEpoch" ? (currentSlot % epochLength) + 1 : epochLength;
 
           for (let i = 0; i < slotsNumberInEpoch; i++) {
             let beaconAPISlotStatusCmd = `${cmdBegin}${firstSlots[slots] + i}/root${cmdEnd}`;
@@ -3057,72 +3010,366 @@ rm -rf diskoutput
 
   async exitValidatorAccount(pubkey, serviceID) {
     const beaconStatus = await this.getBeaconStatus();
+
+    if (beaconStatus.code !== 0) {
+      return [
+        {
+          pubkey: undefined,
+          code: null,
+          msg: beaconStatus.info,
+        },
+      ];
+    }
+
     try {
-      if (beaconStatus.code === 0) {
-        const beaconAPIPort = beaconStatus.data[0].beacon.destinationPort;
-        const serviceId = beaconStatus.data[0].sid;
-        if (!Array.isArray(pubkey)) {
-          pubkey = [pubkey];
+      const beaconAPIPort = beaconStatus.data[0].beacon.servicePort;
+      const serviceId = beaconStatus.data[0].sid;
+      if (!Array.isArray(pubkey)) {
+        pubkey = [pubkey];
+      }
+      let results = [];
+
+      const parseRunExitCommandOutput = (output, pubkey) => {
+        if (!output.includes("{") || !output.includes("}")) {
+          return {
+            pubkey: pubkey,
+            code: /20[0-8] OK/.test(output) ? 200 : null,
+            msg: output,
+          };
         }
-        let results = [];
-        for (let i = 0; i < pubkey.length; i++) {
-          const ref = StringUtils.createRandomString(); // Create a random string to identify the task
-          this.nodeConnection.taskManager.otherTasksHandler(ref, `Exit Account ${pubkey[i].substring(0, 6)}..`);
-          try {
-            const result = await this.validatorAccountManager.getExitValidatorMessage(pubkey[i], serviceID);
-            if (result.data === undefined) {
-              throw result;
-            }
-            const curlTag = await this.nodeConnection.ensureCurlImage();
-            const exitMsg = result.data;
-            const exitCommand = `docker run --rm --network=stereum curlimages/curl:${curlTag} curl 'http://stereum-${serviceId}:${beaconAPIPort}/eth/v1/beacon/pool/voluntary_exits' -H 'accept: */*' -H 'Content-Type: application/json' -d '${JSON.stringify(
-              exitMsg
-            )}' -i -s`;
-            const runExitCommand = await this.nodeConnection.sshService.exec(exitCommand);
 
-            log.info(runExitCommand);
+        const jsonStartIndex = output.indexOf("{");
+        const jsonEndIndex = output.lastIndexOf("}");
+        const stdoutJson = output.substring(jsonStartIndex, jsonEndIndex + 1);
+        const parsedJson = JSON.parse(stdoutJson);
 
-            //Error handling
-            if (SSHService.checkExecError(runExitCommand) && runExitCommand.stderr)
-              throw SSHService.extractExecError(runExitCommand);
+        let message =
+          `${parsedJson?.message || ""}${parsedJson?.message && parsedJson?.stacktraces ? "\n" : ""}${
+            parsedJson?.stacktraces || ""
+          }`.trim() || output;
 
-            // Push successful task
+        return {
+          pubkey: pubkey,
+          code: parsedJson.code || null,
+          msg: message,
+        };
+      };
+
+      const handleExitCommand = async (pubkey, serviceId, beaconAPIPort) => {
+        const ref = StringUtils.createRandomString();
+        this.nodeConnection.taskManager.otherTasksHandler(ref, `Exit Account ${pubkey.substring(0, 6)}..`);
+        try {
+          const result = await this.validatorAccountManager.getExitValidatorMessage(pubkey, serviceID);
+          if (result.data === undefined || !("data" in result)) {
+            throw new Error(result);
+          }
+
+          const curlTag = await this.nodeConnection.ensureCurlImage();
+          const exitMsg = result.data;
+          const exitCommand =
+            `docker run --rm --network=stereum curlimages/curl:${curlTag} curl ` +
+            `'http://stereum-${serviceId}:${beaconAPIPort}/eth/v1/beacon/pool/voluntary_exits' ` +
+            `-H 'accept: */*' ` +
+            `-H 'Content-Type: application/json' ` +
+            `-d '${JSON.stringify(exitMsg)}' -i -s`;
+
+          const runExitCommand = await this.nodeConnection.sshService.exec(exitCommand);
+          log.info(runExitCommand);
+
+          if (SSHService.checkExecError(runExitCommand) && runExitCommand.stderr) {
+            throw new Error(SSHService.extractExecError(runExitCommand));
+          }
+          if (!runExitCommand.stdout)
+            throw `ReturnCode: ${runExitCommand.rc}\nStderr: ${runExitCommand.stderr}\nStdout: ${runExitCommand.stdout}\nIs Your Consensus Client Running?`;
+
+          const response = parseRunExitCommandOutput(runExitCommand.stdout, pubkey);
+
+          if (response.code === 200) {
             this.nodeConnection.taskManager.otherTasksHandler(ref, `Exiting Account`, true, runExitCommand.stdout);
-            this.nodeConnection.taskManager.otherTasksHandler(ref);
-
-            // add pubkey into the runExitCommands' result;
-            runExitCommand["pubkey"] = `${pubkey[i]}`;
-
-            // Extract the JSON payload from the stdout
-            const jsonStartIndex = runExitCommand.stdout.indexOf("{");
-            const jsonEndIndex = runExitCommand.stdout.lastIndexOf("}");
-            const stdoutJson = runExitCommand.stdout.substring(jsonStartIndex, jsonEndIndex + 1);
-
-            results.push({
-              pubkey: runExitCommand.pubkey,
-              code: JSON.parse(stdoutJson).code,
-              msg: JSON.parse(stdoutJson).message,
-            });
-          } catch (error) {
+          } else {
             this.nodeConnection.taskManager.otherTasksHandler(
               ref,
               `Exiting Account Failed`,
               false,
-              `Exiting Account Failed ${pubkey[i]} Failed:\n` + error
+              `Exiting Account Failed ${pubkey}:\n${runExitCommand.stdout}`
             );
-            this.nodeConnection.taskManager.otherTasksHandler(ref);
-            log.error("Exiting signed voluntary account Failed:\n", error);
-            return error;
           }
+
+          this.nodeConnection.taskManager.otherTasksHandler(ref);
+          return response;
+        } catch (error) {
+          this.nodeConnection.taskManager.otherTasksHandler(
+            ref,
+            `Exiting Account Failed`,
+            false,
+            `Exiting Account Failed ${pubkey}:\n${error}`
+          );
+          this.nodeConnection.taskManager.otherTasksHandler(ref);
+          log.error(`Exiting signed voluntary account failed for ${pubkey}:\n`, error);
+          return {
+            pubkey: pubkey,
+            code: null,
+            msg: error.toString(),
+          };
         }
-        return results;
+      };
+
+      for (let i = 0; i < pubkey.length; i++) {
+        const result = await handleExitCommand(pubkey[i], serviceId, beaconAPIPort);
+        results.push(result);
       }
+
+      return results;
     } catch (error) {
-      console.log("Error occured to get Beacon node status: ", error);
+      const ref = StringUtils.createRandomString();
+      this.nodeConnection.taskManager.otherTasksHandler(
+        ref,
+        "Error occurred to get Beacon service ID & port",
+        false,
+        `Error occurred to get Beacon service ID & port: ${error}`
+      );
+      this.nodeConnection.taskManager.otherTasksHandler(ref);
+      return [
+        {
+          pubkey: undefined,
+          code: null,
+          msg: error.toString(),
+        },
+      ];
+    }
+  }
+
+  /**
+   * Will gather metrics from Prometheus and evaluate.
+   * If thresholds are exceeded, an alert will be generated and added to the retuned array.
+   * @returns {Object[]} Array of alerts e.g. [{name: "Cluster in Unknown Status", level: "warning"}, {name: "Beacon Node Down", level: "critical"}]
+   */
+  async fetchObolCharonAlerts() {
+    try {
+      const serviceInfos = await this.getServiceInfos("CharonService");
+      if (serviceInfos.length < 1) {
+        return [];
+      }
+      const queries = {
+        app_monitoring_readyz: "max((app_monitoring_readyz)) by (cluster_name, cluster_hash, cluster_peer)",
+        cluster_missed_attestations: "max(increase(core_tracker_failed_duties_total[10m])) by (cluster_hash, cluster_name)",
+        cluster_failure_rate:
+          "floor(100 * (max(increase(core_tracker_success_duties_total[15m])) by (cluster_hash, cluster_name) / max(increase(core_tracker_expect_duties_total[15m])) by (cluster_hash, cluster_name)))",
+        percentage_failed_sync_message_duty:
+          "(\n    sum(increase(core_tracker_failed_duties_total[1h])) by (cluster_name,cluster_hash,cluster_peer)\n) \n/ \n(\n    sum(increase(core_tracker_failed_duties_total[1h])) by (cluster_name,cluster_hash,cluster_peer) \n    + \n    sum(increase(core_bcast_broadcast_total[1h])) by (cluster_name,cluster_hash,cluster_peer) \n)",
+        connected_relays: "group (p2p_relay_connections) by (cluster_peer)",
+        peer_ping_latency: "histogram_quantile(0.90, sum(rate(p2p_ping_latency_secs_bucket[2m])) by (le,peer))",
+      };
+
+      const queryPromises = Object.entries(queries).map(([key, query]) => {
+        return this.queryPrometheus(encodeURIComponent(query)).then((result) => ({ key, result }));
+      });
+
+      const results = await Promise.all(queryPromises);
+
+      let alerts = results
+        .map((metric) => {
+          if (metric.result.status != "success") {
+            return;
+          }
+          if (metric.key === "peer_ping_latency") {
+            let value = Math.max(...metric.result.data.result.map((r) => r.value[1]));
+            return this.parseObolCharonAlerts(metric.key, value);
+          }
+          let value = metric.result.data.result[0].value[1];
+          return this.parseObolCharonAlerts(metric.key, value);
+        })
+        .filter((alert) => alert);
+
+      return alerts;
+    } catch (error) {
+      log.error("Fetching Obol Charon Alerts Failed:\n" + error);
+      return [];
+    }
+  }
+
+  parseObolCharonAlerts(key, value) {
+    //app_monitoring_readyz
+    if (key === "app_monitoring_readyz") {
+      switch (value) {
+        case 0:
+          return {
+            name: "Cluster in Unknown Status",
+            level: "warning",
+          };
+        case 2:
+          return {
+            name: "Beacon Node Down",
+            level: "critical",
+          };
+        case 4:
+          return {
+            name: "Cluster Insufficient Peers",
+            level: "warning",
+          };
+        case 6:
+          return {
+            name: "Cluster Missing Validators",
+            level: "critical",
+          };
+        case 7:
+          return {
+            name: "Beacon Node Zero Peers",
+            level: "critical",
+          };
+      }
+    }
+    if (key === "cluster_missed_attestations" && value > 0) {
       return {
-        info: "Error occured to get Beacon node status: ",
-        data: error,
+        name: "Cluster Missed Attestations",
+        level: "critical",
       };
     }
+    if (key === "cluster_failure_rate" && value < 95) {
+      return {
+        name: "Cluster Failure Rate",
+        level: "critical",
+      };
+    }
+    if (key === "percentage_failed_sync_message_duty" && value > 0.1) {
+      return {
+        name: "Failed Sync Msg Duty",
+        level: "critical",
+      };
+    }
+    if (key === "connected_relays" && value < 1) {
+      return {
+        name: "Num. Connected Relays",
+        level: "warning",
+      };
+    }
+    if (key === "peer_ping_latency" && value > 0.4) {
+      return {
+        name: "Peer Ping Latency",
+        level: "warning",
+      };
+    }
+  }
+
+  /**
+   * Will gather metrics from Prometheus and evaluate.
+   * If thresholds are exceeded, an alert will be generated and added to the retuned array.
+   * @returns {Object[]} Array of alerts e.g. [{name: "slashing event", level: "critical"},]
+   */
+  async fetchCsmAlerts() {
+    try {
+      const serviceInfos = await this.getServiceInfos("LCOMService");
+      if (serviceInfos.length < 1) {
+        return [];
+      }
+
+      const queries = {
+        lcoms_initial_slashing_submitted: "lcoms_initial_slashing_submitted",
+        lcoms_withdrawal_submitted: "lcoms_withdrawal_submitted",
+        lcoms_stealing_penalty: "lcoms_stealing_penalty",
+        lcoms_stealing_penalty_stolenAmount: "lcoms_stealing_penalty_stolenAmount",
+        lcoms_exit_request: "lcoms_exit_request",
+        lcoms_exit_request_timestamp: "lcoms_exit_request_timestamp",
+        lcoms_fee_to_distribute: "lcoms_fee_to_distribute",
+        lcoms_node_operator_status: "lcoms_node_operator_status",
+        lcoms_current_bond: "lcoms_current_bond",
+        lcoms_required_bond: "lcoms_required_bond",
+      };
+
+      const queryPromises = Object.entries(queries).map(([key, query]) => {
+        return this.queryPrometheus(encodeURIComponent(query)).then((result) => ({ key, result }));
+      });
+
+      const results = await Promise.all(queryPromises);
+
+      let currentBond = null;
+      let requiredBond = null;
+
+      let alerts = results
+        .map((metric) => {
+          if (metric.result.status !== "success") {
+            return [];
+          }
+
+          if (!metric.result.data.result || metric.result.data.result.length === 0) {
+            return [];
+          }
+
+          const metricData = metric.result.data.result[0];
+          if (!metricData || !metricData.value || metricData.value.length < 2) {
+            return [];
+          }
+
+          const value = parseFloat(metricData.value[1]);
+
+          if (metric.key === "lcoms_current_bond") {
+            currentBond = value;
+          } else if (metric.key === "lcoms_required_bond") {
+            requiredBond = value;
+          }
+
+          return this.parseCsmAlerts(metric.key, value);
+        })
+        .filter((alert) => alert !== null);
+
+      if (currentBond !== null && requiredBond !== null) {
+        const bondDifference = currentBond - requiredBond;
+        const bondAlert = this.parseCsmAlerts("bond_difference", bondDifference);
+        if (bondAlert) {
+          alerts.push(bondAlert);
+        }
+      }
+
+      return alerts;
+    } catch (error) {
+      log.error("Fetching CSM Alerts Failed:\n" + error);
+      return [];
+    }
+  }
+
+  parseCsmAlerts(key, value) {
+    if (key === "lcoms_initial_slashing_submitted" && value > 0) {
+      return {
+        name: "slashing event",
+        level: "critical",
+      };
+    }
+    if (key === "lcoms_withdrawal_submitted" && value > 0) {
+      return {
+        name: "withdrawal submitted",
+        level: "notification",
+      };
+    }
+    if (key === "lcoms_stealing_penalty" && value > 0) {
+      return {
+        name: "EL stealing penalty",
+        level: "critical",
+      };
+    }
+    if (key === "lcoms_exit_request" && value > 0) {
+      return {
+        name: "exit request",
+        level: "critical",
+      };
+    }
+    if (key === "lcoms_fee_to_distribute" && value > 0) {
+      return {
+        name: "none-claimed rewards",
+        level: "notification",
+      };
+    }
+    if (key === "lcoms_node_operator_status" && value < 1) {
+      return {
+        name: "node operator inactive",
+        level: "critical",
+      };
+    }
+    if (key === "bond_difference" && value < 0) {
+      return {
+        name: "Insufficient Bond",
+        level: "critical",
+      };
+    }
+    return [];
   }
 }

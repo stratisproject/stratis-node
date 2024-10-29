@@ -1,9 +1,6 @@
 <template>
   <div class="w-full h-full absolute inset-0 flex justify-center items-center">
-    <div
-      class="w-full h-full absolute indent-0 bg-black opacity-80 rounded-lg z-10"
-      @click="$emit('closeWindow')"
-    ></div>
+    <div class="w-full h-full absolute indent-0 bg-black opacity-80 rounded-lg z-10" @click="$emit('closeWindow')"></div>
     <div class="notif-modal-content">
       <div v-if="qrPage && !beaconchaDashboard" class="content">
         <div class="notif-Title">
@@ -96,12 +93,7 @@
               <div class="enter-input">
                 <div class="enter-input_title">{{ $t("notifModal.apikey") }}</div>
                 <div class="enter-input_input">
-                  <input
-                    v-model="apiKey"
-                    type="text"
-                    :class="apiKey == '' && haveToFill ? 'emptyInput' : ''"
-                    :disabled="readyToRemove"
-                  />
+                  <input v-model="apiKey" type="text" :class="apiKey == '' && haveToFill ? 'emptyInput' : ''" :disabled="readyToRemove" />
                 </div>
               </div>
             </div>
@@ -117,9 +109,10 @@
 </template>
 
 <script>
-import { mapWritableState } from "pinia";
+import { mapWritableState, mapState } from "pinia";
 import { useServices } from "@/store/services";
 import { useNodeHeader } from "@/store/nodeHeader";
+import { useSetups } from "@/store/setups";
 import ControlService from "@/store/ControlService";
 export default {
   data() {
@@ -148,11 +141,25 @@ export default {
     ...mapWritableState(useNodeHeader, {
       notificationModalIsActive: "notificationModalIsActive",
     }),
+    ...mapState(useSetups, {
+      selectedSetup: "selectedSetup",
+    }),
     installedValidators() {
-      const copyOfInstalledServices = [...this.installedServices];
-      return copyOfInstalledServices.filter(
-        (obj) => obj.category === "validator" && obj.name !== "ssv.network" && obj.name !== "Obol Charon"
-      );
+      let test = [];
+      const selectedSetup = this.selectedSetup;
+      if (selectedSetup && selectedSetup.services) {
+        const selectedServiceIds = selectedSetup.services.map((service) => service.config.serviceID);
+        this.installedServices.forEach((service) => {
+          if ("validator".includes(service.category) && selectedServiceIds.includes(service.config.serviceID)) {
+            test.push({
+              isServicePending: false,
+              ...service,
+            });
+          }
+        });
+      }
+
+      return test.filter((obj) => obj.category === "validator" && obj.name !== "ssv.network" && obj.name !== "Obol Charon");
     },
     installedMetricsExporter() {
       const copyOfInstalledServices = [...this.installedServices];
@@ -191,7 +198,7 @@ export default {
 
     selectedValidator(arg) {
       //to select the validator
-      console.log(arg);
+
       if (this.fixedConnectedVal == false) {
         this.selectedVal = arg.config.serviceID;
         this.selectedValToConnect = true;

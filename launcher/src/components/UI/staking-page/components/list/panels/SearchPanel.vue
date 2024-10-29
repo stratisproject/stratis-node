@@ -30,6 +30,15 @@
 
 <script setup>
 import { useStakingStore } from "@/store/theStaking";
+import { onMounted, onUnmounted } from "vue";
 
 const stakingStore = useStakingStore();
+
+onMounted(() => {
+  stakingStore.searchContent = "";
+});
+
+onUnmounted(() => {
+  stakingStore.searchContent = "";
+});
 </script>

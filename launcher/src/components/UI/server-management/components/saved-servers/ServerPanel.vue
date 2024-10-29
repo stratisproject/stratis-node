@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="col-start-1 col-span-full row-start-1 row-span-full grid grid-cols-12 grid-rows-12 items-center bg-[#1b1b1d] p-2 rounded-md"
-  >
+  <div class="col-start-1 col-span-full row-start-1 row-span-full grid grid-cols-12 grid-rows-12 items-center bg-[#1b1b1d] p-2 rounded-md">
     <div class="col-start-1 col-end-7 row-start-1 row-span-1 flex justify-start items-center">
       <span class="text-md font-semibold text-gray-200 uppercase">{{ $t("multiServer.saveServerCon") }}</span>
     </div>
@@ -13,22 +11,17 @@
         ref="searchInputRef"
         v-model="searchQuery"
         type="text"
-        :placeholder="`${$t('multiServer.serchFor')}`"
+        :placeholder="`${t('multiServer.serchFor')}`"
         class="w-full h-8 rounded-md border-gray-200 py-2.5 pe-10 shadow-sm sm:text-sm px-2"
+        @mouseenter="footerStore.cursorLocation = `${t('serverList.search')}`"
+        @mouseleave="footerStore.cursorLocation = ''"
       />
 
       <span class="absolute inset-y-0 end-0 grid w-10 place-content-center">
         <button type="button" class="text-gray-600 hover:text-gray-700">
           <span class="sr-only">{{ $t("multiServer.serch") }} </span>
 
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="h-4 w-4"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -49,11 +42,15 @@
         :server="server"
         @select-server="selectServer"
         @quick-login="quickLogin"
+        @mouseenter="footerStore.cursorLocation = `${server.name}`"
+        @mouseleave="footerStore.cursorLocation = ''"
       />
     </div>
     <button
       class="w-full h-[50px] self-end col-start-1 col-span-full row-start-11 row-span-2 bg-gray-200 rounded-md px-4 py-2 flex justify-center items-center shadow-lg shadow-black active:shadow-none active:scale-95 cursor-pointer space-x-4 transition-all duration-200 ease-in-out hover:bg-[#336666] text-gray-800 hover:text-gray-100"
       @click="serverLogin"
+      @mouseenter="footerStore.cursorLocation = `${t('serverList.addServer')}`"
+      @mouseleave="footerStore.cursorLocation = ''"
     >
       <img
         class="w-7 h-7 border border-gray-500 bg-teal-500 rounded-full p-1"
@@ -70,9 +67,14 @@ import ControlService from "@/store/ControlService";
 import { useServers } from "@/store/servers";
 import { useControlStore } from "@/store/theControl";
 import { onMounted, watch, ref } from "vue";
+import { useFooter } from "@/store/theFooter";
+import i18n from "@/includes/i18n";
+
+const t = i18n.global.t;
 
 const emit = defineEmits(["selectServer", "serverLogin", "quickLogin"]);
 
+const footerStore = useFooter();
 const serverStore = useServers();
 const controlStore = useControlStore();
 const searchQuery = ref("");
@@ -83,9 +85,7 @@ const getFilteredServers = () => {
   if (!searchQuery.value) {
     return serverStore.savedServers?.savedConnections;
   }
-  return serverStore.savedServers.savedConnections.filter((server) =>
-    server.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+  return serverStore.savedServers.savedConnections.filter((server) => server.name.toLowerCase().includes(searchQuery.value.toLowerCase()));
 };
 
 // Watch for changes in both searchQuery and serverStore.refreshServers
@@ -119,9 +119,7 @@ onMounted(async () => {
 const loadStoredConnections = async () => {
   serverStore.savedServers = await ControlService.readConfig();
 
-  serverStore.selectedServerConnection = serverStore.savedServers?.savedConnections?.find(
-    (item) => item.host === controlStore.ipAddress
-  );
+  serverStore.selectedServerConnection = serverStore.savedServers?.savedConnections?.find((item) => item.host === controlStore.ipAddress);
 
   serverStore.refreshServers = false;
 };

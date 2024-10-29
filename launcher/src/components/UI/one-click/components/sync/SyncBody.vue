@@ -1,9 +1,7 @@
 import { ref, computed } from 'vue';
 <template>
   <div class="w-full h-full col-start-1 col-span-full row-start-3 row-end-11 grid grid-cols-12 grid-rows-7 p-2 mx-auto">
-    <div
-      class="w-full h-full col-start-3 col-end-11 row-start-1 row-span-full bg-[#1E2429] rounded-md grid grid-cols-12 grid-rows-7 p-2"
-    >
+    <div class="w-full h-full col-start-3 col-end-11 row-start-1 row-span-full bg-[#1E2429] rounded-md grid grid-cols-12 grid-rows-7 p-2">
       <div class="col-start-1 col-span-full row-start-1 row-span-1 flex justify-center items-center">
         <span class="text-gray-300 text-sm">{{ $t("oneClick.setNodeClient") }}</span>
       </div>
@@ -39,8 +37,8 @@ import { ref, computed } from 'vue';
 </template>
 <script setup>
 import { useClickInstall } from "@/store/clickInstallation";
-import ExecutionSync from "../../../TheCarousel/ExecutionSync.vue";
-import ConsensusSync from "../../../TheCarousel/ConsensusSync.vue";
+import ExecutionSync from "./components/ExecutionSync.vue";
+import ConsensusSync from "./components/ConsensusSync.vue";
 import { computed } from "vue";
 
 //Store

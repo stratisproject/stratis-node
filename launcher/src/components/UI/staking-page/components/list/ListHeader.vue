@@ -50,9 +50,7 @@
       <span class="col-start-2 col-end-6 justify-self-start text-xs font-semibold text-gray-200 uppercase">{{
         stakingStore.selectedServiceToFilter.name
       }}</span>
-      <span class="col-start-7 col-end-20 text-center text-sm font-semibold text-gray-200 uppercase">{{
-        web3Import
-      }}</span>
+      <span class="col-start-7 col-end-20 text-center text-sm font-semibold text-gray-200 uppercase">{{ web3Import }}</span>
 
       <button
         class="w-7 h-7 shadow-md shadow-[#242c29] col-start-24 col-span-full rounded-md flex justify-center items-center cursor-pointer hover:scale-105 active:scale-95 transition-all duration-150 bg-[#578f84] border border-[#6c7e78] active:shadow-none"

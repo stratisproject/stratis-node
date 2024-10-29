@@ -6,12 +6,13 @@ export const useClickInstall = defineStore("clickInstallation", {
       startServicesAfterInstall: false,
       isConfigButtonEnbabled: false,
       installMonitoring: false,
+      resetMevBoost: false,
       relayURL: "",
       checkPointSync: "",
       currentSlide: 0,
       btnActive: false,
       selectedItem: "- SELECT A SOURCE -",
-      selectedLinks: null,
+      selectedLink: null,
       selectedIcon: null,
       syncType: [
         {

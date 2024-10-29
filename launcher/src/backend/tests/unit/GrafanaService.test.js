@@ -12,9 +12,7 @@ test("buildConfiguration", () => {
   ).buildConfiguration();
 
   expect(grafanaService.volumes).toHaveLength(3);
-  expect(grafanaService.volumes).toContain(
-    "/opt/stereum/grafana-" + grafanaService.id + "/provisioning:/etc/grafana/provisioning"
-  );
+  expect(grafanaService.volumes).toContain("/opt/stereum/grafana-" + grafanaService.id + "/provisioning:/etc/grafana/provisioning");
   expect(grafanaService.volumes).toContain("/opt/stereum/grafana-" + grafanaService.id + "/data:/var/lib/grafana");
   expect(grafanaService.volumes).toContain("/opt/stereum/grafana-" + grafanaService.id + ":/etc/grafana");
   expect(grafanaService.ports).toHaveLength(1);

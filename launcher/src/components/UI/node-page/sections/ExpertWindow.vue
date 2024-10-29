@@ -1,26 +1,34 @@
 <template>
   <div class="flex justify-center items-center">
     <div
-      class="fixed top-0 left-0 w-full h-full bg-black z-20 rounded-lg"
+      class="fixed top-0 left-0 w-full h-full bg-black z-20 rounded-md"
       :class="bgOpacity ? bgOpacity : 'opacity-50'"
       @click="$emit('hideModal')"
     ></div>
     <div
-      class="w-[970px] absolute inset-y-0 z-30 overflow-y-auto bg-[#2d3438] rounded-md flex flex-col justify-start items-center p-4"
+      class="w-full h-[492px] absolute top-[56px] left-[1px] z-30 bg-[#2d3438] rounded-md flex flex-col justify-start items-center p-4"
       :class="leftDistance ? leftDistance : 'left-0'"
       aria-labelledby="modal-title"
       role="dialog"
       aria-modal="true"
     >
-      <div class="flex flex-col justify-start items-start w-full border-b pb-1 border-gray-600">
-        <span class="text-xl text-gray-200 font-bold uppercase">{{ item.name }}</span>
-        <p class="text-sm text-gray-200 capitalize">
-          {{ item.category }}
-          <span v-if="item.category != 'service'">client</span>
-        </p>
-        <span class="text-sm text-gray-200">ID: {{ item.config.serviceID }}</span>
+      <div class="expert-header w-full h-1/6">
+        <div class="flex flex-col justify-start items-start w-full border-b pb-1 border-gray-600">
+          <span class="text-xl text-gray-200 font-bold uppercase">{{ item.name }}</span>
+          <p class="text-sm text-gray-200 capitalize">
+            {{ item.category }}
+            <span v-if="item.category != 'service'">client</span>
+          </p>
+          <span class="text-sm text-gray-200">ID: {{ item.config.serviceID }}</span>
+        </div>
       </div>
-      <div class="w-full h-[30px] space-y-2 mt-2" :class="{ shorterRowBox: isExpertModeActive }">
+
+      <div
+        class="row-part-scrollable w-full overflow-y-auto space-y-2 mt-2"
+        :class="
+          isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive ? 'h-[40px]' : 'max-h-[59vh]'
+        "
+      >
         <!-- expert mode row -->
         <div
           v-if="!ssvExpertModeActive && !ssvDkgExpertModeActive && !prometheusExpertModeActive"
@@ -29,12 +37,8 @@
         >
           <img class="titleIcon" src="/img/icon/service-setting-icons/crown.png" alt="icon" />
 
-          <span class="col-start-2 col-span-4 row-start-1 row-span-2 justify-start items-center flex w-full h-full"
-            >Expert Mode</span
-          >
-          <div
-            class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full"
-          >
+          <span class="col-start-2 col-span-4 row-start-1 row-span-2 justify-start items-center flex w-full h-full">Expert Mode</span>
+          <div class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full">
             <img v-if="isExpertModeActive" src="/img/icon/task-manager-icons/up.png" alt="" />
             <img v-else src="/img/icon/task-manager-icons/down.png" alt="" />
           </div>
@@ -45,24 +49,15 @@
           @click="openSSVExpertMode"
         >
           <img class="titleIcon" src="/img/icon/service-setting-icons/ssv-config.png" alt="icon" />
-          <span class="col-start-2 col-span-4 row-start-1 row-span-2 justify-start items-center flex w-full h-full"
-            >SSV Configuration</span
-          >
-          <div
-            class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full"
-          >
+          <span class="col-start-2 col-span-4 row-start-1 row-span-2 justify-start items-center flex w-full h-full">SSV Configuration</span>
+          <div class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full">
             <img v-if="ssvExpertModeActive" src="/img/icon/task-manager-icons/up.png" alt="" />
             <img v-else src="/img/icon/task-manager-icons/down.png" alt="" />
           </div>
         </div>
         <!-- DKG START -->
         <div
-          v-if="
-            item.service === 'SSVDKGService' &&
-            !ssvExpertModeActive &&
-            !isExpertModeActive &&
-            !prometheusExpertModeActive
-          "
+          v-if="item.service === 'SSVDKGService' && !ssvExpertModeActive && !isExpertModeActive && !prometheusExpertModeActive"
           class="dataTitleBox w-full h-10 bg-[#242529] rounded-xl shadow-2xl text-gray-300"
           @click="openSSVDKGExpertMode"
         >
@@ -70,9 +65,7 @@
           <span class="col-start-2 col-span-4 row-start-1 row-span-2 justify-start items-center flex w-full h-full"
             >SSV DKG Configuration</span
           >
-          <div
-            class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full"
-          >
+          <div class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full">
             <img v-if="ssvDkgExpertModeActive" src="/img/icon/task-manager-icons/up.png" alt="" />
             <img v-else src="/img/icon/task-manager-icons/down.png" alt="" />
           </div>
@@ -86,9 +79,7 @@
           <span class="col-start-2 col-span-4 row-start-1 row-span-2 justify-start items-center flex w-full h-full"
             >Prometheus Configuration</span
           >
-          <div
-            class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full"
-          >
+          <div class="arrow-box col-start-12 col-span-1 row-start-1 row-span-2 justify-end items-center flex w-full h-full">
             <img v-if="prometheusExpertModeActive" src="/img/icon/task-manager-icons/up.png" alt="" />
             <img v-else src="/img/icon/task-manager-icons/down.png" alt="" />
           </div>
@@ -109,8 +100,7 @@
           :key="index"
           class="selectBox w-full h-10 bg-[#242529] rounded-xl shadow-2xl text-gray-300"
           :class="{
-            invisible:
-              isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
+            invisible: isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
           }"
         >
           <img class="titleIcon" :src="option.icon" alt="icon" />
@@ -129,8 +119,7 @@
           :key="index"
           class="toggleTextBox w-full h-10 bg-[#242529] rounded-xl shadow-2xl text-gray-300"
           :class="{
-            invisible:
-              isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
+            invisible: isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
           }"
         >
           <img class="titleIcon" :src="option.icon" alt="icon" />
@@ -170,8 +159,7 @@
           :key="index"
           class="actionBox w-full h-10 bg-[#242529] rounded-xl shadow-2xl text-gray-300"
           :class="{
-            invisible:
-              isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
+            invisible: isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
           }"
         >
           <img class="titleIcon justify-self-center" :src="option.icon" alt="icon" />
@@ -199,8 +187,7 @@
           :key="index"
           class="actionBox w-full h-10 bg-[#242529] rounded-xl shadow-2xl text-gray-300"
           :class="{
-            invisible:
-              isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
+            invisible: isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
           }"
         >
           <img class="titleIcon" :src="option.icon" alt="icon" />
@@ -229,8 +216,7 @@
       <div
         class="expertTable"
         :class="{
-          showExpertTable:
-            isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
+          showExpertTable: isExpertModeActive || ssvExpertModeActive || ssvDkgExpertModeActive || prometheusExpertModeActive,
         }"
       >
         <div v-if="isExpertModeActive" class="expertMode">
@@ -262,7 +248,7 @@
           ></textarea>
         </div>
       </div>
-      <div class="w-full flex justify-between items-center absolute bottom-1 px-2">
+      <div class="footer-expert h-10 w-full flex justify-between items-center absolute bottom-1 px-4 pb-2">
         <!-- service version -->
         <p class="w-1/2 text-sm text-gray-200">
           version: <span>{{ item.config.imageVersion }}</span>
@@ -271,7 +257,7 @@
 
         <!-- confirm button box -->
         <button
-          class="expert-modal-btn w-1/8 px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-red-500 rounded-lg hover:bg-red-700 focus:outline-none"
+          class="expert-modal-btn w-[100px] h-8 px-6 py-1 font-medium tracking-wide text-white transition-colors duration-300 transform bg-red-500 rounded-sm hover:bg-red-700 focus:outline-none uppercase text-sm"
           @click="$emit('hideModal')"
         >
           close
@@ -279,23 +265,23 @@
 
         <button
           v-if="!nothingsChanged"
-          class="expert-modal-btn w-1/8 px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#609879] rounded-lg hover:bg-[#4c7960] focus:outline-none"
+          class="expert-modal-btn w-[100px] h-8 px-4 py-1 font-medium tracking-wide text-white divnsition-colors duration-300 transform bg-[#609879] rounded-sm hover:bg-[#4c7960] focus:outline-none uppercase text-sm"
           @click="confirmExpertChanges(item, false)"
         >
           Confirm
         </button>
 
-        <button v-else class="w-1/8 px-6 py-2 font-medium tracking-wide text-white capitalize rounded-lg disabled">
+        <button v-else class="w-[100px] h-8 px-4 py-1 font-medium tracking-wide text-white rounded-sm disabled uppercase text-sm">
           <span>Confirm</span>
         </button>
         <button
           v-if="!nothingsChanged"
-          class="expert-modal-btn w-1/8 px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#609879] rounded-lg hover:bg-[#4c7960] focus:outline-none"
+          class="expert-modal-btn w-[200px] h-8 px-6 py-1 font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-[#609879] rounded-sm hover:bg-[#4c7960] focus:outline-none text-sm"
           @click="confirmExpertChanges(item, true)"
         >
           Confirm & Restart
         </button>
-        <button v-else class="w-1/8 px-6 py-2 font-medium tracking-wide text-white capitalize rounded-lg disabled">
+        <button v-else class="w-[200px] h-8 px-6 py-1 font-medium tracking-wide text-white uppercase rounded-sm disabled text-sm">
           <span>Confirm & Restart</span>
         </button>
       </div>
@@ -374,6 +360,11 @@ export default {
     async readService() {
       this.item.yaml = await ControlService.getServiceYAML(this.item.config.serviceID);
 
+      let tekuGasLimit = "";
+      if (this.item.service === "TekuValidatorService") {
+        tekuGasLimit = await ControlService.readGasConfigFile(this.item.config.volumes[0].destinationPath);
+      }
+
       if (this.item.service === "SSVNetworkService") {
         this.item.ssvConfig = await ControlService.readSSVNetworkConfig(this.item.config.serviceID);
       }
@@ -397,6 +388,12 @@ export default {
               if (this.item.yaml.includes(command)) {
                 let match = this.item.yaml.match(new RegExp(`${command}[:=]?([\\S*]*)`));
                 option.changeValue = match ? match[match.length - 1] : "";
+              } else if (this.item.service === "TekuValidatorService" && command == "--gas-limit") {
+                if (tekuGasLimit != null) {
+                  tekuGasLimit = tekuGasLimit.replace(/"/g, "");
+                }
+                option.changeValue = tekuGasLimit;
+                this.somethingIsChanged(option);
               } else {
                 option.changeValue = "";
               }
@@ -411,6 +408,54 @@ export default {
                   option.changeValue = match[2] === "true" ? true : false;
                 } else {
                   option.changeValue = true;
+                }
+              } else if (this.item.service === "ErigonService") {
+                let match = this.item.yaml.match(new RegExp(`--prune([=]?)([\\S*]+)?`));
+                switch (option.commands[0]) {
+                  case "--prune-history": {
+                    option.changeValue = match[2].includes("h") ? true : false;
+                    break;
+                  }
+                  case "--prune-receipts": {
+                    option.changeValue = match[2].includes("r") ? true : false;
+                    break;
+                  }
+                  case "--prune-transaction": {
+                    option.changeValue = match[2].includes("t") ? true : false;
+                    break;
+                  }
+                  case "--prune-call-traces": {
+                    option.changeValue = match[2].includes("c") ? true : false;
+                    break;
+                  }
+                }
+                this.somethingIsChanged(option);
+              } else if (this.item.service === "NethermindService") {
+                if (!this.item.yaml.includes("Pruning.AvailableSpaceCheckEnabled=")) {
+                  const matchAllCommands = this.item.yaml.match(new RegExp(/--[\S]+/gm));
+                  const lastCommand = matchAllCommands[matchAllCommands.length - 1];
+                  const matchSpaces = this.item.yaml.match(new RegExp(`(\\s*- )${lastCommand}`));
+                  let spaces = " ";
+                  if (matchSpaces) {
+                    spaces = matchSpaces[1];
+                  }
+                  this.item.yaml = this.item.yaml.replace(
+                    new RegExp(`${lastCommand}`),
+                    lastCommand + spaces + "--Pruning.AvailableSpaceCheckEnabled=true"
+                  );
+                }
+                if (!this.item.yaml.includes("Pruning.FullPruningDisableLowPriorityWrites=")) {
+                  const matchAllCommands = this.item.yaml.match(new RegExp(/--[\S]+/gm));
+                  const lastCommand = matchAllCommands[matchAllCommands.length - 1];
+                  const matchSpaces = this.item.yaml.match(new RegExp(`(\\s*- )${lastCommand}`));
+                  let spaces = " ";
+                  if (matchSpaces) {
+                    spaces = matchSpaces[1];
+                  }
+                  this.item.yaml = this.item.yaml.replace(
+                    new RegExp(`${lastCommand}`),
+                    lastCommand + spaces + "--Pruning.FullPruningDisableLowPriorityWrites=false"
+                  );
                 }
               } else {
                 option.changeValue = false;
@@ -428,10 +473,7 @@ export default {
     },
 
     async writeService() {
-      this.item.yaml = this.item.yaml.replace(
-        new RegExp("(autoupdate: )(.*)(\\n)"),
-        "$1" + this.checkAutoUpdate() + "$3"
-      );
+      this.item.yaml = this.item.yaml.replace(new RegExp("(autoupdate: )(.*)(\\n)"), "$1" + this.checkAutoUpdate() + "$3");
 
       this.item.expertOptions.forEach((option) => {
         if (option.changed) {
@@ -450,10 +492,7 @@ export default {
                 if (this.item.yaml.includes(command)) {
                   let match = this.item.yaml.match(new RegExp(`${command}([=]?)([\\S*]+)?`));
                   if (match[1] == "=") {
-                    this.item.yaml = this.item.yaml.replace(
-                      new RegExp(match[0]),
-                      command + "=" + (option.changeValue ? "true" : "false")
-                    );
+                    this.item.yaml = this.item.yaml.replace(new RegExp(match[0]), command + "=" + (option.changeValue ? "true" : "false"));
                   } else {
                     if (option.changeValue == false) {
                       this.item.yaml = this.item.yaml.replace(new RegExp(`\n.*${command}.*`), "");
@@ -521,10 +560,7 @@ export default {
                   if (!/^["'`].*["'`]$/.test(option.changeValue) && option.isENV) {
                     option.changeValue = `"${option.changeValue}"`;
                   }
-                  this.item.yaml = this.item.yaml.replace(
-                    new RegExp(`${command}([=]?)([\\S*]*)`),
-                    `${command}$1${option.changeValue}`
-                  );
+                  this.item.yaml = this.item.yaml.replace(new RegExp(`${command}([=]?)([\\S*]*)`), `${command}$1${option.changeValue}`);
                 } else if (option.changeValue && !this.item.yaml.includes(command)) {
                   let matchAllCommands = this.item.yaml.match(new RegExp(/--[\S]+/gm));
                   if (matchAllCommands) {
@@ -576,6 +612,55 @@ export default {
           config: this.item.prometheusConfig,
         });
       }
+      if (this.item.service === "TekuValidatorService") {
+        if (this.item.yaml.includes("--gas-limit")) {
+          await ControlService.createGasConfigFile({
+            gasLimit: this.item.yaml.match(/^.*--gas-limit.*$/gm)[0].split("=")[1],
+            feeRecipient: this.item.yaml.match(/^.*fee-recipient.*$/gm)[0].split("=")[1],
+            configPath: this.item.config.volumes[0].destinationPath,
+          });
+          if (!this.item.yaml.includes("validators-proposer-config")) {
+            this.item.yaml = this.item.yaml.replace(
+              /^.*--gas-limit.*$/gm,
+              "  - --validators-proposer-config=" + this.item.config.volumes[0].servicePath + "/gas_config.json"
+            );
+          } else {
+            this.item.yaml = this.item.yaml.replace(/\n^.*--gas-limit.*$/gm, "");
+          }
+        } else if (!this.item.yaml.includes("--gas-limit") && this.item.yaml.includes("validators-proposer-config")) {
+          await ControlService.removeGasConfigFile(this.item.config.volumes[0].destinationPath);
+          this.item.yaml = this.item.yaml.replace(new RegExp(/\n^.*validators-proposer-config.*$/gm), "");
+        }
+      }
+      if (this.item.service === "LighthouseBeaconService") {
+        if (!this.item.yaml.includes("--slasher\n") && this.item.yaml.includes("/opt/app/slasher")) {
+          this.item.yaml = this.item.yaml.replace(/\n^.*--slasher-dir.*$/gm, "");
+          await ControlService.deleteSlasherVolume(this.item.config.serviceID);
+          this.item.yaml = this.item.yaml.replace(new RegExp(/\n^.*\/opt\/app\/slasher*$/gm), "");
+        } else if (this.item.yaml.includes("--slasher") && !this.item.yaml.includes("/opt/app/slasher")) {
+          let path = this.item.yaml.match(/^.*beacon:\/opt\/app\/beacon.*$/gm)[0].replace(new RegExp(/beacon/gm), "slasher");
+          this.item.yaml = this.item.yaml.replace("--slasher", "--slasher\n  - --slasher-dir=/opt/app/slasher");
+          this.item.yaml = this.item.yaml.replace("volumes:", "volumes:\n" + path);
+        }
+      }
+      if (this.item.service === "ErigonService") {
+        let erigonPruneSetting = "";
+        if (this.item.yaml.includes("--prune-history")) erigonPruneSetting += "h";
+        if (this.item.yaml.includes("--prune-receipts")) erigonPruneSetting += "r";
+        if (this.item.yaml.includes("--prune-transaction")) erigonPruneSetting += "t";
+        if (this.item.yaml.includes("--prune-call-traces")) erigonPruneSetting += "c";
+        if (erigonPruneSetting == "") erigonPruneSetting = "disabled";
+        this.item.yaml = this.item.yaml.replace(/\n^.*--prune-.*$/gm, "");
+        this.item.yaml = this.item.yaml.replace(/--prune=.*$/gm, "--prune=" + erigonPruneSetting);
+      }
+      if (this.item.service === "NethermindService") {
+        let erigonPruneSetting = "";
+        if (!this.item.yaml.includes("--FullPruningDisableLowPriorityWrites=")) {
+          this.item.yaml = this.item.yaml.replace(/\n^.*--prune-.*$/gm, "");
+          this.item.yaml = this.item.yaml.replace(/--prune=.*$/gm, "--prune=" + erigonPruneSetting);
+        }
+      }
+
       await ControlService.writeServiceYAML({
         id: this.item.config.serviceID,
         data: this.item.yaml,
@@ -1134,7 +1219,7 @@ input:checked + .slider:before {
   position: relative;
   z-index: 8;
 
-  margin-top: 2%;
+  margin-top: 1%;
 }
 .showExpertTable {
   display: flex;

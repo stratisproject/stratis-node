@@ -3,25 +3,24 @@ import { ref, watchEffect } from 'vue';
   <div class="col-start-1 col-span-full row-start-1 row-span-1 grid grid-cols-24 items-center">
     <span class="col-start-4 col-end-14 text-3xl text-gray-200 font-bold">SERVER MANAGEMENT</span>
     <div class="col-start-14 col-span-full w-full h-full grid grid-cols-12 grid-rows-5 items-center pr-2 pl-1">
-      <div
-        class="col-start-1 col-span-full row-start-2 row-end-5 h-full bg-[#1b1b1d] rounded-md grid grid-cols-8 items-center px-2"
-      >
+      <div class="col-start-1 col-span-full row-start-2 row-end-5 h-full bg-[#1b1b1d] rounded-md grid grid-cols-8 items-center px-2">
         <div
           v-for="tab in serverStore.tabs"
           :key="tab.name"
           :class="[
             'col-span-1 w-8 h-8 bg-gray-500 hover:text-teal-500 border border-gray-500 hover:border-teal-200 rounded-sm shadow-md shadow-black flex justify-center items-center cursor-pointer active:scale-95 transition-all duration-200 active:shadow-none',
             tab.isActive ? 'bg-teal-500 border-teal-200' : '',
-            isLoginRoute &&
-            (tab.name === 'info' ||
-              tab.name === 'ssh' ||
-              tab.name === 'update' ||
-              tab.name === 'settings' ||
-              tab.name === '2fa')
-              ? ' opacity-30 pointer-events-none scale-90 shadow-none'
-              : '',
+            isConnectedServer && tab.name === 'login' ? ' opacity-30 pointer-events-none scale-90 shadow-none' : '',
+            isServerToConnect && tab.name !== 'login' ? ' opacity-30 pointer-events-none scale-90 shadow-none' : '',
+            isLoginRoute && tab.name !== 'login' ? ' opacity-30 pointer-events-none scale-90 shadow-none' : '',
           ]"
-          @click="isLoginRoute && (tab.name === 'info' || tab.name === 'ssh') ? null : tabPicker(tab.name)"
+          @click="
+            (isServerToConnect && tab.name !== 'login') ||
+            (isConnectedServer && tab.name === 'login') ||
+            (isLoginRoute && tab.name !== 'login')
+              ? null
+              : tabPicker(tab.name)
+          "
           @mouseenter="footerStore.cursorLocation = `${tabTooltip(tab)}`"
           @mouseleave="footerStore.cursorLocation = ''"
         >
@@ -73,6 +72,14 @@ const tabTooltip = (tab) => {
   }
   return null; // Default case if none of the conditions match
 };
+
+const isConnectedServer = computed(() => {
+  return serverStore.selectedServerConnection && !serverStore.selectedServerToConnect;
+});
+
+const isServerToConnect = computed(() => {
+  return serverStore.selectedServerToConnect;
+});
 
 const tabPicker = (tabName) => {
   serverStore.setActiveTab(tabName);

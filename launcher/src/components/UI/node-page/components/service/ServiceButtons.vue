@@ -1,16 +1,10 @@
 <template>
   <div
-    class="col-start-2 col-span-full row-start-1 row-span-full grid grid-cols-3 grid-rows-2 items-center gap-1 relative py-2 pl-3 pr-1"
+    class="col-start-2 col-span-full row-start-1 row-span-full grid grid-cols-3 grid-rows-2 items-center gap-1 py-2 pl-3 pr-1"
     @pointerdown.prevent.stop
   >
-    <div
-      class="w-full h-full p-1 col-start-1 col-span-1 flex justify-center items-center bg-[#131313] hover:bg-gray-600 rounded-md"
-    >
-      <button
-        v-if="client.serviceIsPending"
-        type="button"
-        class="w-full h-full flex justify-center items-center rounded-md disabled"
-      >
+    <div class="w-full h-full p-1 col-start-1 col-span-1 flex justify-center items-center bg-[#131313] hover:bg-gray-600 rounded-md">
+      <button v-if="client.serviceIsPending" type="button" class="w-full h-full flex justify-center items-center rounded-md disabled">
         <img src="/img/icon/loading-icons/loading-circle.png" alt="icon" class="w-4 animate-spin" />
       </button>
       <button

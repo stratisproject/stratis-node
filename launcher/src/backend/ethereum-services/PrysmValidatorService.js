@@ -12,7 +12,6 @@ export class PrysmValidatorService extends NodeService {
 
     const dataDir = "/opt/app/data/db";
     const walletDir = "/opt/app/data/wallets";
-    const authTokenFile = `${walletDir}/auth-token`
     const passwordDir = "/opt/app/data/passwords";
     const graffitiDir = "/opt/app/graffitis";
 
@@ -40,25 +39,27 @@ export class PrysmValidatorService extends NodeService {
       1, // configVersion
       image, //image
       "latest", //imageVersion
-      '/app/cmd/validator/validator --accept-terms-of-use=true --beacon-rpc-provider="' +
-        provider +
-        '" --beacon-rpc-gateway-provider="' +
-        providerGateway +
-        '" --web ' +
-        (network === 'stratis' ? '' : `--${network}`) +
-        " --datadir=" +
-        dataDir +
-        " --wallet-dir=" +
-        walletDir +
-        " --validator-api-bearer-file=" +
-        authTokenFile +
-        " --wallet-password-file=" +
-        passwordDir +
-        '/wallet-password --monitoring-host=0.0.0.0 --grpc-gateway-port=7500 --grpc-gateway-host=0.0.0.0 --grpc-gateway-corsdomain="*"  --monitoring-host=0.0.0.0 --monitoring-port=8081 --suggested-fee-recipient=0x0000000000000000000000000000000000000000' +
-        " --graffiti-file=" +
-        graffitiDir +
-        "/graffitis.yaml --enable-builder=true --enable-doppelganger=true", //command
-      null, // entrypoint
+      [
+        "--accept-terms-of-use=true",
+        `--beacon-rpc-provider=${provider}`,
+        `--beacon-rpc-gateway-provider=${providerGateway}`,
+        "--web",
+        `--datadir=${dataDir}`,
+        `--validator-api-bearer-file=${walletDir + "/auth-token"}`,
+        `--wallet-dir=${walletDir}`,
+        `--wallet-password-file=${passwordDir + "/wallet-password"}`,
+        "--monitoring-host=0.0.0.0",
+        "--grpc-gateway-port=7500",
+        "--grpc-gateway-host=0.0.0.0",
+        '--grpc-gateway-corsdomain="*"',
+        "--monitoring-host=0.0.0.0",
+        "--monitoring-port=8081",
+        "--suggested-fee-recipient=0x0000000000000000000000000000000000000000",
+        `--graffiti-file=${graffitiDir + "/graffitis.yaml"}`,
+        "--enable-builder=true",
+        "--enable-doppelganger=true",
+      ],
+      ["/app/cmd/validator/validator"], //entrypoint
       null, // env
       ports, //ports
       volumes, //volumes
@@ -67,6 +68,10 @@ export class PrysmValidatorService extends NodeService {
       null, //executionClients
       consensusClients //consensusClients
     );
+
+    if (network !== 'stratis') {
+      service.command.push(`--${network}`)
+    }
 
     return service;
   }

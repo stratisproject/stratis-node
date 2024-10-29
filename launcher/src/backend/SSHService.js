@@ -7,6 +7,7 @@ import { StringUtils } from "./StringUtils";
 import * as fs from "fs";
 import * as path from "path";
 const log = require("electron-log");
+const ping = require("ping");
 
 export class SSHService {
   constructor() {
@@ -62,14 +63,36 @@ export class SSHService {
     });
   }
 
+  // Check the connection quality by pinging the host
+  async checkConnectionQuality() {
+    const host = this.connectionInfo.host;
+    let connectionQuality = { pingTime: null };
+
+    try {
+      const res = await ping.promise.probe(host, {
+        timeout: 2,
+      });
+
+      if (typeof res.time !== "undefined" && res.time !== null) {
+        connectionQuality.pingTime = res.time;
+      } else {
+        console.log(`Ping to ${host} failed or timed out`);
+      }
+    } catch (err) {
+      console.error("Ping failed:", err);
+    }
+    return connectionQuality;
+  }
+
   async checkConnectionPool() {
     let lastIndex = this.connectionPool.length - 1;
     const threshholdIndex = lastIndex - 2;
 
     if (
       this.connectionInfo &&
-      !this.addingConnection &&
-      (this.connectionPool.length < 6 || this.connectionPool[threshholdIndex]?._chanMgr?._count > 0)
+      this.addingConnection &&
+      (this.connectionPool.length < 6 || this.connectionPool[threshholdIndex]?._chanMgr?._count > 0) &&
+      process.env.NODE_ENV != "test"
     ) {
       await this.connect(this.connectionInfo);
     }
@@ -96,8 +119,8 @@ export class SSHService {
 
   async connect(connectionInfo, currentWindow = null) {
     this.connectionInfo = connectionInfo;
-    this.addingConnection = true;
     let conn = new Client();
+    let passwordBanner = false;
     return new Promise((resolve, reject) => {
       conn.on("error", (error) => {
         this.addingConnection = false;
@@ -108,6 +131,7 @@ export class SSHService {
       //only works for ubuntu 22.04
       conn.on("banner", (msg) => {
         if (new RegExp(/^(?=.*\bchange\b)(?=.*\bpassword\b).*$/gm).test(msg.toLowerCase())) {
+          passwordBanner = true;
           if (process.env.NODE_ENV === "test") {
             resolve(conn);
           }
@@ -118,8 +142,7 @@ export class SSHService {
         if (!connectionInfo.authCode) {
           currentWindow.send("require2FA", true);
           conn.end();
-        }
-        else {
+        } else {
           finish([connectionInfo.authCode.toString()]);
         }
       });
@@ -127,17 +150,18 @@ export class SSHService {
         .on("ready", async () => {
           this.connectionPool.push(conn);
           this.connected = true;
-          this.addingConnection = false;
-          if (this.connectionPool.length === 1) {
-            let test = await this.exec("ls");
-            if (new RegExp(/^(?=.*\bchange\b)(?=.*\bpassword\b).*$/gm).test(test.stderr.toLowerCase())) {
-              if (process.env.NODE_ENV === "test") {
-                resolve(conn);
+          if (!passwordBanner) {
+            if (this.connectionPool.length === 1) {
+              let test = await this.exec("ls");
+              if (new RegExp(/^(?=.*\bchange\b)(?=.*\bpassword\b).*$/gm).test(test.stderr.toLowerCase())) {
+                if (process.env.NODE_ENV === "test") {
+                  resolve(conn);
+                }
+                reject(test.stderr);
               }
-              reject(test.stderr);
             }
+            resolve(conn);
           }
-          resolve(conn);
         })
         .connect({
           host: connectionInfo.host,
@@ -165,18 +189,24 @@ export class SSHService {
         this.connectionInfo = null;
       }
       let counter = 0;
-      while (this.connectionPool.some((conn) => conn._chanMgr?._count > 0 && counter < 30)) {
+      while (this.connectionPool.length > 0 && counter < 30) {
         this.connectionPool.forEach((conn) => {
-          if (conn._chanMgr?._count > 0) {
+          if (conn._chanMgr?._count == 0) {
             conn.end();
+            this.connectionPool = this.connectionPool.filter((c) => c !== conn);
           }
         });
         await new Promise((resolve) => setTimeout(resolve, 1000));
         counter++;
       }
-      log.info("SSH Channels left open: ", this.connectionPool.map(c => c._chanMgr?._count).reduce((accumulator, currentValue) => {
-        return accumulator + currentValue
-      }, 0))
+      log.info(
+        "SSH Channels left open: ",
+        this.connectionPool
+          .map((c) => c._chanMgr?._count)
+          .reduce((accumulator, currentValue) => {
+            return accumulator + currentValue;
+          }, 0)
+      );
       this.connectionPool = [];
       return true;
     } catch (error) {
@@ -185,7 +215,7 @@ export class SSHService {
   }
 
   async exec(command, useSudo = true, useRoot = true) {
-    const ensureSudoCommand = `sudo -u ${useRoot ? 'root' : this.connectionInfo.user} -i <<'=====EOF'\n` + command + `\n=====EOF`;
+    const ensureSudoCommand = `sudo -u ${useRoot ? "root" : this.connectionInfo.user} -i <<'=====EOF'\n` + command + `\n=====EOF`;
     return this.execCommand(useSudo ? ensureSudoCommand : command);
   }
 
@@ -271,11 +301,7 @@ export class SSHService {
         while (i--) {
           // loop backwards to splice array from specific ports
           let tunnel = this.tunnels[i];
-          if (
-            Array.isArray(onlySpecificPorts) &&
-            onlySpecificPorts.length &&
-            !onlySpecificPorts.includes(tunnel.config.localPort)
-          ) {
+          if (Array.isArray(onlySpecificPorts) && onlySpecificPorts.length && !onlySpecificPorts.includes(tunnel.config.localPort)) {
             continue;
           }
           tunnel.server.close();
@@ -372,9 +398,7 @@ export class SSHService {
     try {
       if (sshDirPath.endsWith("/")) sshDirPath = sshDirPath.slice(0, -1, ""); //if path ends with '/' remove it
       let newKeys = keys.join("\n");
-      let result = await this.exec(
-        `echo -e ${StringUtils.escapeStringForShell(newKeys)} > ${sshDirPath}/authorized_keys`, false
-      );
+      let result = await this.exec(`echo -e ${StringUtils.escapeStringForShell(newKeys)} > ${sshDirPath}/authorized_keys`, false);
       if (SSHService.checkExecError(result)) {
         throw new Error("Failed writing authorized keys:\n" + SSHService.extractExecError(result));
       }
@@ -543,7 +567,10 @@ export class SSHService {
    * @param {Client} [conn]
    * @returns `void`
    */
-  async uploadFileSSH(localPath, remotePath, conn = this.getConnectionFromPool()) {
+  async uploadFileSSH(localPath, remotePath, conn) {
+    if (!conn) {
+      conn = await this.getConnectionFromPool();
+    }
     return new Promise((resolve, reject) => {
       const readStream = fs.createReadStream(localPath);
       readStream.on("error", reject);
@@ -593,7 +620,7 @@ export class SSHService {
         if (item.isDirectory()) {
           await this.uploadDirectorySSH(localFilePath, remoteFilePath, conn);
         } else {
-          await this.uploadFileSSH(localFilePath, remoteFilePath);
+          await this.uploadFileSSH(localFilePath, remoteFilePath, conn);
         }
       }
       return true;

@@ -1,9 +1,6 @@
 <template>
   <div class="w-full h-full absolute inset-0 flex justify-center items-center">
-    <div
-      class="w-full h-full absolute indent-0 bg-black opacity-80 rounded-lg z-10"
-      @click="$emit('closeWindow')"
-    ></div>
+    <div class="w-full h-full absolute indent-0 bg-black opacity-80 rounded-lg z-10" @click="$emit('closeWindow')"></div>
     <div class="support-modal-content">
       <div class="content">
         <support-modal-box
@@ -20,14 +17,12 @@
         ></support-modal-box>
         <support-modal-box
           :box-title="$t('supportModal.docsTitle')"
-          :box-image-path="docsImage"
+          box-image-path="/img/icon/base-header-icons/help-modal-doc-stereum_docs.png"
           :box-text="$t('supportModal.docsText')"
-          @card-action="openGnoEthDocs"
+          @card-action="openStereumDocs"
         ></support-modal-box>
       </div>
-      <span class="email"
-        >{{ $t("supportModal.emailText") }}<a href="mailto:support@stereum.net">support@stereum.net</a></span
-      >
+      <span class="email">{{ $t("supportModal.emailText") }}<a href="mailto:support@stereum.net">support@stereum.net</a></span>
     </div>
   </div>
 </template>
@@ -60,8 +55,8 @@ export default {
       let URL = "https://discord.gg/DzAwgnSXtB";
       window.open(URL, "_blank");
     },
-    openGnoEthDocs() {
-      let url = "https://ethereum.org/en/developers/docs/";
+    openStereumDocs() {
+      let url = "https://stereum-dev.github.io/ethereum-node-web-docs/";
       window.open(url, "_blank");
     },
   },

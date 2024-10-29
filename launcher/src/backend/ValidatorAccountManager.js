@@ -27,9 +27,7 @@ export class ValidatorAccountManager {
     if (slashingDB) var slashing_protection_content = JSON.parse(readFileSync(slashingDB, { encoding: "utf8" }));
     let passwords = Array(files.length).fill(password);
     const content = files.map((file, index) => {
-      const passwordFile = passwordFiles.find(
-        (p) => path.basename(p.name, ".txt") === path.basename(file.name, ".json")
-      );
+      const passwordFile = passwordFiles.find((p) => path.basename(p.name, ".txt") === path.basename(file.name, ".json"));
       if (passwordFile) {
         passwords[index] = readFileSync(passwordFile.path, { encoding: "utf8" });
       }
@@ -65,9 +63,7 @@ export class ValidatorAccountManager {
     if (pubkeys && pubkeys.length < 11) {
       try {
         for (const pubkey of pubkeys) {
-          let latestEpochsResponse = await axios.get(
-            networks[client.network].dataEndpoint + "/validator/" + pubkey + "/attestations"
-          );
+          let latestEpochsResponse = await axios.get(networks[client.network].dataEndpoint + "/validator/" + pubkey + "/attestations");
 
           if (latestEpochsResponse.status === 200 && latestEpochsResponse.data.data.length > 0) {
             for (let i = 0; i < 2; i++) {
@@ -98,19 +94,15 @@ export class ValidatorAccountManager {
           .volumes.find((volume) => volume.includes("passwords"))
           .split(":")[0];
 
-        if ((await this.nodeConnection.sshService.exec(`cat ${passwords_path}/wallet-password`)).rc === 1) {
+        const walletPassword = await this.nodeConnection.sshService.exec(`cat ${passwords_path}/wallet-password`);
+        const walletDir = await this.nodeConnection.sshService.exec(`ls ${wallet_path}/direct/accounts`);
+
+        if (walletPassword.rc != 0 || walletDir.rc != 0) {
           log.error("No Wallet found");
           log.info("Generating one");
-          this.nodeConnection.taskManager.otherTasksHandler(
-            ref,
-            `Check Wallet`,
-            true,
-            "No Wallet found, generating one"
-          );
+          this.nodeConnection.taskManager.otherTasksHandler(ref, `Check Wallet`, true, "No Wallet found, generating one");
           //generate wallet password
-          await this.nodeConnection.sshService.exec(
-            `echo ${StringUtils.createRandomString()} > ${passwords_path}/wallet-password`
-          );
+          await this.nodeConnection.sshService.exec(`echo ${StringUtils.createRandomString()} > ${passwords_path}/wallet-password`);
           await this.nodeConnection.sshService.exec(`chmod 700 ${passwords_path}/wallet-password`);
           await this.nodeConnection.sshService.exec(`chown 2000:2000 ${passwords_path}/wallet-password`);
           //Prysm - Create wallet for account(s)
@@ -123,15 +115,8 @@ export class ValidatorAccountManager {
           await Promise.all([this.serviceManager.manageServiceState(client.id, "stopped")]);
 
           await Promise.all([this.serviceManager.manageServiceState(client.id, "started")]);
-          await this.nodeConnection.sshService.exec(
-            `chmod 600 ${wallet_path}/direct/accounts/all-accounts.keystore.json`
-          );
-          this.nodeConnection.taskManager.otherTasksHandler(
-            ref,
-            `Generated Wallet`,
-            true,
-            "Waiting 30 Seconds for Client"
-          );
+          await this.nodeConnection.sshService.exec(`chmod 600 ${wallet_path}/direct/accounts/all-accounts.keystore.json`);
+          this.nodeConnection.taskManager.otherTasksHandler(ref, `Generated Wallet`, true, "Waiting 30 Seconds for Client");
           await Sleep(30000);
         }
         break;
@@ -141,10 +126,7 @@ export class ValidatorAccountManager {
 
   async importKey(serviceID) {
     const ref = StringUtils.createRandomString();
-    this.nodeConnection.taskManager.otherTasksHandler(
-      ref,
-      `Importing ${this.batches.map((b) => b.keystores).flat().length} Keys`
-    );
+    this.nodeConnection.taskManager.otherTasksHandler(ref, `Importing ${this.batches.map((b) => b.keystores).flat().length} Keys`);
     let services = await this.serviceManager.readServiceConfigurations();
 
     let client = services.find((service) => service.id === serviceID);
@@ -191,12 +173,7 @@ export class ValidatorAccountManager {
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       return message;
     } catch (err) {
-      this.nodeConnection.taskManager.otherTasksHandler(
-        ref,
-        `Import Failed`,
-        false,
-        "Validator Import Failed:\n" + err
-      );
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Import Failed`, false, "Validator Import Failed:\n" + err);
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       log.error("Validator Import Failed:\n", err);
       return "Validator Import Failed:\n" + err;
@@ -212,6 +189,9 @@ export class ValidatorAccountManager {
 
       //Error handling
       if (SSHService.checkExecError(result) && result.stderr) throw SSHService.extractExecError(result);
+      if (!result.stdout)
+        throw `ReturnCode: ${result.rc}\nStderr: ${result.stderr}\nStdout: ${result.stdout}\nIs Your Consensus Client Running?`;
+
       const data = JSON.parse(result.stdout);
       if (data.data === undefined) {
         if (data.code === undefined || data.message === undefined) {
@@ -230,12 +210,7 @@ export class ValidatorAccountManager {
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       return data;
     } catch (err) {
-      this.nodeConnection.taskManager.otherTasksHandler(
-        ref,
-        `Listing Keys Failed`,
-        false,
-        "Listing Validators Failed:\n" + err
-      );
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Listing Keys Failed`, false, "Listing Validators Failed:\n" + err);
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       log.error("Listing Validators Failed:\n", err);
       return { data: [] };
@@ -268,12 +243,7 @@ export class ValidatorAccountManager {
       if (picked) return data.slashing_protection;
       return data;
     } catch (err) {
-      this.nodeConnection.taskManager.otherTasksHandler(
-        ref,
-        `Deleting Keys Failed`,
-        false,
-        "Deleting Validators Failed:\n" + err
-      );
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Deleting Keys Failed`, false, "Deleting Validators Failed:\n" + err);
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       log.error("Deleting Validators Failed:\n", err);
       return err;
@@ -378,13 +348,7 @@ export class ValidatorAccountManager {
     this.nodeConnection.taskManager.otherTasksHandler(ref, `Setting Fee Recipient`); //Push the task to the task manager
     try {
       let client = await this.nodeConnection.readServiceConfiguration(serviceID);
-      const result = await this.keymanagerAPI(
-        client,
-        "POST",
-        `/eth/v1/validator/${pubKey}/feerecipient`,
-        { ethaddress: address },
-        ["-i"]
-      );
+      const result = await this.keymanagerAPI(client, "POST", `/eth/v1/validator/${pubKey}/feerecipient`, { ethaddress: address }, ["-i"]);
 
       //Error handling
       if (SSHService.checkExecError(result) && result.stderr) throw SSHService.extractExecError(result);
@@ -415,9 +379,7 @@ export class ValidatorAccountManager {
     this.nodeConnection.taskManager.otherTasksHandler(ref, `Deleting Fee Recipient`); //Push the task to the task manager
     try {
       let client = await this.nodeConnection.readServiceConfiguration(serviceID);
-      const result = await this.keymanagerAPI(client, "DELETE", `/eth/v1/validator/${pubKey}/feerecipient`, null, [
-        "-i",
-      ]);
+      const result = await this.keymanagerAPI(client, "DELETE", `/eth/v1/validator/${pubKey}/feerecipient`, null, ["-i"]);
 
       //Error handling
       if (SSHService.checkExecError(result) && result.stderr) throw SSHService.extractExecError(result);
@@ -457,9 +419,7 @@ export class ValidatorAccountManager {
       switch (service) {
         case "prysm":
           config = `default: "${graffiti}"`;
-          await this.nodeConnection.sshService.exec(
-            "echo " + StringUtils.escapeStringForShell(config) + " > " + graffitiDir
-          );
+          await this.nodeConnection.sshService.exec("echo " + StringUtils.escapeStringForShell(config) + " > " + graffitiDir);
           break;
 
         default:
@@ -478,8 +438,7 @@ export class ValidatorAccountManager {
     //if the argument is an array of keys, add them to the current keys if they don't exist
     if (Array.isArray(keys)) {
       keys.forEach((key) => {
-        if (!currentKeys[key])
-          currentKeys[key] = { keyName: "", groupName: "", groupID: null, validatorClientID: null };
+        if (!currentKeys[key]) currentKeys[key] = { keyName: "", groupName: "", groupID: null, validatorClientID: null };
       });
       await this.nodeConnection.sshService.exec(
         "echo -e " + StringUtils.escapeStringForShell(YAML.stringify(currentKeys)) + " > /etc/stereum/keys.yaml"
@@ -512,16 +471,12 @@ export class ValidatorAccountManager {
       case "PrysmValidatorService": {
         let walletPath = "";
         if (typeof service.volumes[0] == "string") {
-          walletPath = ServiceVolume.buildByConfig(
-            service.volumes.find((v) => v.includes("/opt/app/data/wallets"))
-          ).destinationPath;
+          walletPath = ServiceVolume.buildByConfig(service.volumes.find((v) => v.includes("/opt/app/data/wallets"))).destinationPath;
         } else {
           walletPath = service.volumes.find((v) => v.servicePath == "/opt/app/data/wallets").destinationPath;
         }
         //Make sure keystores have correct permissions
-        const chmodResult = await this.nodeConnection.sshService.exec(
-          "chmod -Rv 600 " + walletPath + "/direct/accounts/*"
-        );
+        const chmodResult = await this.nodeConnection.sshService.exec("chmod -Rv 600 " + walletPath + "/direct/accounts/*");
         log.info(chmodResult.stdout);
         if (walletPath) {
           result = await this.nodeConnection.sshService.exec("cat " + walletPath + "/auth-token");
@@ -535,9 +490,7 @@ export class ValidatorAccountManager {
         break;
       }
       case "Web3SignerService":
-        result = await this.nodeConnection.sshService.exec(
-          `docker exec stereum-${service.id} curl -X POST http://localhost:9000/reload`
-        );
+        result = await this.nodeConnection.sshService.exec(`docker exec stereum-${service.id} curl -X POST http://localhost:9000/reload`);
         result.stdout = "";
         break;
     }
@@ -561,13 +514,13 @@ export class ValidatorAccountManager {
       const data = JSON.parse(result.stdout);
       if (data.data === undefined) {
         if (data.code === undefined || data.message === undefined) {
-          throw "Undexpected Error: " + result;
+          throw "Undexpected Error: " + result.stdout;
         }
         throw data.code + " " + data.message;
       }
 
       //Push successful task
-      this.nodeConnection.taskManager.otherTasksHandler(ref, `Get signed voluntary exit message`, true, data);
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Get signed voluntary exit message`, true, JSON.stringify(data));
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       return data;
     } catch (error) {
@@ -594,10 +547,9 @@ export class ValidatorAccountManager {
         if (key.status === "duplicate") duplicate++;
         if (key.status === "error") error++;
         return (
-          `${pubkeys[index].substring(0, 20)}...${pubkeys[index].substring(
-            pubkeys[index].length - 6,
-            pubkeys[index].length
-          )}:\t${key.status}` + (key.status == "error" ? `:\n${key.message}\n` : "")
+          `${pubkeys[index].substring(0, 20)}...${pubkeys[index].substring(pubkeys[index].length - 6, pubkeys[index].length)}:\t${
+            key.status
+          }` + (key.status == "error" ? `:\n${key.message}\n` : "")
         );
       })
       .join("\n");
@@ -652,12 +604,7 @@ export class ValidatorAccountManager {
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       return message;
     } catch (err) {
-      this.nodeConnection.taskManager.otherTasksHandler(
-        ref,
-        `Remote Import Failed`,
-        false,
-        "Remote Validator Import Failed:\n" + err
-      );
+      this.nodeConnection.taskManager.otherTasksHandler(ref, `Remote Import Failed`, false, "Remote Validator Import Failed:\n" + err);
       this.nodeConnection.taskManager.otherTasksHandler(ref);
       log.error("Remote Validator Import Failed:\n", err);
       return "Remote Validator Import Failed:\n" + err;
@@ -673,7 +620,18 @@ export class ValidatorAccountManager {
 
       this.nodeConnection.taskManager.otherTasksHandler(ref, `Get Remote Keys`, true, result.stdout);
 
+      //Error handling
+      if (SSHService.checkExecError(result) && result.stderr) throw SSHService.extractExecError(result);
+      if (!result.stdout)
+        throw `ReturnCode: ${result.rc}\nStderr: ${result.stderr}\nStdout: ${result.stdout}\nIs Your Consensus Client Running?`;
+
       const data = JSON.parse(result.stdout);
+      if (data.data === undefined) {
+        if (data.code === undefined || data.message === undefined) {
+          throw "Undexpected Error: " + result;
+        }
+        throw data.code + " " + data.message;
+      }
       if (!data.data) data.data = [];
 
       this.nodeConnection.taskManager.otherTasksHandler(ref);
@@ -783,19 +741,26 @@ export class ValidatorAccountManager {
     switch (client.service.replace(/(Beacon|Validator|Service)/gm, "")) {
       case "Prysm": {
         let command = structuredClone(client.command);
-        if (!client.command.includes("--validators-external-signer-url=")) {
+
+        let isString = false;
+        let changed = false;
+        if (typeof command === "string") {
+          isString = true;
           command = command.replaceAll(/\n/gm, "").replaceAll(/\s\s+/gm, " ").split(" ");
+        }
+
+        let urlCommand = command.find((arg) => arg.includes("--validators-external-signer-url="));
+
+        if (!urlCommand) {
           command.push(`--validators-external-signer-url=${url}`);
-        } else if (
-          client.command.includes("--validators-external-signer-url=") &&
-          !client.command.includes(`--validators-external-signer-url=${url}`)
-        ) {
-          command = command.replaceAll(/\n/gm, "").replaceAll(/\s\s+/gm, " ").split(" ");
+          changed = true;
+        } else if (urlCommand && urlCommand !== `--validators-external-signer-url=${url}`) {
           command = command.filter((arg) => !arg.includes("--validators-external-signer-url="));
           command.push(`--validators-external-signer-url=${url}`);
+          changed = true;
         }
-        if (Array.isArray(command)) {
-          command = command.join(" ").trim();
+        if (changed) {
+          if (isString) command = command.join(" ").trim();
           client.command = command;
           await this.nodeConnection.writeServiceConfiguration(client.buildConfiguration());
           await this.serviceManager.manageServiceState(client.id, "stopped");
@@ -937,8 +902,7 @@ export class ValidatorAccountManager {
       if (!charonClient) throw "Couldn't find CharonService";
 
       let contentResult = await this.nodeConnection.sshService.exec(charonClient.getListCharonFolderContentsCommand());
-      if (SSHService.checkExecError(contentResult) && contentResult.stderr)
-        throw SSHService.extractExecError(contentResult);
+      if (SSHService.checkExecError(contentResult) && contentResult.stderr) throw SSHService.extractExecError(contentResult);
       const content = contentResult.stdout;
       const dkgCommand = charonClient.getDKGCommand(
         content.includes("cluster-definition.json") ? "" : input.match(/http(s)?:.*\/[0-9a-zA-z]*/)[0]
@@ -1000,7 +964,7 @@ export class ValidatorAccountManager {
       this.nodeConnection.sshService.exec(`rm -rf ${dataDir}`);
       const result = await this.nodeConnection.sshService.uploadDirectorySSH(path.normalize(localPath), dataDir);
       if (result) {
-        log.info("Obol Backup downloaded from: ", localPath);
+        log.info("Obol Backup uploaded from: ", localPath);
       }
     } catch (err) {
       log.error("Error uploading Obol Backup: ", err);

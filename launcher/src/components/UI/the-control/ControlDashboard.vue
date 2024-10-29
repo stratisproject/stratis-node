@@ -1,12 +1,14 @@
 <template>
   <div class="ctrlParent gap-1 p-1">
     <div class="machineName_cell">
-      <machine-name @mouseenter="cursorLocation = `${machineName}`" @mouseleave="cursorLocation = ''" />
+      <machine-name />
     </div>
     <div class="node-serve">
-      <EpochSlot />
+      <EpochSlot @mouseenter="footerSetter('current EPOCH & current SLOT')" @mouseleave="cursorLocation = ''" />
     </div>
-    <div class="sandFull_cell"><TheBalance /></div>
+    <div class="sandFull_cell">
+      <TheBalance @mouseenter="footerSetter('Finalized EPOCH & Balance')" @mouseleave="cursorLocation = ''" />
+    </div>
     <dashboard-card class="hard-disk">
       <the-hard @mouseenter="cursorLocation = `${storVol}`" @mouseleave="cursorLocation = ''" />
     </dashboard-card>
@@ -17,7 +19,7 @@
       ><disk-speed @mouseenter="cursorLocation = `${diskSpeed}`" @mouseleave="cursorLocation = ''"
     /></dashboard-card>
     <dashboard-card class="p2p">
-      <peer-to-peer @mouseenter="cursorLocation = `${p2p}`" @mouseleave="cursorLocation = ''" />
+      <peer-to-peer @mouseenter="footerSetter(p2p)" @mouseleave="cursorLocation = ''" />
       <!-- <newPeerToPeer /> -->
     </dashboard-card>
     <dashboard-card class="the-cpu">
@@ -75,6 +77,7 @@ import WsEndpoint from "./WsEndpoint.vue";
 import DiskSpeed from "./DiskSpeed.vue";
 import PortList from "./PortList.vue";
 import TheStaking from "./TheStaking.vue";
+
 // import NewPeerToPeer from "./NewPeerToPeer.vue";
 // import SubscribedSubnets from "./SubscribedSubnets.vue";
 export default {
@@ -119,7 +122,14 @@ export default {
   computed: {
     ...mapWritableState(useFooter, {
       cursorLocation: "cursorLocation",
+      nodataMessage: "nodataMessage",
     }),
+  },
+
+  methods: {
+    footerSetter(arg) {
+      this.cursorLocation = this.nodataMessage === "" ? arg : this.nodataMessage;
+    },
   },
 };
 </script>

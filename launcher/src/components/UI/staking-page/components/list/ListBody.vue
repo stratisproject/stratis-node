@@ -1,7 +1,7 @@
 import { ref, computed, watchEffect, watch, onMounted, onUnmounted } from 'vue';
 <template>
   <div
-    class="col-start-1 col-span-full overflow-x-hidden overflow-y-auto px-1 py-2 flex justify-start items-center space-y-2 border bg-[#151618] rounded-b-sm mb-[1px]"
+    class="col-start-1 col-span-full overflow-x-hidden overflow-y-auto px-1 flex justify-start items-center space-y-2 border bg-[#151618] rounded-b-sm mb-[1px]"
     :class="[
       stakingStore.isOverDropZone ? 'border-dashed  border-blue-500 ' : 'border-gray-600',
       stakingStore.inputWrongKey ? 'border-red-500' : '',
@@ -25,15 +25,12 @@ import { ref, computed, watchEffect, watch, onMounted, onUnmounted } from 'vue';
       <span
         v-if="stakingStore.isOverDropZone"
         class="w-full h-full self-center justify-self-center flex justify-center items-center text-2xl"
-        :class="[
-          stakingStore.inputWrongKey ? 'text-red-500' : 'text-blue-400',
-          isDropZoneDisabled ? 'cursor-not-allowed ' : '',
-        ]"
+        :class="[stakingStore.inputWrongKey ? 'text-red-500' : 'text-blue-400', isDropZoneDisabled ? 'cursor-not-allowed ' : '']"
         >+</span
       >
       <div
         v-if="!stakingStore.isOverDropZone"
-        class="w-full h-full flex flex-col justify-start items-center space-y-2 z-10 scrollbar scrollbar-rounded-* scrollbar-thumb-teal-800 scrollbar-track-transparent overflow-y-auto"
+        class="w-full h-full flex flex-col justify-start items-center space-y-2 z-10 scrollbar scrollbar-rounded-* scrollbar-thumb-teal-800 scrollbar-track-transparent overflow-y-auto pt-2"
       >
         <span
           v-if="
@@ -46,11 +43,9 @@ import { ref, computed, watchEffect, watch, onMounted, onUnmounted } from 'vue';
           class="text-lg font-bold text-gray-300 text-center uppercase select-none"
           >{{ $t("stakingPage.noVal") }}</span
         >
-        <span
-          v-if="searchNotFound && getFilteredValidators.length > 0"
-          class="text-lg font-bold text-gray-300 text-center uppercase"
-          >{{ $t("stakingPage.noMatch") }}</span
-        >
+        <span v-if="searchNotFound && getFilteredValidators.length > 0" class="text-lg font-bold text-gray-300 text-center uppercase">{{
+          $t("stakingPage.noMatch")
+        }}</span>
         <SkeletonRow v-if="!stakingStore.isPreviewListActive && isLoading" />
         <SkeletonRow v-if="!stakingStore.isPreviewListActive && isLoading" />
         <SkeletonRow v-if="!stakingStore.isPreviewListActive && isLoading" />
@@ -116,6 +111,7 @@ import { useListGroups } from "@/composables/groups";
 import { useStakingStore } from "@/store/theStaking";
 import { computed, onMounted, onUnmounted, ref, watch, watchEffect } from "vue";
 import { useListKeys } from "@/composables/validators";
+import { useSetups } from "@/store/setups";
 
 const emit = defineEmits([
   "onDrop",
@@ -128,6 +124,7 @@ const emit = defineEmits([
   "renameSingle",
 ]);
 const stakingStore = useStakingStore();
+const setupStore = useSetups();
 const { listGroups } = useListGroups();
 const isLoading = ref(true);
 const dropZoneRef = ref(null);
@@ -141,31 +138,30 @@ stakingStore.filteredKeys = computed(() => {
   return stakingStore.keys.filter(
     (key) =>
       (key.key && key.key.toLowerCase().includes(stakingStore.searchContent.toLowerCase())) ||
-      (key.displayName &&
-        key.displayName !== "" &&
-        key.displayName.toLowerCase().includes(stakingStore.searchContent.toLowerCase()))
+      (key.displayName && key.displayName !== "" && key.displayName.toLowerCase().includes(stakingStore.searchContent.toLowerCase()))
   );
 });
 
 const getFilteredValidators = computed(() => {
-  return stakingStore.filteredKeys.filter(
-    (key) => key.validatorID === stakingStore.selectedServiceToFilter?.config?.serviceID
-  );
+  if (!setupStore.selectedSetup) {
+    // If selectedSetup is null, return all keys
+    return stakingStore.filteredKeys;
+  } else {
+    const serviceIds = setupStore.selectedSetup.services.map((service) => service.config.serviceID);
+    // Filter keys by checking if validatorID exists in serviceIds
+    return stakingStore.filteredKeys.filter((key) => serviceIds.includes(key.validatorID));
+  }
 });
 
 const getCorrectValidatorGroups = computed(() => {
   return stakingStore.validatorKeyGroups.filter(
-    (group) =>
-      group.keys.length > 0 && group.validatorClientID === stakingStore.selectedServiceToFilter?.config?.serviceID
+    (group) => group.keys.length > 0 && group.validatorClientID === stakingStore.selectedServiceToFilter?.config?.serviceID
   );
 });
 
 const searchNotFound = computed(() => {
   return (
-    !stakingStore.isPreviewListActive &&
-    !isLoading.value &&
-    stakingStore.searchContent !== "" &&
-    stakingStore.filteredKeys.length === 0
+    !stakingStore.isPreviewListActive && !isLoading.value && stakingStore.searchContent !== "" && stakingStore.filteredKeys.length === 0
   );
 });
 

@@ -4,15 +4,14 @@ import { useNodeHeader } from "@/store/nodeHeader";
 import { useNodeManage } from "@/store/nodeManage";
 import { useFooter } from "@/store/theFooter";
 import { useDeepClone } from "@/composables/utils";
+import { useMultiSetups } from "@/composables/multiSetups";
+import { useSetups } from "@/store/setups";
+import { usePingQuality } from "@/composables/pingQuality";
 
 export async function useBackendServices(force = false) {
   const serviceStore = useServices();
   const currentTimestamp = Date.now();
-  if (
-    !serviceStore.backendServicesTimestamp ||
-    serviceStore.backendServicesTimestamp < currentTimestamp - 10000 ||
-    force
-  ) {
+  if (!serviceStore.backendServicesTimestamp || serviceStore.backendServicesTimestamp < currentTimestamp - 10000 || force) {
     serviceStore.backendServicesTimestamp = currentTimestamp;
     serviceStore.backendServices = await ControlService.getServices();
     // when we get the services from the backend, we can update the frontend service format as well
@@ -43,13 +42,21 @@ export async function useFrontendServices() {
   const serviceStore = useServices();
   const nodeHeaderStore = useNodeHeader();
   const nodeManageStore = useNodeManage();
-
+  const setupStore = useSetups();
+  const { loadSetups, getAllSetups } = useMultiSetups();
+  const { checkConnectionQuality } = usePingQuality();
+  checkConnectionQuality();
   const allServices = JSON.parse(JSON.stringify(serviceStore.allServices));
   if (nodeHeaderStore.refresh) {
     if (await useConnectionCheck()) {
       let services;
+      let setups;
       try {
         services = await ControlService.refreshServiceInfos();
+        await loadSetups();
+        setups = getAllSetups();
+        setupStore.allSetups = setups;
+        setupStore.editSetups = setups;
       } catch (error) {
         console.log(error);
         return;
@@ -61,20 +68,19 @@ export async function useFrontendServices() {
           let oldService;
           if (
             serviceStore.installedServices &&
-            serviceStore.installedServices.map((s) => s?.config.serviceID).includes(service?.config.serviceID)
+            serviceStore.installedServices.map((s) => s?.config?.serviceID).includes(service?.config?.serviceID)
           ) {
             oldService = serviceStore.installedServices.find(
-              (s) =>
-                s.service === service.service && s.config.serviceID && s.config.serviceID === service.config.serviceID
+              (s) => s.service === service.service && s?.config?.serviceID && s?.config?.serviceID === service?.config?.serviceID
             );
           } else {
             oldService = allServices.find((s) => s.service === service.service);
             if (oldService?.tunnelLink) needForTunnel.push(oldService);
           }
-          if (oldService?.config.keys) {
+          if (oldService?.config?.keys) {
             oldService.config = {
               ...service?.config,
-              keys: oldService?.config.keys,
+              keys: oldService?.config?.keys,
             };
           } else {
             oldService.config = service?.config;
@@ -82,13 +88,27 @@ export async function useFrontendServices() {
           oldService.state = service.state;
           return oldService;
         });
-        serviceStore.installedServices = newServices.concat(otherServices).map((e, i) => {
-          e.id = i;
-          return e;
+        serviceStore.installedServices = newServices.concat(otherServices).map((service, i) => {
+          service.id = i;
+          if (!service.setupId) {
+            for (const setup of setups) {
+              const matchingService = setup.services.find((s) => s?.config?.serviceID === service?.config?.serviceID);
+
+              if (matchingService) {
+                return {
+                  ...service,
+                  setupId: setup.setupId,
+                  setupName: setup.setupName,
+                };
+              }
+            }
+          }
+          return service;
         });
-        let network = serviceStore.installedServices[0]?.config.network;
+        let network = serviceStore.installedServices[0]?.config?.network;
         nodeManageStore.currentNetwork = nodeManageStore.networkList.find((item) => item.network === network);
 
+        // Mange Tunnels
         if (needForTunnel.length != 0 && nodeHeaderStore.refresh) {
           let localPorts = await ControlService.getAvailablePort({
             min: 9000,
@@ -109,7 +129,7 @@ export async function useFrontendServices() {
             .filter((service) => service.tunnelLink)
             .map((service) => {
               return {
-                dstPort: service.config.ports[0].destinationPort,
+                dstPort: service?.config?.ports[0].destinationPort,
                 localPort: service.linkUrl.split(":").pop(),
               };
             });
@@ -117,7 +137,7 @@ export async function useFrontendServices() {
           await ControlService.openTunnels(ports);
         } else if (nodeHeaderStore.refresh) {
           nodeHeaderStore.runningServices = serviceStore.installedServices.filter((service) => service?.headerOption);
-//console.log(serviceStore.installedServices)
+          //console.log(serviceStore.installedServices)
         }
       } else {
         if (!nodeHeaderStore.updating) {
@@ -158,7 +178,7 @@ async function updateStates() {
   serviceStore.installedServices.forEach((s, idx) => {
     let updated = false;
     serviceInfos.forEach((i) => {
-      if (i.Names.replace("stereum-", "") === s.config.serviceID) {
+      if (i.Names.replace("stereum-", "") === s?.config?.serviceID) {
         serviceStore.installedServices[idx].state = i.State;
         updated = true;
       }
@@ -170,7 +190,7 @@ async function updateStates() {
 }
 
 export async function useStateHandler(client) {
-  client.yaml = await ControlService.getServiceYAML(client.config.serviceID);
+  client.yaml = await ControlService.getServiceYAML(client?.config?.serviceID);
   if (!client.yaml.includes("isPruning: true")) {
     client.serviceIsPending = true;
     let state = "stopped";
@@ -179,7 +199,7 @@ export async function useStateHandler(client) {
     }
     try {
       await ControlService.manageServiceState({
-        id: client.config.serviceID,
+        id: client?.config?.serviceID,
         state: state,
       });
     } catch (err) {
@@ -191,7 +211,7 @@ export async function useStateHandler(client) {
 }
 
 export async function useRestartService(client) {
-  client.yaml = await ControlService.getServiceYAML(client.config.serviceID);
+  client.yaml = await ControlService.getServiceYAML(client?.config?.serviceID);
   if (!client.yaml.includes("isPruning: true")) {
     client.serviceIsPending = true;
     await ControlService.restartService(useDeepClone(client));

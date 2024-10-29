@@ -9,25 +9,29 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "SSVNetworkService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:15000"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "SSVNetworkService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":15000") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
   - job_name: ssv_health
     metrics_path: /health
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "SSVNetworkService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:15000"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "SSVNetworkService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":15000") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # geth
@@ -35,26 +39,30 @@ scrape_configs:
     metrics_path: /debug/metrics/prometheus
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "GethService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:6060"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "GethService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":6060") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # prometheus node exporter
   - job_name: prometheus_node_exporter
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "PrometheusNodeExporterService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:9100"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "PrometheusNodeExporterService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":9100") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # prometheus
@@ -66,26 +74,30 @@ scrape_configs:
   - job_name: prysm_beacon
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "PrysmBeaconService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:8080"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "PrysmBeaconService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":8080") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # prysm validator
   - job_name: prysm_validator
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "PrysmValidatorService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:8081"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "PrysmValidatorService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":8081") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # Web3Signer
@@ -93,13 +105,15 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "Web3SignerService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:9001"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "Web3SignerService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":9001") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # ValidatorEjectorService
@@ -107,39 +121,78 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "ValidatorEjectorService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:8989"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "ValidatorEjectorService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":8989") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # KeysAPI
   - job_name: keys-api
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "KeysAPIService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:3600"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "KeysAPIService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":3600") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # Charon
   - job_name: charon
     static_configs:
       - targets: [
-{% set config_count = 0 %}
-{% for service_config in service_configs.results %}
-{%   if (service_config.content | b64decode | from_yaml).service == "CharonService" %}
-          {% if (config_count > 0) %},{% endif %}"stereum-{{ (service_config.content | b64decode | from_yaml).id }}:3620"
-          {% set config_count = config_count + 1 %}
-{%   endif %}
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "CharonService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":3620") %}
+  {%- endif %}
 {% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
+        ]
+
+# LCOMService
+  - job_name: csm_fast_metrics
+    scrape_interval: 10s
+    metrics_path: /metrics/fast
+    static_configs:
+      - targets: [
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "LCOMService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":8000") %}
+  {%- endif %}
+{% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
+        ]
+
+  - job_name: csm_slow_metrics
+    scrape_interval: 1m
+    metrics_path: /metrics/slow
+    static_configs:
+      - targets: [
+{% set targets = [] %}
+{%- for service_config in service_configs.results %}
+  {%- if (service_config.content | b64decode | from_yaml).service == "LCOMService" %}
+    {%- set _ = targets.append("stereum-" ~ (service_config.content | b64decode | from_yaml).id ~ ":8000") %}
+  {%- endif %}
+{% endfor %}
+{% if targets %}
+          "{{ targets | join('",\n          "') }}"
+{% endif %}
         ]
 
 # EOF

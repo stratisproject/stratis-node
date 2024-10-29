@@ -1,6 +1,7 @@
 import { ServiceManager } from "./ServiceManager";
 import YAML from "yaml";
 import { StringUtils } from "./StringUtils";
+import { ConfigManager } from "./ConfigManager";
 
 const log = require("electron-log");
 
@@ -13,6 +14,7 @@ export class OneClickInstall {
     this.installDir = installDir;
     this.nodeConnection = nodeConnection;
     this.serviceManager = new ServiceManager(this.nodeConnection);
+    this.configManager = new ConfigManager(this.nodeConnection);
     const arch = await this.nodeConnection.getCPUArchitecture();
     const settings = {
       stereum_settings: {
@@ -31,14 +33,14 @@ export class OneClickInstall {
     await this.nodeConnection.sshService.exec(`rm -rf /etc/stereum &&\
     mkdir -p /etc/stereum/services &&\
     echo -e ${StringUtils.escapeStringForShell(YAML.stringify(settings))} > /etc/stereum/stereum.yaml`);
+    await this.configManager.createMultiSetupYaml({}, "");
     await this.nodeConnection.findStereumSettings();
-    return await this.nodeConnection.prepareStereumNode(
-      this.nodeConnection.settings.stereum.settings.controls_install_path
-    );
+    return await this.nodeConnection.prepareStereumNode(this.nodeConnection.settings.stereum.settings.controls_install_path);
   }
 
-  async chooseClient(clients) {
-    return 'prysm'
+  chooseClient(clients) {
+    let client = clients[Math.floor(Math.random() * clients.length)].toLowerCase();
+    return client.charAt(0).toUpperCase() + client.slice(1);
   }
 
   clearSetup() {
@@ -47,7 +49,6 @@ export class OneClickInstall {
     this.installDir = undefined;
     this.executionClient = undefined;
     this.setup = undefined;
-    this.choosenClient = undefined;
     this.network = undefined;
     this.mevboost = undefined;
     this.needsKeystore = [];
@@ -146,6 +147,7 @@ export class OneClickInstall {
     }
 
     this.handleArchiveTags(selectedPreset);
+    this.handleLidoTags(selectedPreset);
 
     let versions;
     try {
@@ -185,9 +187,41 @@ export class OneClickInstall {
       }
       switch (this.beaconService.service) {
         case "PrysmBeaconService":
-          this.beaconService.command += " --slots-per-archive-point=32";
+          if (Array.isArray(this.beaconService.command)) {
+            this.beaconService.command.push("--slots-per-archive-point=32");
+          } else {
+            this.beaconService.command += " --slots-per-archive-point=32";
+          }
           break;
       }
+    }
+  }
+
+  handleLidoTags(selectedPreset) {
+    if (/lidocsm/.test(selectedPreset)) {
+      const networkFeeAdress = {
+        mainnet: "0x388C818CA8B9251b393131C08a736A67ccB19297",
+        holesky: "0xE73a3602b99f1f913e72F8bdcBC235e206794Ac8",
+      };
+      const serviceFeeAdressCommand = {
+        LighthouseValidatorService: "--suggested-fee-recipient=",
+        LodestarValidatorService: "--suggestedFeeRecipient=",
+        NimbusValidatorService: "--suggested-fee-recipient=",
+        PrysmValidatorService: "--suggested-fee-recipient=",
+        TekuValidatorService: "--validators-proposer-default-fee-recipient=",
+      };
+      this.validatorService.command[
+        this.validatorService.command.findIndex((c) => c.includes(serviceFeeAdressCommand[this.validatorService.service]))
+      ] = serviceFeeAdressCommand[this.validatorService.service] + networkFeeAdress[this.network];
+    }
+    if (this.extraServices.some((s) => s.service === "ValidatorEjectorService")) {
+      const moduleIDs = {
+        lidocsm: "4",
+        lidossv: "2",
+        lidoobol: "2",
+      };
+      let ejector = this.extraServices.find((s) => s.service === "ValidatorEjectorService");
+      ejector.env.STAKING_MODULE_ID = moduleIDs[selectedPreset];
     }
   }
 
@@ -207,6 +241,7 @@ export class OneClickInstall {
   async writeConfig() {
     const configs = this.getConfigurations();
     if (configs[0] !== undefined) {
+      this.configManager.createMultiSetupYaml(configs, this.network);
       await Promise.all(
         configs.map(async (config) => {
           await this.nodeConnection.writeServiceConfiguration(config);
@@ -214,6 +249,7 @@ export class OneClickInstall {
       );
       await this.serviceManager.createKeystores(this.needsKeystore);
       await this.serviceManager.prepareSSVDKG(this.extraServices.find((s) => s.service === "SSVDKGService"));
+      await this.serviceManager.initKeysAPI(this.extraServices.filter((s) => s.service === "KeysAPIService"));
       return configs;
     }
   }
@@ -237,17 +273,19 @@ export class OneClickInstall {
     this.setup = setup;
     this.network = network;
     let services = [
-      "GethService",
       "GrafanaService",
       "PrometheusNodeExporterService",
       "PrometheusService",
     ];
 
-    this.choosenClient = await this.chooseClient();
-    this.choosenClient = this.choosenClient.charAt(0).toUpperCase() + this.choosenClient.slice(1);
+    const selectedCC_VC = this.chooseClient(["PRYSM"]);
 
-    services.push(this.choosenClient + "ValidatorService");
-    services.push(this.choosenClient + "BeaconService");
+    services.push(selectedCC_VC + "ValidatorService");
+    services.push(selectedCC_VC + "BeaconService");
+
+    const selectedEC = this.chooseClient(["GETH"]);
+
+    services.push(selectedEC + "Service");
 
     switch (setup) {
       case "staking":

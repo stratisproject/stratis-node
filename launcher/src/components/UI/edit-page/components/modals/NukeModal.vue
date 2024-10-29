@@ -77,9 +77,7 @@ export default {
       return this.loadingDump ? "animate-spin" : "";
     },
     loadingIconsClass() {
-      return this.loadingDump
-        ? "/img/icon/loading-icons/loading-circle.png"
-        : "/img/icon/service-log-icons/150-log-export-button.png";
+      return this.loadingDump ? "/img/icon/loading-icons/loading-circle.png" : "/img/icon/service-log-icons/150-log-export-button.png";
     },
   },
   mounted() {
@@ -112,7 +110,9 @@ export default {
           const zip = new JSZip();
 
           logs.forEach((item) => {
-            zip.file(item.containerId, item.logs.stdout);
+            const fileName = `${item.containerId}.txt`;
+            const fileContent = item.logs.join("\n");
+            zip.file(fileName, fileContent);
           });
 
           zip.generateAsync({ type: "blob" }).then(function (blob) {

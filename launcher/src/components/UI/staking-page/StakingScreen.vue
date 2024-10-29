@@ -1,6 +1,6 @@
 <template>
   <base-layout>
-    <div class="w-full h-full max-h-full grid grid-cols-24 grid-rows-12 py-1 select-none">
+    <div class="w-full h-full max-h-[492px] grid grid-cols-24 grid-rows-12 pt-1 select-none">
       <SidebarSection />
 
       <ListSection
@@ -30,39 +30,39 @@
         @withdraw-multiple="withdrawModalHandler"
       />
     </div>
-    <transition
-      tag="div"
-      enter-active-class="animate__animated animate__fadeIn"
-      leave-active-class="animate__animated animate__fadeOut"
-    >
+    <transition tag="div" enter-active-class="animate__animated animate__fadeIn" leave-active-class="animate__animated animate__fadeOut">
       <component :is="activeModal?.component" v-bind="activeModal?.props" v-on="activeModal?.events" />
     </transition>
   </base-layout>
 </template>
 
 <script setup>
-import SidebarSection from "./sections/SidebarSection.vue";
+import { useListGroups } from "@/composables/groups";
+import { useMultiSetups } from "@/composables/multiSetups";
+import { useDeepClone } from "@/composables/utils";
+import { useListKeys } from "@/composables/validators";
+import { useServices } from "@/store/services";
+import { useSetups } from "@/store/setups";
+import { useStakingStore } from "@/store/theStaking";
+import { saveAs } from "file-saver";
+import { computed, onUnmounted, watch, watchEffect } from "vue";
+import ControlService from "../../../store/ControlService";
+import ImportRemote from "./components/modals/ImportRemote.vue";
+import ImportValidator from "./components/modals/ImportValidator.vue";
+import RemoveGroup from "./components/modals/RemoveGroup.vue";
+import RemoveValidators from "./components/modals/RemoveValidators.vue";
+import RiskWarning from "./components/modals/RiskWarning.vue";
+import WithdrawMultiple from "./components/modals/WithdrawMultiple.vue";
 import ListSection from "./sections/ListSection";
 import ManagementSection from "./sections/ManagementSection.vue";
-import ControlService from "../../../store/ControlService";
-import ImportValidator from "./components/modals/ImportValidator.vue";
-import RiskWarning from "./components/modals/RiskWarning.vue";
-import RemoveGroup from "./components/modals/RemoveGroup.vue";
-import ImportRemote from "./components/modals/ImportRemote.vue";
-import WithdrawMultiple from "./components/modals/WithdrawMultiple.vue";
-import { useListKeys } from "@/composables/validators";
-import { useStakingStore } from "@/store/theStaking";
-import { computed, watch } from "vue";
-import { useServices } from "@/store/services";
-import { useListGroups } from "@/composables/groups";
-import RemoveValidators from "./components/modals/RemoveValidators.vue";
-import { useDeepClone } from "@/composables/utils";
-import { saveAs } from "file-saver";
+import SidebarSection from "./sections/SidebarSection.vue";
 
 //Store
 const stakingStore = useStakingStore();
 const serviceStore = useServices();
+const setupStore = useSetups();
 const { listGroups } = useListGroups();
+const { getServerView } = useMultiSetups();
 
 const modals = {
   import: {
@@ -117,14 +117,10 @@ const activeModal = computed(() => {
 watch(
   () => serviceStore.installedServices,
   async () => {
-    const hasValidator = serviceStore.installedServices.some(
-      (s) => s.category === "validator" && s.state === "running"
-    );
+    const hasValidator = serviceStore.installedServices.some((s) => s.category === "validator" && s.state === "running");
     stakingStore.isStakingDisabled = !hasValidator;
   }
 );
-
-//Lifecycle Hooks
 
 // *************** Methods *****************
 
@@ -173,10 +169,8 @@ const handleFiles = (files) => {
         readFileContent(file);
       }
     }
-  } else {
-    if (files[0].type === "application/json") {
-      readFileContent(files[0]);
-    }
+  } else if (files[0].type === "application/json") {
+    readFileContent(files[0]);
   }
 };
 
@@ -217,9 +211,7 @@ const onDrop = (event) => {
 
 const importKey = async (val) => {
   stakingStore.importEnteredPassword = val;
-  stakingStore.importKeyMessage = await ControlService.importKey(
-    stakingStore.selectedValidatorService.config.serviceID
-  );
+  stakingStore.importKeyMessage = await ControlService.importKey(stakingStore.selectedValidatorService.config.serviceID);
 
   stakingStore.isPreviewListActive = false;
   stakingStore.setActivePanel("insert");
@@ -569,34 +561,74 @@ const withdrawModalHandler = () => {
 
 const withdrawValidatorKey = async () => {
   stakingStore.withdrawAndExitResponse = null;
-  //if single key
   const key = stakingStore.selectedSingleKeyToWithdraw;
+
   try {
+    let res;
+    let responseObj;
+
     if (key && key !== null) {
-      stakingStore.withdrawAndExitResponse = await ControlService.exitValidatorAccount({
+      // If single key
+      res = await ControlService.exitValidatorAccount({
         pubkey: key.key,
         serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
       });
-    } else {
-      //if multiple keys
-      const multiKeys = stakingStore.keys
-        .map((item) => {
-          if (item.validatorID === stakingStore.selectedServiceToFilter.config?.serviceID) {
-            return item.key;
-          }
-        })
-        .filter((key) => key !== undefined);
 
-      stakingStore.withdrawAndExitResponse = await ControlService.exitValidatorAccount({
-        pubkey: multiKeys,
-        serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
+      responseObj = {
+        pubkey: key.key,
+        code: null,
+        msg: res.msg,
+        flag: "rejected",
+      };
+
+      if (Array.isArray(res) && res.length > 0) {
+        const resObj = res[0];
+        responseObj.code = resObj.code;
+        responseObj.msg = resObj.msg;
+        responseObj.pubkey = resObj.pubkey || key.key;
+        responseObj.flag = resObj.code === 200 ? "approved" : "rejected";
+      }
+
+      stakingStore.withdrawAndExitResponse = [responseObj];
+    } else {
+      // If multiple keys
+      const multiKeys = stakingStore.keys
+
+        .filter((item) => item.validatorID === stakingStore.selectedServiceToFilter.config?.serviceID)
+        .map((item) => item.key);
+
+      res = await Promise.all(
+        multiKeys.map(async (key) => {
+          return await ControlService.exitValidatorAccount({
+            pubkey: key,
+            serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
+          });
+        })
+      );
+
+      stakingStore.withdrawAndExitResponse = res.map((item, index) => {
+        let responseObj = {
+          pubkey: multiKeys[index],
+          code: null,
+          msg: item.msg,
+          flag: "rejected",
+        };
+
+        if (Array.isArray(item) && item.length > 0) {
+          const resObj = item[0];
+          responseObj.code = resObj.code;
+          responseObj.msg = resObj.msg;
+          responseObj.pubkey = resObj.pubkey || multiKeys[index];
+          responseObj.flag = resObj.code === 200 ? "approved" : "rejected";
+        }
+
+        return responseObj;
       });
     }
   } catch (e) {
     console.log(e);
   }
 };
-
 //****** End of Withdraw & Exit *******
 
 //****** Graffiti *******
@@ -669,10 +701,7 @@ const exportExitMessage = async () => {
 };
 
 const saveExitMessage = (data, type) => {
-  const content =
-    type === "single"
-      ? JSON.stringify(data, null, 2)
-      : data.map((entry) => JSON.stringify(entry, null, 2)).join("\n\n");
+  const content = type === "single" ? JSON.stringify(data, null, 2) : data.map((entry) => JSON.stringify(entry, null, 2)).join("\n\n");
 
   const fileName = type === "single" ? "single_exit_message.txt" : "multiple_exit_messages.txt";
   const blob = new Blob([content], { type: "application/json;charset=utf-8" });
@@ -744,6 +773,23 @@ const downloadFile = (data) => {
   window.URL.revokeObjectURL(url);
 };
 
+// ******  Key Color *******
+const getKeySetupColor = () => {
+  try {
+    stakingStore.keys = stakingStore?.keys.map((key) => {
+      const allSetups = useDeepClone(setupStore.allSetups);
+      const setup = allSetups.find((s) => s?.services.some((service) => service.id === key.validatorID));
+      const setupColor = setup ? setup.color : "default";
+      return {
+        ...key,
+        color: setupColor,
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching setup color:", error);
+  }
+};
+
 // ******  Remote Key *******
 
 const importRemoteKey = async (args) => {
@@ -792,4 +838,17 @@ const confirmImportRemoteKeys = async () => {
 };
 
 //****End of Client Commands Buttons ****
+
+watchEffect(() => {
+  if (stakingStore.keys.length > 0 && setupStore.allSetups.length > 0) {
+    getKeySetupColor();
+  }
+});
+
+//Lifecycle Hooks
+
+onUnmounted(() => {
+  setupStore.selectedSetup = null;
+  getServerView();
+});
 </script>

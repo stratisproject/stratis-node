@@ -1,13 +1,14 @@
 import { computed } from 'vue';
 <template>
   <div
-    class="w-full h-8 rounded-full grid grid-cols-24 items-center p-1 cursor-pointer animate__animated animate__slideInLeft animate__delay-0.5s"
+    class="w-full h-8 rounded-full grid grid-cols-24 items-center p-1 cursor-pointer animate__animated animate__slideInLeft animate__delay-0.5s mt-1"
     :class="[props.item?.selected ? 'bg-blue-400 ' : 'bg-gray-700 ', props.item?.showExitText ? 'bg-red-500 z-10' : '']"
     @click="selectKey(props.item)"
   >
     <div class="col-start-1 col-span-1 self-center overflow-hidden flex justify-start items-center">
       <div
-        class="w-6 h-6 rounded-full cursor-pointer bg-white p-[2px]"
+        class="w-6 h-6 rounded-full cursor-pointer p-[2px]"
+        :class="setupStore.getBGColor(props.item?.color)"
         @mouseenter="footerStore.cursorLocation = `${props.item.isRemote ? rm : pk}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
@@ -26,11 +27,9 @@ import { computed } from 'vue';
       @mouseenter="footerStore.cursorLocation = `${props.item.key}`"
       @mouseleave="footerStore.cursorLocation = ''"
     >
-      <span
-        class="text-center font-semibold text-xs"
-        :class="props.item?.selected ? 'text-gray-800' : 'text-gray-300'"
-        >{{ displayText }}</span
-      >
+      <span class="text-center font-semibold text-xs" :class="props.item?.selected ? 'text-gray-800' : 'text-gray-300'">{{
+        displayText
+      }}</span>
     </div>
 
     <img
@@ -41,12 +40,18 @@ import { computed } from 'vue';
       @mouseenter="footerStore.cursorLocation = `${serviceExpl}`"
       @mouseleave="footerStore.cursorLocation = ''"
     />
+
     <span
       class="col-start-9 col-end-12 self-center text-center text-xs text-gray-300 overflow-hidden"
       :class="props.item.selected ? 'text-gray-800' : 'text-gray-300'"
-      @mouseenter="footerStore.cursorLocation = `${activeExpl}`"
+      :style="{ color: getStatusColor }"
+      @mouseenter="
+        footerStore.cursorLocation = `${t('displayValidator.activeExpl', {
+          status: getKeyHandlingFooter,
+        })}`
+      "
       @mouseleave="footerStore.cursorLocation = ''"
-      >{{ props.item.activeSince }}</span
+      >{{ getKeyHandlingTime }}</span
     >
 
     <div
@@ -65,12 +70,22 @@ import { computed } from 'vue';
       >{{ props.item.balance }}</span
     >
 
-    <div
-      class="h-full col-start-18 col-span-full bg-[#151618] rounded-full grid grid-cols-5 items-center"
-      @mousedown.prevent
-    >
+    <div class="h-full col-start-17 col-span-full bg-[#151618] rounded-full grid grid-cols-6 items-center" @mousedown.prevent>
       <div
         class="col-start-1 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
+        @mouseenter="footerStore.cursorLocation = `Beaconcha.in`"
+        @mouseleave="footerStore.cursorLocation = ''"
+      >
+        <img
+          class="w-5 h-5 hover:scale-105 active:scale-95 cursor-pointer transition-all duration-150"
+          src="/img/icon/staking-page-icons/beaconcha.png"
+          alt="Icon"
+          @mousedown.prevent
+          @click="navToBeaconcha(props.item.network)"
+        />
+      </div>
+      <div
+        class="col-start-2 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
         @mouseenter="footerStore.cursorLocation = `${copyPub}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
@@ -83,7 +98,7 @@ import { computed } from 'vue';
         />
       </div>
       <div
-        class="col-start-2 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
+        class="col-start-3 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
         @mouseenter="footerStore.cursorLocation = `${renameVal}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
@@ -96,7 +111,7 @@ import { computed } from 'vue';
         />
       </div>
       <div
-        class="col-start-3 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
+        class="col-start-4 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
         @mouseenter="footerStore.cursorLocation = `${setFee}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
@@ -109,7 +124,7 @@ import { computed } from 'vue';
         />
       </div>
       <div
-        class="col-start-4 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
+        class="col-start-5 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
         @mouseenter="footerStore.cursorLocation = `${removVal}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
@@ -122,7 +137,7 @@ import { computed } from 'vue';
         />
       </div>
       <div
-        class="col-start-5 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
+        class="col-start-6 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
         @mouseenter="footerStore.cursorLocation = `${exitChain}`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
@@ -143,6 +158,7 @@ import { computed } from "vue";
 import { useStakingStore } from "@/store/theStaking";
 import { useFooter } from "@/store/theFooter";
 import i18n from "@/includes/i18n";
+import { useSetups } from "@/store/setups";
 
 const props = defineProps({
   item: {
@@ -153,6 +169,7 @@ const props = defineProps({
 
 const stakingStore = useStakingStore();
 const footerStore = useFooter();
+const setupStore = useSetups();
 
 const t = i18n.global.t;
 //Key Status Icons
@@ -168,7 +185,6 @@ const pk = t("displayValidator.pk");
 const rm = t("displayValidator.rm");
 const state = t("displayValidator.state");
 const serviceExpl = t("displayValidator.serviceExpl");
-const activeExpl = t("displayValidator.activeExpl");
 const balExpl = t("displayValidator.balExpl");
 const copyPub = t("displayValidator.copyPub");
 const setFee = t("displayValidator.setFee");
@@ -202,6 +218,72 @@ const getKeyState = computed(() => {
   }
 });
 
+const getKeyHandlingTime = computed(() => {
+  const item = props.item.status;
+  switch (item) {
+    case "active_online":
+    case "active":
+    case "active_offline":
+    case "slashed":
+      return props.item.activeSince;
+    case "pending":
+      return props.item.elgibilitySince;
+    case "exited":
+      return props.item.exitSince;
+    case "withdrawal":
+      return props.item.withdrawableSince;
+    case "NA":
+    case "loading":
+    default:
+      return "-";
+  }
+});
+
+const getKeyHandlingFooter = computed(() => {
+  const item = props.item.status;
+  switch (item) {
+    case "active_online":
+    case "active":
+      return "activated";
+    case "slashed":
+      return "slashed";
+
+    case "active_offline":
+      return "offline";
+    case "pending":
+      return "pending";
+    case "exited":
+      return "exited";
+    case "withdrawal":
+      return "withdrawable";
+    case "NA":
+      return "problems";
+    case "loading":
+      return "loading";
+    default:
+      return "-";
+  }
+});
+const getStatusColor = computed(() => {
+  const item = props.item.status;
+  switch (item) {
+    case "active_online":
+    case "active":
+    case "active_offline":
+    case "slashed":
+      return "#eee";
+    case "pending":
+      return "#06a5ff";
+    case "exited":
+    case "withdrawal":
+      return "#f00";
+    case "NA":
+    case "loading":
+    default:
+      return "yellow";
+  }
+});
+
 const formattedPubKey = computed(() => {
   const pubkey = props.item.key;
   if (pubkey && pubkey.length > 20) {
@@ -219,6 +301,22 @@ const displayText = computed(() => {
 });
 
 //Methods
+const navToBeaconcha = (network) => {
+  const urls = {
+    gnosis: "https://gnosischa.in/",
+    sepolia: "https://sepolia.beaconcha.in/",
+    mainnet: "https://beaconcha.in/",
+    holesky: "https://holesky.beaconcha.in/",
+  };
+
+  const url = urls[network] + "validator/" + props.item.key;
+  if (url) {
+    window.open(url, "_blank");
+  } else {
+    console.error("Invalid network provided");
+  }
+};
+
 const selectKey = (key) => {
   if (stakingStore.isGroupingAllowed) {
     const updatedKeys = stakingStore.keys.map((item) => {

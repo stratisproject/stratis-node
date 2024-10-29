@@ -1,5 +1,5 @@
 <template>
-  <aside class="flex flex-col items-center w-18 h-full bg-[#33393E]" @pointerdown.prevent.stop @mousedown.prevent.stop>
+  <aside class="flex flex-col items-center w-18 h-full custom-gradient" @pointerdown.prevent.stop @mousedown.prevent.stop>
     <div class="w-full max-h-[144px] grid grid-rows-3 mt-20 p-1 gap-y-5">
       <div
         class="col-span-1 row-start-1 row-end-2 p-1 rounded-md text-gray-700 focus:outline-nones transition-colors duration-200 hover:bg-[#23272a] flex justify-center items-center cursor-pointer"
@@ -46,7 +46,7 @@
       <Transition name="slide-fade">
         <button
           v-if="checkStatus && powerHovered"
-          class="w-fit h-9 absolute row-start-2 row-end-3 py-1 px-2 rounded-md duration-200 bg-gray-700 border border-gray-500 flex justify-between items-center z-10 space-x-2 ml-1"
+          class="w-fit h-9 absolute row-start-2 row-end-3 py-1 px-2 rounded-md duration-200 bg-gray-700 border border-gray-500 flex justify-between items-center z-10 space-x-2 ml-1 top-[33%]"
           @mouseleave="powerHovered = false"
           @click="showPowerModal"
         >
@@ -56,7 +56,7 @@
 
         <button
           v-else-if="!checkStatus && powerHovered"
-          class="w-fit h-9 absolute row-start-2 row-end-3 py-1 px-2 rounded-md duration-200 bg-gray-700 border border-gray-500 flex justify-between items-center z-10 space-x-2 ml-1"
+          class="w-fit h-9 absolute row-start-2 row-end-3 py-1 px-2 rounded-md duration-200 bg-gray-700 border border-gray-500 flex justify-between items-center z-10 space-x-2 ml-1 top-[33%]"
           @mouseleave="powerHovered = false"
           @click="showPowerModal"
         >
@@ -76,7 +76,7 @@
         </button>
         <button
           v-else
-          class="w-fit h-9 absolute row-start-3 row-end-4 py-1 px-2 rounded-md duration-200 bg-gray-700 border border-gray-500 flex justify-between items-center z-10 space-x-2 ml-1"
+          class="w-fit h-9 absolute row-start-2 row-end-3 py-1 px-2 rounded-md duration-200 bg-gray-700 border border-gray-500 flex justify-between items-center z-10 space-x-2 ml-1 top-[42%]"
           @mouseleave="exportHovered = false"
           @click="exportData"
         >
@@ -247,6 +247,10 @@ const hoverExport = () => {
 .slide-fade-leave-to {
   transform: translateX(30px);
   opacity: 0;
+}
+
+.custom-gradient {
+  background: linear-gradient(to bottom, #264744 0%, #33393e 20%);
 }
 
 .showManageBtn {
