@@ -155,7 +155,7 @@ watchEffect(() => {
 
 // Watchers
 watch(currentSlide, (val) => {
-  if (router.currentRoute.value.path === "/sync" || router.currentRoute.value.path === "/importingSyncing") {
+  if (router.currentRoute.value.path === "/sync" || router.currentRoute.value.path === "/importingSyncing" || router.currentRoute.value.path === "/oneClick/sync") {
     if (val !== prevVal.value) {
       prevVal.value = val;
       installStore.checkPointSync = "";
@@ -163,6 +163,10 @@ watch(currentSlide, (val) => {
     }
     if (installStore.selectedPreset.name === "archive") {
       val = 3;
+    }
+
+    if (val === 0) {
+      linkPicker(selectedLinks.value[0])
     }
 
     if (val === 1 && installStore.checkPointSync === "") {
