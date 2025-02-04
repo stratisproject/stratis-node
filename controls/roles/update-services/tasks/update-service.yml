@@ -42,7 +42,7 @@
   become: yes
 
 - name: Update configuration file modification time
-  copy:
+  file:
     path: "/etc/stereum/services/{{ item }}.yaml"
     state: touch
   when: service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
