@@ -11,8 +11,7 @@
 
 - name: Check service is in update list
   set_fact:
-    service_exists: true
-  when: service_configuration.service in update_data[service_configuration.network]
+    service_exists: "{{ service_configuration.service in update_data[service_configuration.network] | default({}) }}"
 
 - name: Extract docker image and version
   set_fact:
