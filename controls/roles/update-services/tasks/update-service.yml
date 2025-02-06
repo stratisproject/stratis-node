@@ -17,23 +17,23 @@
   set_fact:
     service_docker_image: "{{ service_configuration.image.split(':') | first }}"
     service_docker_image_tag: "{{ service_configuration.image.split(':') | last }}"
-  when: service_exists is defined and service_configuration.autoupdate
+  when: service_exists and service_configuration.autoupdate
 
 - name: Get latest version for this service
   set_fact:
     new_service_docker_image_tag: "{{ update_data[service_configuration.network][service_configuration.service] | default(update_data['stratis'][service_configuration.service]) | last }}"
-  when: service_exists is defined and service_configuration.autoupdate and service_configuration.service != 'CustomService'
+  when: service_exists and service_configuration.autoupdate and service_configuration.service != 'CustomService'
 
 - name: Build new image tag
   set_fact:
     new_service_configuration_fraction:
       image: "{{ service_docker_image }}:{{ new_service_docker_image_tag }}"
-  when: service_exists is defined and service_configuration.autoupdate
+  when: service_exists and service_configuration.autoupdate
 
 - name: Update configuration
   set_fact:
     new_service_configuration: "{{ service_configuration | combine(new_service_configuration_fraction) }}"
-  when: service_exists is defined and service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
+  when: service_exists and service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
 
 - name: Write configuration
   copy:
@@ -42,14 +42,14 @@
     owner: "root"
     group: "root"
     mode: 0644
-  when: service_exists is defined and service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
+  when: service_exists and service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
   become: yes
 
 - name: Update configuration file modification time
   file:
     path: "/etc/stereum/services/{{ item }}.yaml"
     state: touch
-  when: service_exists is defined and service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
+  when: service_exists and service_configuration.autoupdate and (new_service_docker_image_tag != service_docker_image_tag or new_service_docker_image_tag == 'latest')
   become: yes
 
 # EOF
