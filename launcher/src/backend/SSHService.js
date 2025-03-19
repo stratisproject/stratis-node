@@ -110,11 +110,20 @@ export class SSHService {
   getConnectionFromPool() {
     let conn;
     let maxVal = 5;
-    while (!conn && maxVal < 10) {
+    while (!conn && maxVal < 50) {
       conn = this.connectionPool.find((c) => c._chanMgr._count < maxVal);
       maxVal++;
     }
     return conn;
+  }
+
+  async getConnectionFromPoolWithCheck() {
+    let conn = this.getConnectionFromPool()
+    if (conn) {
+      return conn
+    }
+    await this.checkConnectionPool()
+    return this.getConnectionFromPool()
   }
 
   async connect(connectionInfo, currentWindow = null) {
@@ -220,8 +229,8 @@ export class SSHService {
   }
 
   async execCommand(command) {
-    return new Promise((resolve, reject) => {
-      let conn = this.getConnectionFromPool();
+    return new Promise(async (resolve, reject) => {
+      let conn = await this.getConnectionFromPoolWithCheck();
 
       const data = {
         rc: -1,

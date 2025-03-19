@@ -593,20 +593,26 @@ const withdrawValidatorKey = async () => {
     } else {
       // If multiple keys
       const multiKeys = stakingStore.keys
-
         .filter((item) => item.validatorID === stakingStore.selectedServiceToFilter.config?.serviceID)
         .map((item) => item.key);
 
-      res = await Promise.all(
-        multiKeys.map(async (key) => {
-          return await ControlService.exitValidatorAccount({
-            pubkey: key,
-            serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
-          });
-        })
-      );
+      let results = []
+      for (let i = 0; i < multiKeys.length; i += 50) {
+        const end = i+50
+        results = [
+          ...results,
+          ...(await Promise.all(
+            multiKeys.slice(i, end > multiKeys.length ? multiKeys.length : end).map(async (key) => {
+              return ControlService.exitValidatorAccount({
+                pubkey: key,
+                serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
+              });
+            })
+          )),
+        ]
+      }
 
-      stakingStore.withdrawAndExitResponse = res.map((item, index) => {
+      stakingStore.withdrawAndExitResponse = results.map((item, index) => {
         let responseObj = {
           pubkey: multiKeys[index],
           code: null,
@@ -684,14 +690,21 @@ const exportExitMessage = async () => {
         .filter((item) => item.validatorID === stakingStore.selectedServiceToFilter?.config?.serviceID)
         .map((item) => item.key);
 
-      const results = await Promise.all(
-        pubkeys.map(async (key) => {
-          return ControlService.getExitValidatorMessage({
-            pubkey: key,
-            serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
-          });
-        })
-      );
+      let results = []
+      for (let i = 0; i < pubkeys.length; i += 50) {
+        const end = i+50
+        results = [
+          ...results,
+          ...(await Promise.all(
+            pubkeys.slice(i, end > pubkeys.length ? pubkeys.length : end).map(async (key) => {
+              return ControlService.getExitValidatorMessage({
+                pubkey: key,
+                serviceID: stakingStore.selectedServiceToFilter.config?.serviceID,
+              });
+            })
+          )),
+        ]
+      }
 
       saveExitMessage(results, "multiple");
     }
