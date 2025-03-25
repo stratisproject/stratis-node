@@ -708,6 +708,10 @@ const selectedServiceToRemove = (item) => {
   );
   if (!itemExists) {
     manageStore.confirmChanges.push(confirmDelete);
+    let lssEjectorService
+    if (item.service === 'PrysmValidatorService' && (lssEjectorService = serviceStore.installedServices.find(s => s.service === 'LssEjectorService'))) {
+      selectedServiceToRemove(lssEjectorService)
+    }
   }
 };
 

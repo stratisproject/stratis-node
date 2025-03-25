@@ -9,6 +9,9 @@
       "GethService": [
           "latest"
       ],
+      "LSSEjector": [
+          "latest"
+      ],
       "PrometheusService": [
           "v2.47.2"
       ],
@@ -27,6 +30,9 @@
           "latest"
       ],
       "GethService": [
+          "latest"
+      ],
+      "LSSEjector": [
           "latest"
       ],
       "PrometheusService": [

@@ -16,6 +16,7 @@ import { MetricsExporterService } from "./ethereum-services/MetricsExporterServi
 import { ExternalConsensusService } from "./ethereum-services/ExternalConsensusService";
 import { ExternalExecutionService } from "./ethereum-services/ExternalExecutionService";
 import { CustomService } from "./ethereum-services/CustomService";
+import { LssEjectorService } from "./ethereum-services/LssEjectorService";
 import { ConfigManager } from "./ConfigManager";
 import YAML from "yaml";
 // import { file } from "jszip";
@@ -124,6 +125,8 @@ export class ServiceManager {
               services.push(ExternalExecutionService.buildByConfiguration(config));
             } else if (config.service == "CustomService") {
               services.push(CustomService.buildByConfiguration(config));
+            } else if (config.service == "LssEjectorService") {
+              services.push(LssEjectorService.buildByConfiguration(config))
             }
           } else {
             log.error("found configuration without service!");
@@ -745,6 +748,13 @@ export class ServiceManager {
           args.consensusClients, // TOOD: remove later!
           args.otherServices
         );
+      case "LssEjectorService":
+        return LssEjectorService.buildByUserInput(
+          args.network,
+          args.executionClients,
+          args.consensusClients,
+          args.otherServices,
+        )
     }
   }
 

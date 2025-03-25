@@ -51,7 +51,18 @@ const manageStore = useNodeManage();
 
 const getChanges = computed(() => manageStore.confirmChanges);
 
+const canCancelLssEjectorDelete = (item) => {
+  if (item.service.service !== 'LssEjectorService' || (item.service.service === 'LssEjectorService' && item.content !== 'DELETE')) {
+    return true
+  }
+
+  return !manageStore.confirmChanges.find(item => item.content === 'DELETE' && item.service.service === 'PrysmValidatorService')
+}
+
 const removeChange = (item) => {
+  if (!canCancelLssEjectorDelete(item)) {
+    return
+  }
   emit("remove-change", item);
 };
 
@@ -62,7 +73,11 @@ const contentBgColor = (item) => {
     if (content === "INSTALL") {
       bg = "bg-green-800 text-gray-100 text-sm font-semibold";
     } else if (content === "DELETE") {
-      bg = "bg-red-800 text-gray-300 text-sm font-semibold";
+      if (canCancelLssEjectorDelete(item)) {
+        bg = "bg-red-800 text-gray-300 text-sm font-semibold";
+      } else {
+        bg = "bg-gray-800 text-gray-300 text-sm font-semibold !cursor-not-allowed";
+      }
     } else if (content === "NETWORK") {
       bg = "bg-teal-700 text-gray-100 text-sm font-semibold min-w-[100px]";
     } else if (content === "SWITCH CLIENT") {

@@ -171,6 +171,14 @@ export class ValidatorAccountManager {
       let pubkeys = this.batches.map((b) => b.keystores.map((c) => JSON.parse(c).pubkey)).flat();
       const message = this.formatImportResult(pubkeys, data);
       this.nodeConnection.taskManager.otherTasksHandler(ref);
+
+      // Restart LssEjectorService if it is installed and is running
+      let serviceInfos = await this.serviceManager.readServiceInfos(services)
+      let lssEjectorClient = serviceInfos.find((service) => service.service === 'LssEjectorService');
+      if (lssEjectorClient) {
+        await this.serviceManager.restartService(lssEjectorClient)
+      }
+
       return message;
     } catch (err) {
       this.nodeConnection.taskManager.otherTasksHandler(ref, `Import Failed`, false, "Validator Import Failed:\n" + err);
@@ -239,6 +247,19 @@ export class ValidatorAccountManager {
       this.nodeConnection.taskManager.otherTasksHandler(ref, `Delete Keys`, true, result.stdout);
 
       this.nodeConnection.taskManager.otherTasksHandler(ref);
+
+      // Restart LssEjectorService if it is installed and is running
+      const serviceInfos = await this.serviceManager.readServiceInfos()
+      const lssEjectorClient = serviceInfos.find((service) => service.service === 'LssEjectorService');
+      const validatorsList = await this.listValidators(serviceID)
+      if (lssEjectorClient && lssEjectorClient.state === 'running') {
+        if (validatorsList.data.length > 0) {
+          await this.serviceManager.restartService(lssEjectorClient)
+        } else {
+          await this.serviceManager.manageServiceState(lssEjectorClient.config.serviceID, "stopped")
+        }
+      }
+
       //Return slashing protection data
       if (picked) return data.slashing_protection;
       return data;

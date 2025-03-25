@@ -4,7 +4,7 @@
     :client="client"
     :sub-title="getSubTitles"
     :confirm-text="getConfirmText"
-    :disabled-button="disabledButton || externalServiceConfirmBtn"
+    :disabled-button="disabledButton || externalServiceConfirmBtn || lssEjectorEmptyClients"
     click-outside-text="Click outside to cancel"
     @close-window="closeWindow"
     @confirm-action="confirmInstall"
@@ -21,7 +21,7 @@ import CustomModal from "./CustomModal.vue";
 import AddPanel from "./AddPanel";
 import AddConnection from "./AddConnection";
 import MevboostRelays from "./MevboostRelays.vue";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watchEffect } from "vue";
 import { useNodeManage } from "@/store/nodeManage";
 import { useClickInstall } from "@/store/clickInstallation";
 
@@ -42,6 +42,7 @@ const isAddPanelActivated = ref(false);
 const isRelaysActivated = ref(false);
 const isModifyActivated = ref(false);
 const disabledButton = ref(false);
+const lssEjectorEmptyClients = ref(false)
 // eslint-disable-next-line vue/no-setup-props-destructure
 const properties = ref({
   client: props.client,
@@ -68,6 +69,8 @@ const getConfirmText = computed(() => {
       (props.client.category === "validator" && !/Web3Signer/.test(props.client.service))
     ) {
       text = "next";
+    } else if (props.client.category === "service" && props.client.service === "LssEjectorService") {
+      text = "next"
     } else if (props.client.category === "service" && props.client.service !== "FlashbotsMevBoostService") {
       text = "confirm";
     } else if (props.client.category === "service" && props.client.service === "FlashbotsMevBoostService") {
@@ -92,6 +95,16 @@ const getSubTitles = computed(() => {
   }
   return text;
 });
+
+watchEffect(() => {
+  lssEjectorEmptyClients.value = (
+    props.client.service === "LssEjectorService" &&
+    getConfirmText.value === "confirm" &&
+    (properties.value.executionClients.length === 0 ||
+    properties.value.consensusClients.length === 0 ||
+    properties.value.otherServices.length === 0)
+  )
+})
 
 const externalServiceConfirmBtn = computed(() => {
   if (props.client.service === "ExternalExecutionService") {
@@ -118,7 +131,8 @@ const confirmInstall = () => {
     emit("confirmInstall", properties.value);
   } else if (
     (props.client.category === "consensus" && getConfirmText.value === "next") ||
-    (props.client.category === "validator" && getConfirmText.value === "next")
+    (props.client.category === "validator" && getConfirmText.value === "next") ||
+    (props.client.category === "service" && props.client.service === "LssEjectorService" && getConfirmText.value === "next")
   ) {
     isAddPanelActivated.value = false;
     isModifyActivated.value = true;

@@ -203,6 +203,9 @@ const toggleConnection = (option) => {
     (e) => (e.category === "consensus" || e.service === "CharonService") && e.isConnected
   );
   props.properties.otherServices = list.value.filter((e) => e.category === "service" && e.isConnected);
+  if (props.client.service === 'LssEjectorService') {
+    props.properties.otherServices = list.value.filter((e) => e.category === "validator" && e.isConnected);
+  }
 };
 
 const getConnectionOptions = () => {
@@ -231,6 +234,9 @@ const getConnectionOptions = () => {
     case "service":
       if (props.client.service === "FlashbotsMevBoostService") {
         return manageStore.newConfiguration.filter((e) => e.category === "consensus");
+      }
+      if (props.client.service === "LssEjectorService") {
+        return manageStore.newConfiguration.filter(e => e.category === "execution" || e.category === "consensus" || e.category === "validator")
       }
       break;
     default:
