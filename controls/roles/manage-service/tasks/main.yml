@@ -42,7 +42,7 @@
       changed_when: false
       become: yes
       when: (stereum.manage_service.state == "started" or stereum.manage_service.state == "restarted") and item.split(':') | first != '/' and item.split(':') | first != '/sys' and item.split(':') | first != '/proc'
-      with_items: "{{ stereum_service_configuration.volumes | reject('search', ':/engine.jwt') }}"
+      with_items: "{{ stereum_service_configuration.volumes | reject('search', ':/engine.jwt') | reject('search', 'all-accounts.keystore.json') | reject('search', 'wallet-password') }}"
 
     - name: Set directory permissions for engine.jwt
       file:
