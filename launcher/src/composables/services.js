@@ -190,6 +190,11 @@ async function updateStates() {
 }
 
 export async function useStateHandler(client) {
+  const canRestart = await checkCanRestartLssEjector(client)
+  if (!canRestart) {
+    return
+  }
+
   client.yaml = await ControlService.getServiceYAML(client?.config?.serviceID);
   if (!client.yaml.includes("isPruning: true")) {
     client.serviceIsPending = true;
@@ -211,6 +216,11 @@ export async function useStateHandler(client) {
 }
 
 export async function useRestartService(client) {
+  const canRestart = await checkCanRestartLssEjector(client)
+  if (!canRestart) {
+    return
+  }
+
   client.yaml = await ControlService.getServiceYAML(client?.config?.serviceID);
   if (!client.yaml.includes("isPruning: true")) {
     client.serviceIsPending = true;
@@ -218,4 +228,22 @@ export async function useRestartService(client) {
     client.serviceIsPending = false;
     updateStates();
   }
+}
+
+async function checkCanRestartLssEjector(client) {
+  if (client?.service !== 'LssEjectorService') {
+    return true
+  }
+
+  const serviceStore = useServices()
+  const prysmValidatorClient = serviceStore.installedServices.find(s => s.service === 'PrysmValidatorService')
+  if (!prysmValidatorClient) {
+    return false
+  }
+  const validatorsList = await ControlService.listValidators(prysmValidatorClient.config.serviceID)
+  if (validatorsList.data.length === 0) {
+    return false
+  }
+
+  return true
 }
