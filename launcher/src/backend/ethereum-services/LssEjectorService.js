@@ -33,8 +33,7 @@ export class LssEjectorService extends NodeService {
       new ServiceVolume(`${passwordsDir}/wallet-password`, walletPasswordDir, 'ro'),
     ]
 
-    // TODO set default value to a contract address in Stratis network when it is deployed
-    let stakingContractAddress = ''
+    let stakingContractAddress = '0x81c3fd1c1aD16e31bf75F4aF25a2f9390608C609'
     if (network === 'auroria') {
       stakingContractAddress = '0x0504D06711d02E6275e1724529a801441088f9f4'
     }
