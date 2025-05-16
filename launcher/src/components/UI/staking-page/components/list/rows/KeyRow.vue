@@ -73,7 +73,7 @@ import { computed } from 'vue';
     <div class="h-full col-start-17 col-span-full bg-[#151618] rounded-full grid grid-cols-6 items-center" @mousedown.prevent>
       <div
         class="col-start-1 col-span-1 w-full h-full rounded-md justify-self-center flex justify-center items-center"
-        @mouseenter="footerStore.cursorLocation = `Beaconcha.in`"
+        @mouseenter="footerStore.cursorLocation = `Beacon explorer`"
         @mouseleave="footerStore.cursorLocation = ''"
       >
         <img
@@ -303,10 +303,8 @@ const displayText = computed(() => {
 //Methods
 const navToBeaconcha = (network) => {
   const urls = {
-    gnosis: "https://gnosischa.in/",
-    sepolia: "https://sepolia.beaconcha.in/",
-    mainnet: "https://beaconcha.in/",
-    holesky: "https://holesky.beaconcha.in/",
+    mainnet: "https://beacon.stratisevm.com/",
+    auroria: "https://auroria.beacon.stratisevm.com/",
   };
 
   const url = urls[network] + "validator/" + props.item.key;

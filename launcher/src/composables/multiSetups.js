@@ -64,7 +64,7 @@ export const useMultiSetups = () => {
           };
         }),
 
-      isActive: false,
+      isActive: setupStore.editSetups.find(({ setupId }) => setupId === config.configId)?.isActive || false,
     }));
 
     return setups;

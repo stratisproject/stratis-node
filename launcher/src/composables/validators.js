@@ -20,7 +20,7 @@ export async function useListKeys(forceRefresh) {
         //refresh validaotr list
         let result = await ControlService.listValidators(client.config.serviceID);
 
-        if (!client.service.includes("Web3Signer")) {
+        if (!client.service.includes("Web3Signer") && client.yaml?.includes('external-signer')) {
           let resultRemote = await ControlService.listRemoteKeys(client.config.serviceID);
           let remoteKeys = resultRemote.data
             ? resultRemote.data.map((e) => {
