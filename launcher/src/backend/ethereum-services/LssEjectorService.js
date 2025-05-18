@@ -33,7 +33,7 @@ export class LssEjectorService extends NodeService {
       new ServiceVolume(`${passwordsDir}/wallet-password`, walletPasswordDir, 'ro'),
     ]
 
-    let stakingContractAddress = '0x81c3fd1c1aD16e31bf75F4aF25a2f9390608C609'
+    let stakingContractAddress = '0x16CFc478175C222a1eC558baAE290593f175514F'
     if (network === 'auroria') {
       stakingContractAddress = '0x0504D06711d02E6275e1724529a801441088f9f4'
     }
