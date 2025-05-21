@@ -303,7 +303,7 @@ const displayText = computed(() => {
 //Methods
 const navToBeaconcha = (network) => {
   const urls = {
-    mainnet: "https://beacon.stratisevm.com/",
+    stratis: "https://beacon.stratisevm.com/",
     auroria: "https://auroria.beacon.stratisevm.com/",
   };
 
