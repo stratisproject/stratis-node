@@ -9,7 +9,7 @@
       "GethService": [
           "latest"
       ],
-      "LSSEjector": [
+      "LssEjector": [
           "latest"
       ],
       "PrometheusService": [
@@ -32,7 +32,7 @@
       "GethService": [
           "latest"
       ],
-      "LSSEjector": [
+      "LssEjector": [
           "latest"
       ],
       "PrometheusService": [
