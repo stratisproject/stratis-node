@@ -74,6 +74,23 @@
       with_items: "{{ stereum_service_configuration.ports }}"
       when: stereum.manage_service.state != "restarted" and stereum_service_configuration.ports is defined
 
+    - name: Get engine.jwt stat
+      stat:
+        path: "{{ stereum_service_configuration.volumes | select('search', ':/engine.jwt') | first | split(':') | first }}"
+      become: yes
+      register: jwt_file
+      when:
+        - stereum.manage_service.state == "started" or stereum.manage_service.state == "restarted"
+        - stereum_service_configuration.service in ['GethService', 'PrysmBeaconService']
+        - stereum_service_configuration.volumes | select('search', ':/engine.jwt') | length > 0
+
+    - name: Delete engine.jwt directory
+      file:
+        path: "{{ jwt_file.stat.path }}"
+        state: absent
+      become: yes
+      when: jwt_file.stat.isdir is defined and jwt_file.stat.isdir
+
     - name: Generate JWT (execution client only)
       copy:
         content: "ff{{ query('community.general.random_string', override_all=hex_chars, length=62) | first }}"

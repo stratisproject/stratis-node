@@ -69,7 +69,9 @@ export class PrysmValidatorService extends NodeService {
       consensusClients //consensusClients
     );
 
-    if (network !== 'stratis') {
+    if (network === 'stratis') {
+      service.command.push(`--mainnet`)
+    } else {
       service.command.push(`--${network}`)
     }
 

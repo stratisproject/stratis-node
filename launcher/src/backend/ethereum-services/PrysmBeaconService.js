@@ -2,6 +2,11 @@ import { NodeService } from "./NodeService.js";
 import { ServicePortDefinition } from "./SerivcePortDefinition.js";
 import { ServiceVolume } from "./ServiceVolume.js";
 
+export const checkpointSyncUrls = {
+  stratis: 'https://checkpoint.stratisevm.com/',
+  auroria: 'https://auroria.checkpoint.stratisevm.com/',
+}
+
 export class PrysmBeaconService extends NodeService {
   static buildByUserInput(network, ports, dir, executionClients, mevboost, checkpointURL) {
     const service = new PrysmBeaconService();
@@ -68,7 +73,9 @@ export class PrysmBeaconService extends NodeService {
       mevboost //mevboost
     );
 
-    if (network !== 'stratis') {
+    if (network === 'stratis') {
+      service.command.push(`--mainnet`)
+    } else {
       service.command.push(`--${network}`)
     }
 

@@ -107,7 +107,7 @@ export class ValidatorAccountManager {
           await this.nodeConnection.sshService.exec(`chown 2000:2000 ${passwords_path}/wallet-password`);
           //Prysm - Create wallet for account(s)
           await this.nodeConnection.sshService.exec(
-            `docker exec stereum-${client.id} /app/cmd/validator/validator wallet create --wallet-dir=/opt/app/data/wallets --wallet-password-file=/opt/app/data/passwords/wallet-password --accept-terms-of-use --keymanager-kind=direct --auroria`
+            `docker exec stereum-${client.id} /app/cmd/validator/validator wallet create --wallet-dir=/opt/app/data/wallets --wallet-password-file=/opt/app/data/passwords/wallet-password --accept-terms-of-use --keymanager-kind=direct`
           );
 
           await this.nodeConnection.sshService.exec(`chown -R 2000:2000 ${wallet_path}`);

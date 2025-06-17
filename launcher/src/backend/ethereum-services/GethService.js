@@ -35,7 +35,9 @@ export class GethService extends NodeService {
       "--syncmode=full",
     ]
 
-    if (network !== 'stratis') {
+    if (network == 'stratis') {
+      command.unshift('--mainnet')
+    } else {
       command.unshift(`--${network}`)
     }
 

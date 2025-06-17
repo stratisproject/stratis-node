@@ -5,7 +5,7 @@ import { CharonService } from "./ethereum-services/CharonService";
 import { PrometheusService } from "./ethereum-services/PrometheusService";
 import { PrometheusNodeExporterService } from "./ethereum-services/PrometheusNodeExporterService";
 import { GrafanaService } from "./ethereum-services/GrafanaService";
-import { PrysmBeaconService } from "./ethereum-services/PrysmBeaconService";
+import { PrysmBeaconService, checkpointSyncUrls } from "./ethereum-services/PrysmBeaconService";
 import { PrysmValidatorService } from "./ethereum-services/PrysmValidatorService";
 import { FlashbotsMevBoostService } from "./ethereum-services/FlashbotsMevBoostService";
 import { ServicePort, servicePortProtocol, changeablePorts } from "./ethereum-services/ServicePort";
@@ -16,7 +16,7 @@ import { MetricsExporterService } from "./ethereum-services/MetricsExporterServi
 import { ExternalConsensusService } from "./ethereum-services/ExternalConsensusService";
 import { ExternalExecutionService } from "./ethereum-services/ExternalExecutionService";
 import { CustomService } from "./ethereum-services/CustomService";
-import { LssEjectorService } from "./ethereum-services/LssEjectorService";
+import { LssEjectorService, stakingContractAddresses } from "./ethereum-services/LssEjectorService";
 import { ConfigManager } from "./ConfigManager";
 import YAML from "yaml";
 // import { file } from "jszip";
@@ -1300,22 +1300,37 @@ export class ServiceManager {
       isString = true;
       command = command.replaceAll(/\n/gm, "").replaceAll(/\s\s+/gm, " ").split(" ");
     }
+    if (newNetwork === 'stratis') {
+      newNetwork = 'mainnet'
+    }
     if (service.service === "FlashbotsMevBoostService") {
       command = service.entrypoint;
-      let index = command.findIndex((c) => /^-(stratis|auroria$)/.test(c));
+      let index = command.findIndex((c) => /^-(mainnet|stratis|auroria$)/.test(c));
       command[index] = "-" + newNetwork;
       index = command.findIndex((c) => c === "-relays") + 1;
       command[index] = '""';
     } else if (service.service === "PrysmBeaconService") {
-      let index = command.findIndex((c) => /--(stratis|auroria)/.test(c));
-      command[index] = "--" + newNetwork;
+      let networkIndex = command.findIndex((c) => /--(mainnet|stratis|auroria)/.test(c));
+      if (networkIndex !== -1) {
+        command[networkIndex] = "--" + newNetwork;
+      } else {
+        command.push(`--${newNetwork}`)
+      }
+
+      const checkpointSyncIndex = command.findIndex(c => /--checkpoint-sync-url/.test(c))
+      if (checkpointSyncIndex !== -1) {
+        command[checkpointSyncIndex] = `--checkpoint-sync-url=${checkpointSyncUrls[newNetwork === 'mainnet' ? 'stratis' : newNetwork]}`
+      }
+    } else if (service.service === 'LssEjectorService') {
+      const index = command.findIndex(c => /--staking_address/.test(c))
+      command[index] = `--staking_address=${stakingContractAddresses[newNetwork === 'mainnet' ? 'stratis' : newNetwork]}`
     } else {
-      command = command.map((c) => {
-        if (/stratis|auroria/.test(c)) {
-          c = c.replace(/stratis|auroria/, newNetwork);
-        }
-        return c;
-      });
+      let networkIndex = command.findIndex((c) => /--(mainnet|stratis|auroria)/.test(c));
+      if (networkIndex !== -1) {
+        command[networkIndex] = "--" + newNetwork;
+      } else {
+        command.push(`--${newNetwork}`)
+      }
     }
     if (isString) return command.join(" ").trim();
     return command;
@@ -1332,6 +1347,15 @@ export class ServiceManager {
       service.network = newNetwork;
     }
     await this.createKeystores(services);
+    services.sort((a, b) => {
+      if (a.service === 'GethService' || b.service === 'LssEjectorService') {
+        return -1
+      } else if (b.service === 'GethService' || a.service === 'LssEjectorService') {
+        return 1
+      }
+
+      return 0
+    })
     await Promise.all(
       services.map(async (service) => {
         await this.nodeConnection.writeServiceConfiguration(service.buildConfiguration());

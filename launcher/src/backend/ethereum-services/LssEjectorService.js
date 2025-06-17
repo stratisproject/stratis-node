@@ -1,6 +1,11 @@
 import { NodeService } from "./NodeService";
 import { ServiceVolume } from "./ServiceVolume";
 
+export const stakingContractAddresses = {
+  stratis: '0x16CFc478175C222a1eC558baAE290593f175514F',
+  auroria: '0x0504D06711d02E6275e1724529a801441088f9f4',
+}
+
 export class LssEjectorService extends NodeService {
   static buildByUserInput(network, executionClients, consensusClients, otherServices) {
     const service = new LssEjectorService();
@@ -16,8 +21,8 @@ export class LssEjectorService extends NodeService {
     })
     .join();
 
-    const allAccountsKeystoreDir = '/config/all-accounts.keystore.json'
-    const walletPasswordDir = '/config/wallet-password'
+    const allAccountsKeystoreDir = '/config/wallets'
+    const walletPasswordDir = '/config/passwords'
 
     const validatorService = otherServices.find(s => s.service.includes('PrysmValidator'))
 
@@ -29,14 +34,9 @@ export class LssEjectorService extends NodeService {
     ).destinationPath
 
     const volumes = [
-      new ServiceVolume(`${walletsDir}/direct/accounts/all-accounts.keystore.json`, allAccountsKeystoreDir, 'ro'),
-      new ServiceVolume(`${passwordsDir}/wallet-password`, walletPasswordDir, 'ro'),
+      new ServiceVolume(walletsDir, allAccountsKeystoreDir, 'ro'),
+      new ServiceVolume(passwordsDir, walletPasswordDir, 'ro'),
     ]
-
-    let stakingContractAddress = '0x16CFc478175C222a1eC558baAE290593f175514F'
-    if (network === 'auroria') {
-      stakingContractAddress = '0x0504D06711d02E6275e1724529a801441088f9f4'
-    }
 
     service.init(
       "LssEjectorService", //service
@@ -49,9 +49,9 @@ export class LssEjectorService extends NodeService {
         '--all_accounts_file',
         `--consensus_endpoint=${consensusEndpoint}`,
         `--execution_endpoint=${executionEndpoint}`,
-        `--keys_dir=${allAccountsKeystoreDir}`,
-        `--keystore_password_file=${walletPasswordDir}`,
-        `--staking_address=${stakingContractAddress}`
+        `--keys_dir=${allAccountsKeystoreDir}/direct/accounts/all-accounts.keystore.json`,
+        `--keystore_password_file=${walletPasswordDir}/wallet-password`,
+        `--staking_address=${stakingContractAddresses[network]}`
       ], // command
       ["lss-ejector"], // entrypoint
       null, // env
