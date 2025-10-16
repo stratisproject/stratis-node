@@ -76,7 +76,7 @@
               </div>
             </div>
             <div class="go-to-link">
-              {{ $t("notifModal.goTo") }}<span @click="openBeaconcha()">https://beacon.stratisevm.com/user/settings#app</span>
+              {{ $t("notifModal.goTo") }}<span @click="openBeaconcha()">https://beacon.xertra.com/user/settings#app</span>
             </div>
             <div class="enter-box">
               <div class="enter-input">
@@ -255,7 +255,7 @@ export default {
       }
     },
     openBeaconcha() {
-      let url = "https://beacon.stratisevm.com/user/settings#app";
+      let url = "https://beacon.xertra.com/user/settings#app";
       window.open(url, "_blank");
     },
   },

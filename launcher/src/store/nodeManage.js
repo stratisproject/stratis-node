@@ -75,11 +75,11 @@ export const useNodeManage = defineStore("nodeManage", {
       networkList: [
         {
           id: 1,
-          name: "Stratis Mainnet",
+          name: "Xertra Mainnet",
           network: "stratis",
-          icon: "/img/icon/network-icons/stratis-mainnet.png",
+          icon: "/img/icon/network-icons/xertra-mainnet.png",
           currencyIcon: "/img/icon/control-page-icons/mainnet-currency-symbol.png",
-          dataEndpoint: "https://beacon.stratisevm.com/api/v1",
+          dataEndpoint: "https://beacon.xertra.com/api/v1",
           support: ["staking"],
         },
 
@@ -87,9 +87,9 @@ export const useNodeManage = defineStore("nodeManage", {
           id: 2,
           name: "Auroria Testnet",
           network: "auroria",
-          icon: "/img/icon/network-icons/auroria.jpg",
+          icon: "/img/icon/network-icons/auroria.png",
           currencyIcon: "/img/icon/control-page-icons/network-currency-icons/network-currency-icons-goerli-testnet.png",
-          dataEndpoint: "https://auroria.stratisevm.com/api/v1",
+          dataEndpoint: "https://auroria.beacon.xertra.com/api/v1",
           support: ["staking"],
         },
       ],

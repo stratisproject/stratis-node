@@ -935,7 +935,7 @@
     "readConeq": "ICH HABE DEN TEXT GELESEN UND BIN MIR DER FOLGEN BEWUSST"
   },
   "welcomePage": {
-    "logedOut": "Sie werden vom Stratis Launcher abgemeldet. Sie müssen sich erneut anmelden, um auf Ihren Knoten zuzugreifen.",
+    "logedOut": "Sie werden vom Xertra Launcher abgemeldet. Sie müssen sich erneut anmelden, um auf Ihren Knoten zuzugreifen.",
     "logOut": "Abmelden",
     "logOutMsg": "Sind Sie sicher, dass Sie sich abmelden möchten?",
     "logOutBtn": "Abmelden",

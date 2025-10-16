@@ -303,8 +303,8 @@ const displayText = computed(() => {
 //Methods
 const navToBeaconcha = (network) => {
   const urls = {
-    stratis: "https://beacon.stratisevm.com/",
-    auroria: "https://auroria.beacon.stratisevm.com/",
+    stratis: "https://beacon.xertra.com/",
+    auroria: "https://auroria.beacon.xertra.com/",
   };
 
   const url = urls[network] + "validator/" + props.item.key;

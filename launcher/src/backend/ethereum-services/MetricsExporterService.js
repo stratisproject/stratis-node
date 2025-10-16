@@ -18,7 +18,7 @@ export class MetricsExporterService extends NodeService {
       image, // image,
       "latest", // imageVersion,
       [
-        `--server.address=https://beacon.stratisevm.com/api/v1/client/metrics?apikey=<API_KEY>&machine=<MACHINE_NAME>`,
+        `--server.address=https://beacon.xertra.com/api/v1/client/metrics?apikey=<API_KEY>&machine=<MACHINE_NAME>`,
         `--system.partition=/host/rootfs`,
         `--beaconnode.type=prysm`,
         `--beaconnode.address=http://stereum-<SERVICE_ID>:8080/metrics`,

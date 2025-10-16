@@ -6,11 +6,11 @@ import * as path from "path";
 export const networks = {
   stratis: {
     name: "stratis",
-    dataEndpoint: "https://beacon.stratisevm.com/api/v1",
+    dataEndpoint: "https://beacon.xertra.com/api/v1",
   },
   auroria: {
     name: "auroria",
-    dataEndpoint: "https://auroria.beacon.stratisevm.com/api/v1",
+    dataEndpoint: "https://auroria.beacon.xertra.com/api/v1",
   },
 };
 

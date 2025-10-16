@@ -112,16 +112,16 @@ export const useClickInstall = defineStore("clickInstallation", {
       stratis: [
         {
           id: 1,
-          name: "Stratis",
-          icon: "/img/icon/network-icons/stratis-mainnet.png",
+          name: "Xertra",
+          icon: "/img/icon/network-icons/xertra-mainnet.png",
           url: "https://checkpoint.stratisevm.com/",
         },
       ],
       auroria: [
         {
           id: 1,
-          name: "Stratis Auroria",
-          icon: "/img/icon/network-icons/auroria.jpg",
+          name: "Auroria Testnet",
+          icon: "/img/icon/network-icons/auroria.png",
           url: "https://auroria.checkpoint.stratisevm.com/",
         },
       ],

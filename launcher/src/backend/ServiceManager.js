@@ -1745,7 +1745,7 @@ export class ServiceManager {
       let metricsExporter = newServices.filter(({ id: id1 }) => !services.some(({ id: id2 }) => id2 === id1))[0];
       metricsExporter.command = [];
       metricsExporter.command.push(
-        `--server.address=https://beacon.stratisevm.com/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`,
+        `--server.address=https://beacon.xertra.com/api/v1/client/metrics?apikey=${data.apiKey}&machine=${data.machineName}`,
         `--system.partition=/host/rootfs`
       );
       if (selectedValidator.service == "PrysmValidatorService") {
